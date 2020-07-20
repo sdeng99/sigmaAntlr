@@ -4,7 +4,10 @@ A reimplementation of Sigma using the ANTLR parser and storing formulas in an ab
 
 Grammar
 ==========================
-java -Xmx500M -cp antlr-4.8-complete.jar:$CLASSPATH org.antlr.v4.Tool -package com.articulate.sigma.parsing Suokif.g4
+cd /home/user/workspace/sigmaAntlr/src/java/com/articulate/sigma/parsing
+
+java -Xmx500M -cp antlr-4.8-complete.jar:$CLASSPATH org.antlr.v4.Tool
+  -package com.articulate.sigma.parsing /home/user/workspace/sigmaAntlr/Suokif.g4
 
 if you want to compile the grammar manually rather than running ant -
 

@@ -1,11 +1,11 @@
-pacakge com.articulate.sigma.parsing;
+package com.articulate.sigma.parsing;
 
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
 
 public class SuokifApp {
 
-    public static void process(ANTLRInputStream inputStream) {
+    public static void process(CodePointCharStream inputStream) {
 
         SuokifLexer suokifLexer = new SuokifLexer(inputStream);
         CommonTokenStream commonTokenStream = new CommonTokenStream(suokifLexer);
@@ -19,12 +19,13 @@ public class SuokifApp {
 
         String input = "(likes John Mary) ; and here's a comment\n";
         System.out.println(input);
-        ANTLRInputStream inputStream = new ANTLRInputStream(input);
+        CodePointCharStream inputStream = CharStreams.fromString(input);
         process(inputStream);
         System.out.println();
+
         input = "(=> (and (minValue ?R ?ARG ?N) (?R @ARGS) (equal ?VAL (ListOrderFn (ListFn @ARGS) ?ARG))) (greaterThan ?VAL ?N))";
         System.out.println(input);
-        inputStream = new ANTLRInputStream(input);
+        inputStream = CharStreams.fromString(input);
         process(inputStream);
         System.out.println();
     }
