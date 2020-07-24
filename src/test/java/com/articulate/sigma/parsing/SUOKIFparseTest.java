@@ -27,16 +27,16 @@ public class SUOKIFparseTest {
     @Test
     public void test1() {
 
-        String input = "(likes John Mary) ; and here's a comment\n";
+        String input = "(likes John Mary)\n; and here's a comment\n(part Wheel1 Car2)\n";
 
         HashMap<Integer,FormulaAST> hm = process(input);
         StringBuilder sb = new StringBuilder();
         for (Formula f : hm.values()) {
             f.printCaches();
-            sb.append(f.getFormula() + " ");
+            sb.append(f.getFormula() + "\n");
         }
         System.out.println("result: " + sb);
-        assertEquals(input,sb.toString().trim());
+        assertEquals(input,sb.toString());
         System.out.println();
     }
 
