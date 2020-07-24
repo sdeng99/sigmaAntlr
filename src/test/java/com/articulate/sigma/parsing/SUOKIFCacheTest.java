@@ -33,10 +33,11 @@ public class SUOKIFCacheTest {
         String input = "(likes John Mary)";
 
         HashMap<Integer,FormulaAST> hm = process(input);
-        StringBuilder sb = new StringBuilder();
         Formula f = hm.values().iterator().next();
-        System.out.println("result: " + f.termCache);
-        assertEquals("[likes, John, Mary]",f.termCache.toString());
+        f.printCaches();
+        System.out.println("termCache: " + f.termCache);
+        String expected = "[John, likes, Mary]";
+        assertEquals(expected,f.termCache.toString());
         System.out.println();
     }
 
@@ -47,12 +48,54 @@ public class SUOKIFCacheTest {
 
         String input = "(=> (and (minValue ?R ?ARG ?N) (?R @ARGS) (equal ?VAL (ListOrderFn (ListFn @ARGS) ?ARG))) (greaterThan ?VAL ?N))";
         HashMap<Integer,FormulaAST> hm = process(input);
-        StringBuilder sb = new StringBuilder();
-        for (Formula f : hm.values()) {
-            sb.append(f.getFormula() + " ");
+        FormulaAST f = hm.values().iterator().next();
+        f.printCaches();
+        String expected = "[minValue, ListOrderFn, ListFn, greaterThan]";
+        assertEquals(expected,f.termCache.toString());
+        expected = "[@ARGS]";
+        assertEquals(expected,f.rowVarCache.toString());
+        expected = "\tListOrderFn\t1: (ListFn@ARGS), 2: ?ARG, \n";
+        StringBuffer sb = new StringBuffer();
+        String pred = "ListOrderFn";
+        sb.append("\t" + pred + "\t");
+        for (Integer i : f.argMap.get(pred).keySet()) {
+            sb.append(i + ": ");
+            for (SuokifParser.ArgumentContext c : f.argMap.get(pred).get(i)) {
+                sb.append(c.getText() + ", ");
+            }
         }
-        System.out.println("result: " + sb);
-        assertEquals(input,sb.toString().trim());
+        sb.append("\n");
+        assertEquals(expected,sb.toString());
+        System.out.println();
+    }
+
+    /** ***************************************************************
+     */
+    @Test
+    public void test3() {
+
+        String input = "(=>\n" +
+                "    (and\n" +
+                "        (attribute ?SYLLABLE Stressed)\n" +
+                "        (instance ?WORD Word)\n" +
+                "        (part ?SYLLABLE ?WORD))\n" +
+                "    (not\n" +
+                "        (exists (?SYLLABLE2)\n" +
+                "            (and\n" +
+                "                (instance ?SYLLABLE2 Syllable)\n" +
+                "                (part ?SYLLABLE2 ?WORD)\n" +
+                "                (attribute ?SYLLABLE2 Stressed)\n" +
+                "                (not\n" +
+                "                    (equal ?SYLLABLE2 ?SYLLABLE))))))";
+        HashMap<Integer,FormulaAST> hm = process(input);
+        StringBuilder sb = new StringBuilder();
+        Formula f = hm.values().iterator().next();
+        f.printCaches();
+        String expected = "[?SYLLABLE2]";
+        assertEquals(expected,f.existVarsCache.toString());
+        assertEquals(expected,f.quantVarsCache.toString());
+        expected = "[?WORD, ?SYLLABLE]";
+        assertEquals(expected,f.unquantVarsCache.toString());
         System.out.println();
     }
 }
