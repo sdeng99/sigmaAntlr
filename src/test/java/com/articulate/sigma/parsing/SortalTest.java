@@ -13,7 +13,7 @@ import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
 
-public class TypeTest {
+public class SortalTest {
 
     public static KB kb = null;
 
@@ -45,10 +45,13 @@ public class TypeTest {
         StringBuilder sb = new StringBuilder();
         FormulaAST f = hm.values().iterator().next();
         f.printCaches();
-        String result = f.varmap.toString().trim();
-        System.out.println("Result: " + result);
-        System.out.println("expected: " + expected);
-        if (result.equals(expected))
+        Sortals s = new Sortals(kb);
+        String result = s.addSortals(f);
+        Formula resultf = new Formula(result);
+        System.out.println("Result: " + resultf);
+        Formula expectedf = new Formula(expected);
+        System.out.println("expected: " +expectedf);
+        if (resultf.equals(expectedf))
             System.out.println("Success");
         else
             System.out.println("FAIL");
@@ -62,9 +65,20 @@ public class TypeTest {
 
         System.out.println("test1()");
         String input = "(=> (and (minValue ?R ?ARG ?N) (?R @ARGS) (equal ?VAL (ListOrderFn (ListFn @ARGS) ?ARG))) (greaterThan ?VAL ?N))";
-        String expected = "{?R=[Predicate], ?ARG=[Integer, PositiveInteger], ?N=[Quantity], ?VAL=[Entity, Quantity]}";
+        String expected = "(=> " +
+                "(and " +
+                  "(instance ?R Predicate)\n" +
+                "    (instance ?ARG PositiveInteger)\n" +
+                "    (instance ?N Quantity)\n" +
+                "    (instance ?VAL Quantity)) " +
+                  "(=> " +
+                    "(and " +
+                    "(minValue ?R ?ARG ?N) " +
+                    "(?R @ARGS) " +
+                    "(equal ?VAL (ListOrderFn (ListFn @ARGS) ?ARG))) " +
+                    "(greaterThan ?VAL ?N)))";
         String result = process(input,expected);
-        assertEquals(expected,result);
+        assertEquals(new Formula(expected),new Formula(result));
     }
 
     /** ***************************************************************
@@ -79,8 +93,18 @@ public class TypeTest {
                 "    (=>\n" +
                 "      (equal ?OBJ (MereologicalSumFn ?PART1 ?PART2))\n" +
                 "      (connected ?PART1 ?PART2))))";
-        String expected = "{?OBJ=[SelfConnectedObject, Entity, Object], ?PART2=[Object], ?PART1=[Object]}";
+        String expected = "(=> " +
+                "(and " +
+                  "(instance ?PART2 Object) " +
+                  "(instance ?PART1 Object)) " +
+                "(<=> " +
+                  "(instance ?OBJ SelfConnectedObject) " +
+                  "(forall (?PART1 ?PART2) " +
+                    "(=> " +
+                      "(equal ?OBJ (MereologicalSumFn ?PART1 ?PART2)) " +
+                      "(connected ?PART1 ?PART2)))))";
         String result = process(input,expected);
-        assertEquals(expected,result);
+        assertEquals(new Formula(expected),new Formula(result));
+
     }
 }

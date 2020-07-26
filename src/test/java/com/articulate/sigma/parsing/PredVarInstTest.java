@@ -10,10 +10,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.HashMap;
+import java.util.HashSet;
 
 import static org.junit.Assert.assertEquals;
 
-public class TypeTest {
+public class PredVarInstTest {
 
     public static KB kb = null;
 
@@ -45,14 +46,20 @@ public class TypeTest {
         StringBuilder sb = new StringBuilder();
         FormulaAST f = hm.values().iterator().next();
         f.printCaches();
-        String result = f.varmap.toString().trim();
+        Sortals s = new Sortals(kb);
+        String form = s.addSortals(f);
+        f.setFormula(form);
+        PredVarInst pvi = new PredVarInst(kb);
+        HashSet<FormulaAST> result = pvi.processOne(f);
+        //Formula resultf = new Formula(result);
         System.out.println("Result: " + result);
-        System.out.println("expected: " + expected);
-        if (result.equals(expected))
+        /*Formula expectedf = new Formula(expected);
+        System.out.println("expected: " +expectedf);
+        if (resultf.equals(expectedf))
             System.out.println("Success");
         else
-            System.out.println("FAIL");
-        return result;
+            System.out.println("FAIL");*/
+        return null;
     }
 
     /** ***************************************************************
@@ -62,25 +69,20 @@ public class TypeTest {
 
         System.out.println("test1()");
         String input = "(=> (and (minValue ?R ?ARG ?N) (?R @ARGS) (equal ?VAL (ListOrderFn (ListFn @ARGS) ?ARG))) (greaterThan ?VAL ?N))";
-        String expected = "{?R=[Predicate], ?ARG=[Integer, PositiveInteger], ?N=[Quantity], ?VAL=[Entity, Quantity]}";
+        String expected = "(=> " +
+                "(and " +
+                "(instance ?R Predicate)\n" +
+                "    (instance ?ARG PositiveInteger)\n" +
+                "    (instance ?N Quantity)\n" +
+                "    (instance ?VAL Quantity)) " +
+                "(=> " +
+                "(and " +
+                "(minValue ?R ?ARG ?N) " +
+                "(?R @ARGS) " +
+                "(equal ?VAL (ListOrderFn (ListFn @ARGS) ?ARG))) " +
+                "(greaterThan ?VAL ?N)))";
         String result = process(input,expected);
-        assertEquals(expected,result);
+        assertEquals(new Formula(expected),new Formula(result));
     }
 
-    /** ***************************************************************
-     */
-    @Test
-    public void test2() {
-
-        System.out.println("test2()");
-        String input = "(<=>\n" +
-                "  (instance ?OBJ SelfConnectedObject)\n" +
-                "  (forall (?PART1 ?PART2)\n" +
-                "    (=>\n" +
-                "      (equal ?OBJ (MereologicalSumFn ?PART1 ?PART2))\n" +
-                "      (connected ?PART1 ?PART2))))";
-        String expected = "{?OBJ=[SelfConnectedObject, Entity, Object], ?PART2=[Object], ?PART1=[Object]}";
-        String result = process(input,expected);
-        assertEquals(expected,result);
-    }
 }

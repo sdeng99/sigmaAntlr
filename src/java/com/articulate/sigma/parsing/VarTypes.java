@@ -31,7 +31,14 @@ public class VarTypes {
      * argument : (sentence | term) ;
      */
     public String findTypeOfFunterm(SuokifParser.FuntermContext input) {
-        return null;
+
+        System.out.println("VarTypes.findTypeOfFunterm(): input: " + input);
+        String type = "Entity";
+        if (input.FUNWORD() != null) {
+            String funword = input.FUNWORD().toString();
+            type = kb.kbCache.getRange(funword);
+        }
+        return type;
     }
 
     /** ***************************************************************
@@ -39,6 +46,7 @@ public class VarTypes {
      */
     public String findTypeOfTerm(SuokifParser.TermContext input, String sigType) {
 
+        System.out.println("VarTypes.findTypeOfTerm(): input: " + input);
         String type = null;
         for (ParseTree c : ((SuokifParser.TermContext) input).children) {
             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$FuntermContext"))
@@ -49,13 +57,66 @@ public class VarTypes {
             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$StringContext")) {
                 if (!sigType.equals("SymbolicString"))
                     System.out.println("error in findTypeOfTerm(): signature doesn't allow string " + c.getText());
+                else
+                    type = "SymbolicString";
             }
             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$NumberContext")) {
                 if (!kb.kbCache.subclassOf(sigType,"Number"))
                     System.out.println("error in findTypeOfTerm(): signature doesn't allow number " + c.getText());
+                else
+                    type = "Number";
             }
         }
-        return null;
+        return type;
+    }
+
+    /** ***************************************************************
+     * Go through the equation map of a formula.  If the argument is a variable,
+     * add the type to the variable type map (varTypeMap) by finding the
+     * type of the other argument
+     *
+     * eqsent : '(' 'equal' term term ')' ;
+     * term : (funterm | variable | string | number | FUNWORD | IDENTIFIER ) ;
+     */
+    public void findEquationType(FormulaAST f) {
+
+        System.out.println("VarTypes.findEquationType(): input: " + f);
+        for (ArrayList<SuokifParser.TermContext> pair : f.eqList) {
+            String var = null;
+            String type = null;
+            SuokifParser.TermContext arg1 = pair.get(0);
+            SuokifParser.TermContext arg2 = pair.get(1);
+            ParseTree child1 = arg1.children.iterator().next();
+            ParseTree child2 = arg2.children.iterator().next();
+            if (child1.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$FuntermContext")) {
+                String funterm = ((SuokifParser.FuntermContext) child1).FUNWORD().toString();
+                type = kb.kbCache.getRange(funterm);
+            }
+            else if (child1.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$VariableContext")) {
+                var = child1.getText();
+            }
+            else if (child1.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$StringContext"))
+                type = "SymbolicString";
+            else if (child1.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$NumberContext"))
+                type = "Number";
+            else
+                System.out.println("assignment not allowed in " + f);
+            if (child2.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$FuntermContext")) {
+                String funterm = ((SuokifParser.FuntermContext) child2).FUNWORD().toString();
+                type = kb.kbCache.getRange(funterm);
+            }
+            else if (child2.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$VariableContext")) {
+                var = child2.getText();
+            }
+            else if (child2.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$StringContext"))
+                type = "SymbolicString";
+            else if (child2.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$NumberContext"))
+                type = "Number";
+            else
+                System.out.println("assignment not allowed in " + f);
+            System.out.println("var&type: " + var + " : " + type);
+            FormulaPreprocessor.addToMap(f.varmap,var, type);
+        }
     }
 
     /** ***************************************************************
@@ -132,7 +193,9 @@ public class VarTypes {
      */
     public void findTypes() {
 
-        for (FormulaAST f : formulas)
+        for (FormulaAST f : formulas) {
             findType(f);
+            findEquationType(f);
+        }
     }
 }

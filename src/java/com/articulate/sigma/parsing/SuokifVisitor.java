@@ -5,6 +5,8 @@ import org.antlr.v4.runtime.misc.*;
 import org.antlr.v4.runtime.tree.*;
 import com.articulate.sigma.*;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -118,6 +120,7 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
             pred = context.IDENTIFIER().toString();
             sb.append(pred + " ");
             result.termCache.add(pred);
+            result.relation = pred;
             System.out.println("identifier: " + pred);
         }
         for (ParseTree c : context.children) {
@@ -144,10 +147,14 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
                 result.mergeFormulaAST(f);
             }
         }
-        if (pred.equals("instance") && Formula.isVariable(argList.get(0)) && Formula.isTerm(argList.get(1)))
-            FormulaPreprocessor.addToMap(result.varmap,argList.get(0),argList.get(1));
-        if (pred.equals("subclass") && Formula.isVariable(argList.get(0)) && Formula.isTerm(argList.get(1)))
-            FormulaPreprocessor.addToMap(result.varmap,argList.get(0),argList.get(1) + "+");
+        if (pred.equals("instance") && Formula.isVariable(argList.get(0)) && Formula.isTerm(argList.get(1))) {
+            FormulaPreprocessor.addToMap(result.varmap, argList.get(0), argList.get(1));
+            result.explicitTypes.put(argList.get(0), argList.get(1));
+        }
+        if (pred.equals("subclass") && Formula.isVariable(argList.get(0)) && Formula.isTerm(argList.get(1))) {
+            FormulaPreprocessor.addToMap(result.varmap, argList.get(0), argList.get(1) + "+");
+            result.explicitTypes.put(argList.get(0), argList.get(1) + "+");
+        }
         result.argMap.put(pred,args);
         sb.deleteCharAt(sb.length()-1);  // delete trailing space
         sb.append(")");
@@ -340,6 +347,8 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
 
     /** ***************************************************************
      * eqsent : '(' 'equal' term term ')' ;
+     * argument : (sentence | term) ;
+     * term : (funterm | variable | string | number | FUNWORD | IDENTIFIER ) ;
      */
     public FormulaAST visitEqsent(SuokifParser.EqsentContext context) {
        
@@ -350,18 +359,25 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         System.out.println("text: " + context.getText());
         FormulaAST f1 = null;
         FormulaAST f2 = null;
+        SuokifParser.TermContext c1 = null;
+        SuokifParser.TermContext c2 = null;
         for (ParseTree c : context.children) {
              System.out.println("child: " + c.getClass().getName());
              if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$TermContext")) {
-                 if (f1 == null)
+                 if (f1 == null) {
                      f1 = visitTerm((SuokifParser.TermContext) c);
-                 else
+                     c1 = (SuokifParser.TermContext) c;
+                 }
+                 else {
                      f2 = visitTerm((SuokifParser.TermContext) c);
+                     c2 = (SuokifParser.TermContext) c;
+                 }
              }
         }
-        if (f1.isVariable()) {
-
-        }
+        ArrayList<SuokifParser.TermContext> oneEq = new ArrayList<>();
+        oneEq.add(c1);
+        oneEq.add(c2);
+        f1.eqList.add(oneEq);
         f1.setFormula("(equal " + f1.getFormula() + " " + f2.getFormula() + ")");
         f1.mergeFormulaAST(f2);
         return f1;
@@ -397,7 +413,6 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
             System.out.println("error wrong number of arguments in Forall: ");
         StringBuilder varlist = new StringBuilder();
         HashSet<String> quant = new HashSet<>();
-        varlist.append("(");
         StringBuilder fstring = new StringBuilder();
         FormulaAST f = null;
         String body = null;
@@ -433,7 +448,6 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         System.out.println("text: " + context.getText());
         StringBuilder varlist = new StringBuilder();
         HashSet<String> quant = new HashSet<>();
-        varlist.append("(");
         StringBuilder fstring = new StringBuilder();
         FormulaAST f = null;
         String body = null;
@@ -534,6 +548,7 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
             funword = context.FUNWORD().toString();
             System.out.println("funword: " + funword);
             result.termCache.add(funword);
+            result.relation = funword;
             sb.append("(" + funword + " ");
         }
         int argnum = 1;
@@ -560,6 +575,7 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         sb.append(")");
         result.setFormula(sb.toString());
         result.mergeFormulaAST(arf);
+        result.isFunctional = true;
         return result;
     }
 
@@ -585,6 +601,45 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         FormulaAST f = new FormulaAST();
         f.setFormula(context.getText());
         return f;
+    }
+
+    /** ***************************************************************
+     */
+    public static void showHelp() {
+
+        System.out.println("SuokifVisitor class");
+        System.out.println("  options:");
+        System.out.println("  -h - show this help screen");
+        System.out.println("  -f <fname> - parse the file");
+    }
+
+    /** ***************************************************************
+     */
+    public static void main(String[] args) throws IOException {
+
+        System.out.println("INFO in KB.main()");
+        if (args != null && args.length > 0 && args[0].equals("-h"))
+            showHelp();
+        else {
+            /* KBmanager.getMgr().initializeOnce();
+            String kbName = KBmanager.getMgr().getPref("sumokbname");
+            KB kb = KBmanager.getMgr().getKB(kbName); */
+            if (args != null && args.length > 1 && args[0].equals("-f")) {
+                CodePointCharStream inputStream = (CodePointCharStream) CharStreams.fromFileName(args[1]);
+                SuokifLexer suokifLexer = new SuokifLexer(inputStream);
+                CommonTokenStream commonTokenStream = new CommonTokenStream(suokifLexer);
+                SuokifParser suokifParser = new SuokifParser(commonTokenStream);
+                SuokifParser.FileContext fileContext = suokifParser.file();
+                SuokifVisitor visitor = new SuokifVisitor();
+                HashMap<Integer,FormulaAST> hm = visitor.visitFile(fileContext);
+                System.out.println("row var axioms: " + visitor.hasRowVar);
+                System.out.println("row var count: " + visitor.hasRowVar.size());
+                System.out.println("pred var axioms: " + visitor.hasPredVar);
+                System.out.println("pred var count: " + visitor.hasPredVar.size());
+            }
+            else
+                showHelp();
+        }
     }
 }
 

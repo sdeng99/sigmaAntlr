@@ -11,7 +11,55 @@ public class FormulaAST extends Formula {
     // arguments to relations in order to find the types of arg in a second pass
     // first key is a relation name, interior key is argument number starting at 1
     public HashMap<String, HashMap<Integer, HashSet<SuokifParser.ArgumentContext>>> argMap = new HashMap<>();
+
+    // all the equality statements in a formula.  The interior ArrayList must have
+    // only two elements, one for each side of the equation
+    public ArrayList<ArrayList<SuokifParser.TermContext>> eqList = new ArrayList<>();
+
+    // a map of all variables that have an explicit type declaration
+    public HashMap<String,String> explicitTypes = new HashMap<>();
+
+    // a map of variables and all their inferred types
     public HashMap<String,HashSet<String>> varmap = new HashMap<>();
+
+    // a map of variables and their most specific types
+    public HashMap<String,String> specvarmap = new HashMap<>();
+
+    /** ***************************************************************
+     */
+    public FormulaAST() {
+
+    }
+
+    /** ***************************************************************
+     */
+    public FormulaAST(FormulaAST f) {
+
+        this.endLine = f.endLine;
+        this.startLine = f.startLine;
+        this.sourceFile = f.sourceFile;
+        this.setFormula(f.getFormula());
+        this.allVarsPairCache.addAll(f.allVarsPairCache);
+        this.quantVarsCache.addAll(f.quantVarsCache);
+        this.unquantVarsCache.addAll(f.unquantVarsCache);
+        this.existVarsCache.addAll(f.existVarsCache);
+        this.univVarsCache.addAll(f.univVarsCache);
+        this.termCache.addAll(f.termCache);
+        if (f.predVarCache != null) {
+            this.predVarCache = new HashSet<>();
+            this.predVarCache.addAll(f.predVarCache);
+        }
+        if (f.rowVarCache != null) {
+            this.rowVarCache = new HashSet<>();
+            this.rowVarCache.addAll(f.rowVarCache);
+        }
+        this.varTypeCache.putAll(f.varTypeCache);
+        this.argMap.putAll(f.argMap);
+        this.eqList.addAll(f.eqList);
+        this.explicitTypes.putAll(f.explicitTypes);
+        this.varmap.putAll(f.varmap);
+        this.specvarmap.putAll(f.specvarmap);
+    }
 
     /** ***************************************************************
      * Merge arguments to a predicate, which may themselves be complex
@@ -38,6 +86,9 @@ public class FormulaAST extends Formula {
         this.predVarCache.addAll(f2.predVarCache);
         this.argMap.putAll(f2.argMap);
         this.varmap.putAll(f2.varmap);
+        this.eqList.addAll(f2.eqList);
+        this.explicitTypes.putAll(f2.explicitTypes);
+        this.specvarmap.putAll(f2.specvarmap);
         return this;
     }
 
@@ -67,6 +118,9 @@ public class FormulaAST extends Formula {
             this.predVarCache.addAll(arf.predVarCache);
             this.argMap.putAll(arf.argMap);
             this.varmap.putAll(arf.varmap);
+            this.eqList.addAll(arf.eqList);
+            this.explicitTypes.putAll(arf.explicitTypes);
+            this.specvarmap.putAll(arf.specvarmap);
         }
         return this;
     }
@@ -100,6 +154,11 @@ public class FormulaAST extends Formula {
             System.out.println();
         }
         System.out.println("varmap: " + varmap);
+        System.out.println("explicitTypes: " + explicitTypes);
+        System.out.println("eqlist: ");
+        for (ArrayList<SuokifParser.TermContext> al : eqList) {
+            System.out.println(al.get(0).getText() + " = " + al.get(1).getText());
+        }
         System.out.println();
     }
 }
