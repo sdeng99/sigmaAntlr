@@ -3,12 +3,16 @@ package com.articulate.sigma.parsing;
 import com.articulate.sigma.Formula;
 import com.articulate.sigma.KB;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 
+// Instantiate predicate variables
 public class PredVarInst {
 
     private KB kb;
+    private VarTypes vt = null;
 
     /** ***************************************************************
      */
@@ -20,9 +24,9 @@ public class PredVarInst {
      */
     public HashSet<FormulaAST> processOne(FormulaAST f) {
 
+        vt = new VarTypes(null,kb); // no list of formulas since we'll just pass in one when calling constrainVars() below
         System.out.println("PredVarInst.processOne()" + f);
         System.out.println("PredVarInst.processOne(): varmap" + f.varmap);
-        System.out.println("PredVarInst.processOne(): specvarmap" + f.specvarmap);
         System.out.println("PredVarInst.processOne(): specvarmap" + f.specvarmap);
         HashSet<FormulaAST> result = new HashSet<>();
         String newFormulaStr = f.getFormula();
@@ -33,7 +37,9 @@ public class PredVarInst {
             System.out.println("PredVarInst.processOne(): relations: " + relations);
             for (String rel : relations) {
                 FormulaAST fnew = new FormulaAST(f);
+                fnew = vt.constrainVars(rel,var,fnew);
                 fnew.setFormula(f.getFormula().replace(var+" ",rel + " "));
+                fnew.predVarSub.put(var,rel);
                 result.add(fnew);
             }
         }
@@ -46,8 +52,9 @@ public class PredVarInst {
 
         System.out.println("PredVarInst.processAll()");
         HashSet<FormulaAST> result = new HashSet<>();
-        for (FormulaAST fast : fs)
+        for (FormulaAST fast : fs) {
             result.addAll(processOne(fast));
+        }
         return result;
     }
 }

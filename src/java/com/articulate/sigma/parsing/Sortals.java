@@ -5,6 +5,7 @@ import com.articulate.sigma.KB;
 import java.util.HashMap;
 import java.util.HashSet;
 
+// Add type guards to formulas
 public class Sortals {
 
     private KB kb;
@@ -16,6 +17,8 @@ public class Sortals {
     }
 
     /** ***************************************************************
+     * Add type guards to a formula by making it the consequent of a rule
+     * and making type tests into a new antecedent
      */
     public String addSortals(FormulaAST f, HashMap<String,String> types) {
 
@@ -42,6 +45,8 @@ public class Sortals {
     }
 
     /** ***************************************************************
+     * Find the most specific type in a list of types.  This assumes that
+     * the list has already been tested for disjointness
      */
     public String mostSpecificType(HashSet<String> types) {
 
@@ -53,6 +58,9 @@ public class Sortals {
     }
 
     /** ***************************************************************
+     * if variables in a formula has several possible type constraints,
+     * based on their being arguments to relations, find the most
+     * specific type for each
      */
     public HashMap<String, String> mostSpecificTypes(HashMap<String, HashSet<String>> vmap) {
 
@@ -62,7 +70,11 @@ public class Sortals {
         }
         return themap;
     }
+
     /** ***************************************************************
+     * If a type is already specified for a variable in a rule with an
+     * instance or subclass statement, remove it from the type list so
+     * that it won't be added as a type guard
      */
     public HashMap<String, String> removeExplicitTypes(HashMap<String,String> types,
                                                        HashMap<String, String> explicit) {
@@ -78,14 +90,22 @@ public class Sortals {
     }
 
     /** ***************************************************************
+     * Find the most specific type constraint for each variable
+     */
+    public void winnowAllTypes(FormulaAST f) {
+
+        f.specvarmap = mostSpecificTypes(f.varmap);
+    }
+
+    /** ***************************************************************
+     * Find the most specific type constraint for each variable and
+     * create a new formula with type guards
      */
     public String addSortals(FormulaAST f) {
 
-        HashMap<String,String> types = mostSpecificTypes(f.varmap);
-        f.specvarmap = types;
-        types = removeExplicitTypes(types,f.explicitTypes);
-        System.out.println("Sortals.mostSpecificType():types: " + types);
-        String result = addSortals(f,types);
+        f.specvarmap = removeExplicitTypes(f.specvarmap,f.explicitTypes);
+        System.out.println("Sortals.mostSpecificType():types: " + f.specvarmap);
+        String result = addSortals(f,f.specvarmap);
         return result;
     }
 }

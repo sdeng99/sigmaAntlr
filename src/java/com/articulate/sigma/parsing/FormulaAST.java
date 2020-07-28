@@ -1,6 +1,7 @@
 package com.articulate.sigma.parsing;
 
 import com.articulate.sigma.Formula;
+import org.antlr.v4.runtime.ParserRuleContext;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,6 +25,12 @@ public class FormulaAST extends Formula {
 
     // a map of variables and their most specific types
     public HashMap<String,String> specvarmap = new HashMap<>();
+
+    public HashSet<ParserRuleContext> rowvarLiterals = new HashSet<>(); // this can have a RelsentContext or FuntermContext
+
+    public HashMap<String,String> predVarSub = new HashMap<>();
+
+    public static boolean isRule = false;
 
     /** ***************************************************************
      */
@@ -59,6 +66,8 @@ public class FormulaAST extends Formula {
         this.explicitTypes.putAll(f.explicitTypes);
         this.varmap.putAll(f.varmap);
         this.specvarmap.putAll(f.specvarmap);
+        this.isRule = f.isRule;
+        this.rowvarLiterals.addAll(f.rowvarLiterals);
     }
 
     /** ***************************************************************
@@ -89,6 +98,8 @@ public class FormulaAST extends Formula {
         this.eqList.addAll(f2.eqList);
         this.explicitTypes.putAll(f2.explicitTypes);
         this.specvarmap.putAll(f2.specvarmap);
+        this.isRule = this.isRule || f2.isRule;
+        this.rowvarLiterals.addAll(f2.rowvarLiterals);
         return this;
     }
 
@@ -121,6 +132,8 @@ public class FormulaAST extends Formula {
             this.eqList.addAll(arf.eqList);
             this.explicitTypes.putAll(arf.explicitTypes);
             this.specvarmap.putAll(arf.specvarmap);
+            this.isRule = this.isRule || arf.isRule;
+            this.rowvarLiterals.addAll(arf.rowvarLiterals);
         }
         return this;
     }
@@ -158,6 +171,10 @@ public class FormulaAST extends Formula {
         System.out.println("eqlist: ");
         for (ArrayList<SuokifParser.TermContext> al : eqList) {
             System.out.println(al.get(0).getText() + " = " + al.get(1).getText());
+        }
+        System.out.println("row var literal: ");
+        for (ParserRuleContext lit : rowvarLiterals) {
+            System.out.println(lit.getText());
         }
         System.out.println();
     }

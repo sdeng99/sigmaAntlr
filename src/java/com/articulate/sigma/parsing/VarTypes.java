@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 
+// Determine the types of variables by their appearance in relations
 public class VarTypes {
 
     Collection<FormulaAST> formulas = null;
@@ -120,6 +121,51 @@ public class VarTypes {
     }
 
     /** ***************************************************************
+     * Constrain variables found in the argument list of a predicate variable
+     * where the relation 'rel' will be substituted
+     */
+    public FormulaAST constrainVars(String rel, String var, FormulaAST f) {
+
+        HashMap<Integer, HashSet<SuokifParser.ArgumentContext>> argsForIndex = f.argMap.get(var);
+        ArrayList<String> sig = kb.kbCache.getSignature(rel);
+        if (argsForIndex.keySet().size() != sig.size()-1) { // signatures have a 0 element for function return type
+            System.out.println("Error in VarTypes.findType(): mismatched argument type lists:");
+            System.out.println("VarTypes.findType():line and file: " + f.sourceFile + " " + f.startLine);
+            System.out.println("When substituting " + rel + " for " + var);
+        }
+        else {
+            for (Integer i : argsForIndex.keySet()) {
+                String sigTypeAtIndex = sig.get(i);
+                HashSet<SuokifParser.ArgumentContext> args = argsForIndex.get(i);
+                for (SuokifParser.ArgumentContext ac : args) {
+                    for (ParseTree c : ac.children) {
+                        System.out.println("child: " + c.getClass().getName());
+                        if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$SentenceContext")) {
+                            for (ParseTree c2 : ((SuokifParser.SentenceContext) c).children) {
+                                if (c2.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$RelsentContext") ||
+                                        c2.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$LogsentContext") ||
+                                        c2.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$QuantsentContext"))
+                                    f.higherOrder = true;
+                                if (c2.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$VariableContext") &&
+                                        ((SuokifParser.VariableContext) c2).REGVAR() != null) {
+                                    FormulaPreprocessor.addToMap(f.varmap,c2.getText(), sigTypeAtIndex);
+                                }
+                            }
+                        }
+                        if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$TermContext")) {
+                            String t = findTypeOfTerm((SuokifParser.TermContext) c, sigTypeAtIndex);
+                            if (!sigTypeAtIndex.equals(t) && !kb.isSubclass(t,sigTypeAtIndex))
+                                System.out.println("Error in VarTypes.findType(): arg " + c.getText() +
+                                        " not allowed as argument " + i + " to relation " + rel + " in formula " + f);
+                        }
+                    }
+                }
+            }
+        }
+        return f;
+    }
+
+    /** ***************************************************************
      * Go through the argument map of a formula, which consists of all
      * predicates and their arguments in each position, within this formula,
      * and find the type of that argument.  If the argument is a variable,
@@ -150,7 +196,6 @@ public class VarTypes {
                 for (Integer i : argsForIndex.keySet()) {
                     String sigTypeAtIndex = sig.get(i);
                     HashSet<SuokifParser.ArgumentContext> args = argsForIndex.get(i);
-                    String common = null;
                     for (SuokifParser.ArgumentContext ac : args) {
                         for (ParseTree c : ac.children) {
                             System.out.println("child: " + c.getClass().getName());
@@ -166,8 +211,12 @@ public class VarTypes {
                                     }
                                 }
                             }
-                            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$TermContext"))
-                                findTypeOfTerm((SuokifParser.TermContext) c,sigTypeAtIndex);
+                            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$TermContext")) {
+                                String t = findTypeOfTerm((SuokifParser.TermContext) c, sigTypeAtIndex);
+                                if (!sigTypeAtIndex.equals(t) && !kb.isSubclass(t,sigTypeAtIndex))
+                                    System.out.println("Error in VarTypes.findType(): arg " + c.getText() +
+                                            " not allowed as argument " + i + " to relation " + pred + " in formula " + f);
+                            }
                         }
                     }
                 }
