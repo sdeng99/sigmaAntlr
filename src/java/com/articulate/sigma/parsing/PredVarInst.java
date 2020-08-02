@@ -1,11 +1,8 @@
 package com.articulate.sigma.parsing;
 
-import com.articulate.sigma.Formula;
 import com.articulate.sigma.KB;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 
 // Instantiate predicate variables
@@ -13,6 +10,7 @@ public class PredVarInst {
 
     private KB kb;
     private VarTypes vt = null;
+    public static boolean predVarInstDone = false;
 
     /** ***************************************************************
      */
@@ -26,7 +24,7 @@ public class PredVarInst {
 
         vt = new VarTypes(null,kb); // no list of formulas since we'll just pass in one when calling constrainVars() below
         System.out.println("PredVarInst.processOne()" + f);
-        System.out.println("PredVarInst.processOne(): varmap" + f.varmap);
+        System.out.println("PredVarInst.processOne(): varTypes" + f.varTypes);
         System.out.println("PredVarInst.processOne(): specvarmap" + f.specvarmap);
         HashSet<FormulaAST> result = new HashSet<>();
         String newFormulaStr = f.getFormula();
@@ -55,6 +53,7 @@ public class PredVarInst {
         for (FormulaAST fast : fs) {
             result.addAll(processOne(fast));
         }
+        predVarInstDone = true;
         return result;
     }
 }

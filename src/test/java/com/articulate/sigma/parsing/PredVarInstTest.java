@@ -31,7 +31,7 @@ public class PredVarInstTest {
 
     /***************************************************************
      * */
-    public static String process(String input, String expected) {
+    public static int process(String input, String expected) {
 
         System.out.println("Input: " + input);
         CodePointCharStream inputStream = CharStreams.fromString(input);
@@ -47,19 +47,22 @@ public class PredVarInstTest {
         FormulaAST f = hm.values().iterator().next();
         f.printCaches();
         Sortals s = new Sortals(kb);
+        s.winnowAllTypes(f);
         String form = s.addSortals(f);
         f.setFormula(form);
         PredVarInst pvi = new PredVarInst(kb);
         HashSet<FormulaAST> result = pvi.processOne(f);
+
         //Formula resultf = new Formula(result);
         System.out.println("Result: " + result);
+        System.out.println("# formulas : " + result.size());
         /*Formula expectedf = new Formula(expected);
         System.out.println("expected: " +expectedf);
         if (resultf.equals(expectedf))
             System.out.println("Success");
         else
             System.out.println("FAIL");*/
-        return null;
+        return result.size();
     }
 
     /** ***************************************************************
@@ -81,8 +84,8 @@ public class PredVarInstTest {
                 "(?R @ARGS) " +
                 "(equal ?VAL (ListOrderFn (ListFn @ARGS) ?ARG))) " +
                 "(greaterThan ?VAL ?N)))";
-        String result = process(input,expected);
-        assertEquals(new Formula(expected),new Formula(result));
+        int result = process(input,expected);
+        assertEquals(248,result);
     }
 
 }

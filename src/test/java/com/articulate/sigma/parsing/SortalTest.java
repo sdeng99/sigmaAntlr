@@ -46,6 +46,7 @@ public class SortalTest {
         FormulaAST f = hm.values().iterator().next();
         f.printCaches();
         Sortals s = new Sortals(kb);
+        s.winnowAllTypes(f);
         String result = s.addSortals(f);
         Formula resultf = new Formula(result);
         System.out.println("Result: " + resultf);

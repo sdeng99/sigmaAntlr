@@ -35,7 +35,8 @@ public class Sortals {
             else
                 result.append("(instance " + k + " " + v + ") ");
         }
-        result.deleteCharAt(result.length()-1);
+        if (types.keySet().size() > 0)
+            result.deleteCharAt(result.length()-1);
         if (types.keySet().size() > 1)
             result.append(") ");
         result.append(f.getFormula());
@@ -50,6 +51,8 @@ public class Sortals {
      */
     public String mostSpecificType(HashSet<String> types) {
 
+        if (types.size() == 1)
+            return types.iterator().next();
         if (kb.kbCache.checkDisjoint(kb,types)) {
             System.out.println("Error in Sortals.mostSpecificType(): disjoint type spec: " + types);
             return "";
@@ -94,7 +97,7 @@ public class Sortals {
      */
     public void winnowAllTypes(FormulaAST f) {
 
-        f.specvarmap = mostSpecificTypes(f.varmap);
+        f.specvarmap = mostSpecificTypes(f.varTypes);
     }
 
     /** ***************************************************************
@@ -103,8 +106,9 @@ public class Sortals {
      */
     public String addSortals(FormulaAST f) {
 
+        System.out.println("Sortals.addSortals():types: " + f.specvarmap);
         f.specvarmap = removeExplicitTypes(f.specvarmap,f.explicitTypes);
-        System.out.println("Sortals.mostSpecificType():types: " + f.specvarmap);
+        System.out.println("Sortals.addSortals():after removeExplicitTypes: " + f.specvarmap);
         String result = addSortals(f,f.specvarmap);
         return result;
     }

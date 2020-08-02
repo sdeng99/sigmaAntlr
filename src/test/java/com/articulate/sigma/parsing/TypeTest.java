@@ -1,6 +1,5 @@
 package com.articulate.sigma.parsing;
 
-import com.articulate.sigma.Formula;
 import com.articulate.sigma.KB;
 import com.articulate.sigma.KBmanager;
 import org.antlr.v4.runtime.CharStreams;
@@ -45,7 +44,7 @@ public class TypeTest {
         StringBuilder sb = new StringBuilder();
         FormulaAST f = hm.values().iterator().next();
         f.printCaches();
-        String result = f.varmap.toString().trim();
+        String result = f.varTypes.toString().trim();
         System.out.println("Result: " + result);
         System.out.println("expected: " + expected);
         if (result.equals(expected))

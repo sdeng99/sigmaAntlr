@@ -1,11 +1,9 @@
 package com.articulate.sigma.parsing;
 
 import org.antlr.v4.runtime.*;
-import org.antlr.v4.runtime.misc.*;
 import org.antlr.v4.runtime.tree.*;
 import com.articulate.sigma.*;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -187,11 +185,11 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
             }
         }
         if (pred.equals("instance") && Formula.isVariable(argList.get(0)) && Formula.isTerm(argList.get(1))) {
-            FormulaPreprocessor.addToMap(result.varmap, argList.get(0), argList.get(1));
+            FormulaPreprocessor.addToMap(result.varTypes, argList.get(0), argList.get(1));
             result.explicitTypes.put(argList.get(0), argList.get(1));
         }
         if (pred.equals("subclass") && Formula.isVariable(argList.get(0)) && Formula.isTerm(argList.get(1))) {
-            FormulaPreprocessor.addToMap(result.varmap, argList.get(0), argList.get(1) + "+");
+            FormulaPreprocessor.addToMap(result.varTypes, argList.get(0), argList.get(1) + "+");
             result.explicitTypes.put(argList.get(0), argList.get(1) + "+");
         }
         result.argMap.put(pred,args);
@@ -204,7 +202,7 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         if (debug) if (argList != null && argList.size() > 2)
             System.out.println("arg 2: " + argList.get(1));
         if (debug) System.out.println("return relsent: " + result);
-        if (debug) System.out.println("varmap: " + result.varmap);
+        if (debug) System.out.println("varTypes: " + result.varTypes);
         return result;
     }
 

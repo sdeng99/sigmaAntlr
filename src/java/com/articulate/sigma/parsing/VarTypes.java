@@ -24,7 +24,8 @@ public class VarTypes {
     public VarTypes(Collection<FormulaAST> set, KB kbinput) {
         formulas = set;
         kb = kbinput;
-        System.out.println("VarTypes(): created with # inputs: " + set.size());
+        if (set != null)
+            System.out.println("VarTypes(): created with # inputs: " + set.size());
     }
 
     /** ***************************************************************
@@ -116,7 +117,7 @@ public class VarTypes {
             else
                 System.out.println("assignment not allowed in " + f);
             System.out.println("var&type: " + var + " : " + type);
-            FormulaPreprocessor.addToMap(f.varmap,var, type);
+            FormulaPreprocessor.addToMap(f.varTypes,var, type);
         }
     }
 
@@ -148,7 +149,7 @@ public class VarTypes {
                                     f.higherOrder = true;
                                 if (c2.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$VariableContext") &&
                                         ((SuokifParser.VariableContext) c2).REGVAR() != null) {
-                                    FormulaPreprocessor.addToMap(f.varmap,c2.getText(), sigTypeAtIndex);
+                                    FormulaPreprocessor.addToMap(f.varTypes,c2.getText(), sigTypeAtIndex);
                                 }
                             }
                         }
@@ -188,6 +189,10 @@ public class VarTypes {
             printContexts(argsForIndex);
             ArrayList<String> sig = kb.kbCache.getSignature(pred);
             System.out.println("VarTypes.findType():signature: " + sig);
+            if (sig == null) {
+                System.out.println("Error in VarTypes.findType(): null signature in formula " + f);
+                continue;
+            }
             if (argsForIndex.keySet().size() != sig.size()-1) { // signatures have a 0 element for function return type
                 System.out.println("Error in VarTypes.findType(): mismatched argument type lists:");
                 System.out.println("VarTypes.findType():line and file: " + f.sourceFile + " " + f.startLine);
@@ -207,7 +212,7 @@ public class VarTypes {
                                         f.higherOrder = true;
                                     if (c2.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$VariableContext") &&
                                             ((SuokifParser.VariableContext) c2).REGVAR() != null) {
-                                        FormulaPreprocessor.addToMap(f.varmap,c2.getText(), sigTypeAtIndex);
+                                        FormulaPreprocessor.addToMap(f.varTypes,c2.getText(), sigTypeAtIndex);
                                     }
                                 }
                             }

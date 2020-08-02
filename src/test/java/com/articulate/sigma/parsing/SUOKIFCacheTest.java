@@ -9,6 +9,7 @@ import org.junit.Test;
 import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class SUOKIFCacheTest {
 
@@ -46,13 +47,18 @@ public class SUOKIFCacheTest {
     @Test
     public void test2() {
 
+        System.out.println("SUOKIFCacheText.test2():");
         String input = "(=> (and (minValue ?R ?ARG ?N) (?R @ARGS) (equal ?VAL (ListOrderFn (ListFn @ARGS) ?ARG))) (greaterThan ?VAL ?N))";
         HashMap<Integer,FormulaAST> hm = process(input);
         FormulaAST f = hm.values().iterator().next();
         f.printCaches();
         String expected = "[minValue, ListOrderFn, ListFn, greaterThan]";
+        System.out.println("SUOKIFCacheText.test2(): expected term cache: " + expected);
+        System.out.println("SUOKIFCacheText.test2(): actual term cache: " + f.termCache.toString());
         assertEquals(expected,f.termCache.toString());
         expected = "[@ARGS]";
+        System.out.println("SUOKIFCacheText.test2(): expected row var cache: " + expected);
+        System.out.println("SUOKIFCacheText.test2(): actual row var cache: " + f.rowVarCache.toString());
         assertEquals(expected,f.rowVarCache.toString());
         expected = "\tListOrderFn\t1: (ListFn@ARGS), 2: ?ARG, \n";
         StringBuffer sb = new StringBuffer();

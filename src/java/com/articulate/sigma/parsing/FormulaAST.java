@@ -21,7 +21,7 @@ public class FormulaAST extends Formula {
     public HashMap<String,String> explicitTypes = new HashMap<>();
 
     // a map of variables and all their inferred types
-    public HashMap<String,HashSet<String>> varmap = new HashMap<>();
+    public HashMap<String,HashSet<String>> varTypes = new HashMap<>();
 
     // a map of variables and their most specific types
     public HashMap<String,String> specvarmap = new HashMap<>();
@@ -64,7 +64,7 @@ public class FormulaAST extends Formula {
         this.argMap.putAll(f.argMap);
         this.eqList.addAll(f.eqList);
         this.explicitTypes.putAll(f.explicitTypes);
-        this.varmap.putAll(f.varmap);
+        this.varTypes.putAll(f.varTypes);
         this.specvarmap.putAll(f.specvarmap);
         this.isRule = f.isRule;
         this.rowvarLiterals.addAll(f.rowvarLiterals);
@@ -94,7 +94,7 @@ public class FormulaAST extends Formula {
             f2.predVarCache = new HashSet<>();
         this.predVarCache.addAll(f2.predVarCache);
         this.argMap.putAll(f2.argMap);
-        this.varmap.putAll(f2.varmap);
+        this.varTypes.putAll(f2.varTypes);
         this.eqList.addAll(f2.eqList);
         this.explicitTypes.putAll(f2.explicitTypes);
         this.specvarmap.putAll(f2.specvarmap);
@@ -128,7 +128,7 @@ public class FormulaAST extends Formula {
                 arf.predVarCache = new HashSet<>();
             this.predVarCache.addAll(arf.predVarCache);
             this.argMap.putAll(arf.argMap);
-            this.varmap.putAll(arf.varmap);
+            this.varTypes.putAll(arf.varTypes);
             this.eqList.addAll(arf.eqList);
             this.explicitTypes.putAll(arf.explicitTypes);
             this.specvarmap.putAll(arf.specvarmap);
@@ -166,7 +166,8 @@ public class FormulaAST extends Formula {
             }
             System.out.println();
         }
-        System.out.println("varmap: " + varmap);
+        System.out.println("varTypes: " + varTypes);
+        System.out.println("specVarMap: " + specvarmap);
         System.out.println("explicitTypes: " + explicitTypes);
         System.out.println("eqlist: ");
         for (ArrayList<SuokifParser.TermContext> al : eqList) {
