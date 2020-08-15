@@ -10,6 +10,8 @@ public class Sortals {
 
     private KB kb;
 
+    public boolean debug = false;
+
     /** ***************************************************************
      */
     public Sortals(KB kbin) {
@@ -22,7 +24,7 @@ public class Sortals {
      */
     public String addSortals(FormulaAST f, HashMap<String,String> types) {
 
-        System.out.println("Sortals.addSortals(): types: " + types);
+        if (debug) System.out.println("Sortals.addSortals(): types: " + types);
         StringBuilder result = new StringBuilder();
         if (types.keySet().size() > 0)
             result.append("(=> ");
@@ -41,7 +43,7 @@ public class Sortals {
             result.append(") ");
         result.append(f.getFormula());
         result.append(")");
-        System.out.println("Sortals.addSortals(): result: " + result);
+        if (debug) System.out.println("Sortals.addSortals(): result: " + result);
         return result.toString();
     }
 
@@ -80,14 +82,19 @@ public class Sortals {
      * that it won't be added as a type guard
      */
     public HashMap<String, String> removeExplicitTypes(HashMap<String,String> types,
-                                                       HashMap<String, String> explicit) {
+                                                       HashMap<String, HashSet<String>> explicit) {
 
         HashMap<String, String> result = new HashMap<>();
         for (String var : types.keySet()) {
-            String expType = explicit.get(var);
+            HashSet<String> expType = explicit.get(var);
             String type = types.get(var);
-            if (expType == null || kb.compareTermDepth(type,expType) > 0)
+            if (expType == null)
                 result.put(var,type);
+            else {
+                for (String t : expType)
+                    if (kb.compareTermDepth(type, t) > 0)
+                        result.put(var, type);
+            }
         }
         return result;
     }
@@ -106,9 +113,9 @@ public class Sortals {
      */
     public String addSortals(FormulaAST f) {
 
-        System.out.println("Sortals.addSortals():types: " + f.specvarmap);
+        if (debug) System.out.println("Sortals.addSortals():types: " + f.specvarmap);
         f.specvarmap = removeExplicitTypes(f.specvarmap,f.explicitTypes);
-        System.out.println("Sortals.addSortals():after removeExplicitTypes: " + f.specvarmap);
+        if (debug) System.out.println("Sortals.addSortals():after removeExplicitTypes: " + f.specvarmap);
         String result = addSortals(f,f.specvarmap);
         return result;
     }
