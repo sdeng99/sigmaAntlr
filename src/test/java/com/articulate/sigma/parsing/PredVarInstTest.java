@@ -33,7 +33,7 @@ public class PredVarInstTest {
      * */
     public static int process(String input, String expected) {
 
-        System.out.println("Input: " + input);
+        System.out.println("PredVarInstTest Input: " + input);
         CodePointCharStream inputStream = CharStreams.fromString(input);
         SuokifLexer suokifLexer = new SuokifLexer(inputStream);
         CommonTokenStream commonTokenStream = new CommonTokenStream(suokifLexer);
@@ -54,8 +54,8 @@ public class PredVarInstTest {
         HashSet<FormulaAST> result = pvi.processOne(f);
 
         //Formula resultf = new Formula(result);
-        System.out.println("Result: " + result);
-        System.out.println("# formulas : " + result.size());
+        System.out.println("PredVarInstTest  Result: " + result);
+        System.out.println("PredVarInstTest  # formulas : " + result.size());
         /*Formula expectedf = new Formula(expected);
         System.out.println("expected: " +expectedf);
         if (resultf.equals(expectedf))
@@ -70,7 +70,7 @@ public class PredVarInstTest {
     @Test
     public void test1() {
 
-        System.out.println("test1()");
+        System.out.println("PredVarInstTest.test1()");
         String input = "(=> (and (minValue ?R ?ARG ?N) (?R @ARGS) (equal ?VAL (ListOrderFn (ListFn @ARGS) ?ARG))) (greaterThan ?VAL ?N))";
         String expected = "(=> " +
                 "(and " +
@@ -85,7 +85,7 @@ public class PredVarInstTest {
                 "(equal ?VAL (ListOrderFn (ListFn @ARGS) ?ARG))) " +
                 "(greaterThan ?VAL ?N)))";
         int result = process(input,expected);
-        assertEquals(248,result);
+        assertEquals(262,result);
     }
 
 }
