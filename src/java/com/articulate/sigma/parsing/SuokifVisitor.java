@@ -13,8 +13,11 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
 
     public HashSet<FormulaAST> hasRowVar = new HashSet<>();
     public HashSet<FormulaAST> hasPredVar = new HashSet<>();
+    public HashSet<FormulaAST> multipleRowVar = new HashSet<>();
+    public HashSet<FormulaAST> multiplePredVar = new HashSet<>();
     public HashSet<FormulaAST> rules = new HashSet<>();
-    public static boolean debug = true;
+    public static boolean debug = false;
+    //public HashSet<SigmaError> errors = new HashSet<>();
 
     /** ***************************************************************
      * file : (sentence | comment)+ EOF ;
@@ -41,6 +44,10 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
                     hasRowVar.add(f);
                 if (f.isRule)
                     rules.add(f);
+                if (f.predVarCache.size() > 1)
+                    multiplePredVar.add(f);
+                if (f.rowVarCache.size() > 1)
+                    multipleRowVar.add(f);
             }
             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$CommentContext")) {
                 f = visitComment((SuokifParser.CommentContext) c);
@@ -52,6 +59,10 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         if (debug) System.out.println("has pred var: " + hasPredVar);
         if (debug) System.out.println();
         if (debug) System.out.println("has row var: " + hasRowVar);
+        if (debug) System.out.println();
+        if (debug) System.out.println("multiple pred var: " + multiplePredVar);
+        if (debug) System.out.println();
+        if (debug) System.out.println("multiple row var: " + multipleRowVar);
         if (debug) System.out.println();
         return result;
     }
@@ -67,7 +78,7 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         FormulaAST f = null;
         for (ParseTree c : context.children) {
             f = null;
-            if (debug)  System.out.println("child: " + c.getClass().getName());
+            if (debug)  System.out.println("child of sentence: " + c.getClass().getName());
             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$RelsentContext"))
                 f = visitRelsent((SuokifParser.RelsentContext) c);
             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$LogsentContext"))
@@ -80,7 +91,8 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
                 f.startLine = ((ParserRuleContext) c).getStart().getLine();
             }
         }
-        if (debug) System.out.println("return sentence: " + f);
+        if (debug) System.out.println("visitSentence() return sentence: " + f);
+        if (debug) System.out.println("visitSentence() rowvarstruct: " + f.rowVarStructs);
         f.unquantVarsCache = f.allVarsCache;
         f.quantVarsCache.addAll(f.existVarsCache);
         f.quantVarsCache.addAll(f.univVarsCache);
@@ -140,6 +152,7 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
     public FormulaAST visitRelsent(SuokifParser.RelsentContext context) {
 
         FormulaAST result = new FormulaAST();
+        HashSet<FormulaAST.RowStruct> newRowVarStructs = new HashSet<>();
         result.predVarCache = new HashSet<>();
         if (debug) System.out.println("Visiting relsent: " + context.getText());
         if (debug) System.out.println("# children: " + context.children.size());
@@ -158,7 +171,7 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
             if (debug) System.out.println("identifier: " + pred);
         }
         for (ParseTree c : context.children) {
-            if (debug) System.out.println("child: " + c.getClass().getName());
+            if (debug) System.out.println("child of relsent: " + c.getClass().getName());
             FormulaAST f = null;
             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$VariableContext")) {
                 f = visitVariable((SuokifParser.VariableContext) c);
@@ -171,8 +184,18 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$ArgumentContext")) {
                 SuokifParser.ArgumentContext ac = (SuokifParser.ArgumentContext) c;
                 f = visitArgument(ac);
-                if (isRowVarArgument(ac))
+                if (debug) System.out.println("ac: " + ac.getText());
+                if (debug) System.out.println("isRowVar: " + isRowVarArgument(ac));
+                if (isRowVarArgument(ac)) {
                     f.rowvarLiterals.add(context);
+                    FormulaAST.RowStruct rs = f.new RowStruct();
+                    rs.pred = pred;
+                    rs.rowvar = ac.getText();
+                    if (debug) System.out.println("rs: " + rs);
+                    // rs.literal = f.getFormula(); // formulas isn't complete so can't do it yet
+                    if (debug) System.out.println("visitRelsent(): adding row var struct (to new): " + rs);
+                    newRowVarStructs.add(rs); // can't add them to the formula's list until we have the whole literal
+                }
                 HashSet<SuokifParser.ArgumentContext> argAt = args.get(argnum);
                 if (argAt == null)
                     argAt = new HashSet<>();
@@ -186,11 +209,11 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         }
         if (pred.equals("instance") && Formula.isVariable(argList.get(0)) && Formula.isTerm(argList.get(1))) {
             FormulaPreprocessor.addToMap(result.varTypes, argList.get(0), argList.get(1));
-            result.explicitTypes.put(argList.get(0), argList.get(1));
+            FormulaPreprocessor.addToMap(result.explicitTypes,argList.get(0), argList.get(1));
         }
         if (pred.equals("subclass") && Formula.isVariable(argList.get(0)) && Formula.isTerm(argList.get(1))) {
             FormulaPreprocessor.addToMap(result.varTypes, argList.get(0), argList.get(1) + "+");
-            result.explicitTypes.put(argList.get(0), argList.get(1) + "+");
+            FormulaPreprocessor.addToMap(result.explicitTypes,argList.get(0), argList.get(1) + "+");
         }
         result.argMap.put(pred,args);
         sb.deleteCharAt(sb.length()-1);  // delete trailing space
@@ -203,6 +226,13 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
             System.out.println("arg 2: " + argList.get(1));
         if (debug) System.out.println("return relsent: " + result);
         if (debug) System.out.println("varTypes: " + result.varTypes);
+
+        for (FormulaAST.RowStruct rs : newRowVarStructs) { // now we have the whole literal to add to the structure
+            rs.literal = result.getFormula();
+            if (debug) System.out.println("visitRelsent(): adding row var struct: " + rs);
+            result.addRowVarStruct(rs.rowvar,rs);
+        }
+        if (debug) System.out.println("visitRelsent(): returning with row var struct: " + result.rowVarStructs);
         return result;
     }
 
@@ -213,10 +243,12 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
 
         if (debug) System.out.println("Visiting argument: " + context.getText());
         if (debug) System.out.println("# children: " + context.children.size());
+        if (context.children.size() != 1)
+            System.out.println("error in visitArgument() wrong # children: " + context.children.size());
         if (debug) System.out.println("text: " + context.getText());
         FormulaAST f = null;
         for (ParseTree c : context.children) {
-            if (debug) System.out.println("child: " + c.getClass().getName());
+            if (debug) System.out.println("child of argument: " + c.getClass().getName());
             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$SentenceContext"))
                 f = visitSentence((SuokifParser.SentenceContext) c);
             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$TermContext"))
@@ -232,6 +264,8 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
 
         if (debug) System.out.println("Visiting logsent: " + context.getText());
         if (debug) System.out.println("# children: " + context.children.size());
+        if (context.children.size() != 1)
+            System.out.println("error in visitLogsent() wrong # children: " + context.children.size());
         if (debug) System.out.println("text: " + context.getText());
         FormulaAST f = null;
          for (ParseTree c : context.children) {
@@ -260,8 +294,6 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         FormulaAST f = null;
         if (debug) System.out.println("Visiting Notsent: " + context.getText());
         if (debug) System.out.println("# children: " + context.children.size());
-        if (context.children.size() != 1)
-            System.out.println("error wrong number of arguments in Notsent: ");
         if (debug) System.out.println("text: " + context.getText());
         for (ParseTree c : context.children) {
             if (debug) System.out.println("child: " + c.getClass().getName());
@@ -279,16 +311,15 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
 
         if (debug) System.out.println("Visiting Andsent: " + context.getText());
         if (debug) System.out.println("# children: " + context.children.size());
-        if (context.children.size() < 2)
-            System.out.println("error wrong number of arguments in Andsent: ");
         if (debug) System.out.println("text: " + context.getText());
         ArrayList<FormulaAST> ar = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
         sb.append("(and ");
         for (ParseTree c : context.children) {
-            if (debug) System.out.println("child: " + c.getClass().getName());
+            if (debug) System.out.println("child of andsent: " + c.getClass().getName());
             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$SentenceContext")) {
                 FormulaAST f = visitSentence((SuokifParser.SentenceContext) c);
+                if (debug) System.out.println("inside visitAndsent(): rowvarstruct: " + f.rowVarStructs);
                 ar.add(f);
                 sb.append(f.getFormula() + " ");
             }
@@ -298,6 +329,7 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         FormulaAST f = new FormulaAST();
         f.setFormula(sb.toString());
         f.mergeFormulaAST(ar);
+        if (debug) System.out.println("visitAndsent(): rowvarstruct: " + f.rowVarStructs);
         return f;
     }
 
@@ -308,8 +340,6 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
 
         if (debug) System.out.println("Visiting Orsent: " + context.getText());
         if (debug) System.out.println("# children: " + context.children.size());
-        if (context.children.size() < 2)
-            System.out.println("error wrong number of arguments in Orsent: ");
         if (debug) System.out.println("text: " + context.getText());
         ArrayList<FormulaAST> ar = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
@@ -337,8 +367,6 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
 
         if (debug) System.out.println("Visiting Implies: " + context.getText());
         if (debug) System.out.println("# children: " + context.children.size());
-        if (context.children.size() != 5)
-            System.out.println("error wrong number of arguments in Implies: ");
         if (debug) System.out.println("text: " + context.getText());
         FormulaAST f1 = null;
         FormulaAST f2 = null;
@@ -364,8 +392,6 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
 
         if (debug) System.out.println("Visiting Iff: " + context.getText());
         if (debug) System.out.println("# children: " + context.children.size());
-        if (context.children.size() != 5)
-            System.out.println("error wrong number of arguments in Iff: ");
         if (debug) System.out.println("text: " + context.getText());
         FormulaAST f1 = null;
         FormulaAST f2 = null;
@@ -393,8 +419,6 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
 
         if (debug) System.out.println("Visiting Eqsent: " + context.getText());
         if (debug) System.out.println("# children: " + context.children.size());
-        if (context.children.size() != 2)
-            System.out.println("error wrong number of arguments in Eqsent: ");
         if (debug) System.out.println("text: " + context.getText());
         FormulaAST f1 = null;
         FormulaAST f2 = null;
@@ -448,8 +472,6 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
 
         if (debug) System.out.println("Visiting Forall: " + context.getText());
         if (debug) System.out.println("# children: " + context.children.size());
-        if (context.children.size() != 2)
-            System.out.println("error wrong number of arguments in Forall: ");
         StringBuilder varlist = new StringBuilder();
         HashSet<String> quant = new HashSet<>();
         StringBuilder fstring = new StringBuilder();
@@ -482,8 +504,6 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
 
         if (debug) System.out.println("Visiting Exists: " + context.getText());
         if (debug) System.out.println("# children: " + context.children.size());
-        if (context.children.size() != 2)
-            System.out.println("error wrong number of arguments in Exists: ");
         if (debug) System.out.println("text: " + context.getText());
         StringBuilder varlist = new StringBuilder();
         HashSet<String> quant = new HashSet<>();
@@ -543,6 +563,8 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         FormulaAST f = new FormulaAST();
         if (debug) System.out.println("Visiting Term: " + context.getText());
         if (debug) System.out.println("# children: " + context.children.size());
+        if (context.children.size() != 1)
+            System.out.println("error in visitTerm() wrong # children: " + context.children.size());
         if (debug) System.out.println("text: " + context.getText());
         if (context.IDENTIFIER() != null) {
             String ident = context.IDENTIFIER().toString();
@@ -582,6 +604,7 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         if (debug) System.out.println("text: " + context.getText());
         StringBuilder sb = new StringBuilder();
         FormulaAST result = new FormulaAST();
+        HashSet<FormulaAST.RowStruct> newRowVarStructs = new HashSet<>();
         String funword = null;
         if (context.FUNWORD() != null) {
             funword = context.FUNWORD().toString();
@@ -599,8 +622,15 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$ArgumentContext")) {
                 SuokifParser.ArgumentContext ac = (SuokifParser.ArgumentContext) c;
                 farg = visitArgument(ac);
-                if (isRowVarArgument(ac))
+                if (isRowVarArgument(ac)) {
                     farg.rowvarLiterals.add(context);
+                    FormulaAST.RowStruct rs = farg.new RowStruct();
+                    rs.pred = funword;
+                    rs.rowvar = ac.getText();
+                    // rs.literal = f.getFormula(); // formulas isn't complete so can't do it yet
+                    if (debug) System.out.println("visitFunterm(): adding row var struct (to new): " + rs);
+                    newRowVarStructs.add(rs); // can't add them to the formula's list until we have the whole literal
+                }
                 HashSet<SuokifParser.ArgumentContext> argAt = args.get(argnum);
                 if (argAt == null)
                     argAt = new HashSet<>();
@@ -618,6 +648,12 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         result.setFormula(sb.toString());
         result.mergeFormulaAST(arf);
         result.isFunctional = true;
+        for (FormulaAST.RowStruct rs : newRowVarStructs) { // now we have the whole literal to add to the structure
+            rs.literal = result.getFormula();
+            if (debug) System.out.println("visitFunterm(): adding row var struct: " + rs);
+            result.addRowVarStruct(rs.rowvar,rs);
+        }
+        if (debug) System.out.println("visitFunterm(): returning with row var struct: " + result.rowVarStructs);
         return result;
     }
 
@@ -678,6 +714,11 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
                 System.out.println("row var count: " + visitor.hasRowVar.size());
                 System.out.println("pred var axioms: " + visitor.hasPredVar);
                 System.out.println("pred var count: " + visitor.hasPredVar.size());
+                System.out.println("multiple pred var: " + visitor.multiplePredVar);
+                System.out.println("multiple row var: " + visitor.multipleRowVar);
+                System.out.println();
+                for (FormulaAST f : visitor.hasRowVar)
+                    f.printCaches();
             }
             else
                 showHelp();
