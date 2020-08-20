@@ -10,7 +10,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 
-// Determine the types of variables by their appearance in relations
+// Determine the types of variables by their appearance in relations,
+// as well as whether onstants or functions are allowed given their types
 public class VarTypes {
 
     Collection<FormulaAST> formulas = null;
@@ -139,10 +140,24 @@ public class VarTypes {
 
         HashMap<Integer, HashSet<SuokifParser.ArgumentContext>> argsForIndex = f.argMap.get(var);
         ArrayList<String> sig = kb.kbCache.getSignature(rel);
-        if (argsForIndex.keySet().size() != sig.size()-1) { // signatures have a 0 element for function return type
-            System.out.println("Error in VarTypes.findType(): mismatched argument type lists:");
-            System.out.println("VarTypes.findType():line and file: " + f.sourceFile + " " + f.startLine);
-            System.out.println("When substituting " + rel + " for " + var);
+        if (sig == null || argsForIndex == null || argsForIndex.keySet().size() != sig.size()-1) { // signatures have a 0 element for function return type
+            StringBuilder sb = new StringBuilder();
+            for (Integer i : argsForIndex.keySet()) {
+                sb.append(i + " : " );
+                for (SuokifParser.ArgumentContext arg : argsForIndex.get(i))
+                    sb.append(arg.getText() + ", ");
+            }
+            System.out.println(sb.toString());
+            if (sb.toString().contains("@")) {
+                if (debug) System.out.println("Arg mismatch caused by row variable " + argsForIndex.keySet());
+            }
+            else {
+                System.out.println("VarTypes.constrainVars(): mismatched argument type lists:");
+                System.out.println("VarTypes.constrainVars():line and file: " + f.sourceFile + " " + f.startLine);
+                System.out.println("When substituting " + rel + " for " + var);
+                System.out.println("sig " + sig);
+                System.out.print("argsForIndex ");
+            }
         }
         else {
             for (Integer i : argsForIndex.keySet()) {
@@ -166,7 +181,7 @@ public class VarTypes {
                         if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$TermContext")) {
                             String t = findTypeOfTerm((SuokifParser.TermContext) c, sigTypeAtIndex);
                             if (!sigTypeAtIndex.equals(t) && !kb.isSubclass(t,sigTypeAtIndex))
-                                System.out.println("Error in VarTypes.findType(): arg " + c.getText() +
+                                System.out.println("Error in VarTypes.constrainVars(): arg " + c.getText() +
                                         " not allowed as argument " + i + " to relation " + rel + " in formula " + f);
                         }
                     }
@@ -183,8 +198,25 @@ public class VarTypes {
      */
     public boolean argTypeOk(String pred, String argType, String sigType) {
 
-
+        if (!argType.equals(sigType) && !kb.kbCache.subclassOf(argType,sigType))
+            return false;
         return true;
+    }
+
+    /** ***************************************************************
+     * if a relation is used as an argument, add a suffix to that constant
+     * in the literal for the constant list.  It will be used later in
+     * conversion to TPTP.
+     */
+    public void findRelationsAsArgs(FormulaAST f) {
+
+        for (String c : f.constants.keySet()) {
+            FormulaAST.ArgStruct as = f.constants.get(c);
+            if (kb.kbCache.relations.contains(c)) {
+                String newc = c + "__m";
+                as.literal.replace(" " +  c," " + newc);
+            }
+        }
     }
 
     /** ***************************************************************
@@ -226,7 +258,15 @@ public class VarTypes {
             }
             else {
                 for (Integer i : argsForIndex.keySet()) {
-                    String sigTypeAtIndex = sig.get(i);
+                    if (sig.size() <= i) {
+                        System.out.println("Error in VarTypes.findType() no signature element " + i + " for " + pred + " in " + sig);
+                        continue;
+                    }
+                    String sigTypeAtIndex = null;
+                    if (kb.getValence(pred) == -1)
+                        sigTypeAtIndex = kb.kbCache.variableArityType(pred);
+                    else
+                        sigTypeAtIndex = sig.get(i);
                     HashSet<SuokifParser.ArgumentContext> args = argsForIndex.get(i);
                     for (SuokifParser.ArgumentContext ac : args) {
                         for (ParseTree c : ac.children) {
@@ -261,6 +301,7 @@ public class VarTypes {
      */
     public void printContexts(HashMap<Integer, HashSet<SuokifParser.ArgumentContext>> args) {
 
+        System.out.println("VarTypes.printContexts(): args: ");
         for (Integer i : args.keySet()) {
             System.out.print(i + ": {");
             HashSet<SuokifParser.ArgumentContext> argTypes = args.get(i);
@@ -278,6 +319,7 @@ public class VarTypes {
         for (FormulaAST f : formulas) {
             findType(f);
             findEquationType(f);
+            findRelationsAsArgs(f);
         }
     }
 }

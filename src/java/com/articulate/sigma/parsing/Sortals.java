@@ -1,6 +1,7 @@
 package com.articulate.sigma.parsing;
 
 import com.articulate.sigma.KB;
+import com.articulate.sigma.StringUtil;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,7 +11,7 @@ public class Sortals {
 
     private KB kb;
 
-    public boolean debug = false;
+    public boolean debug = true;
 
     /** ***************************************************************
      */
@@ -22,8 +23,9 @@ public class Sortals {
      * Add type guards to a formula by making it the consequent of a rule
      * and making type tests into a new antecedent
      */
-    public String addSortals(FormulaAST f, HashMap<String,String> types) {
+    public String addSortals(FormulaAST f, HashMap<String,HashSet<String>> types) {
 
+        if (types.keySet().size() == 0) return f.getFormula();
         if (debug) System.out.println("Sortals.addSortals(): types: " + types);
         StringBuilder result = new StringBuilder();
         if (types.keySet().size() > 0)
@@ -31,11 +33,13 @@ public class Sortals {
         if (types.keySet().size() > 1)
             result.append("(and ");
         for (String k : types.keySet()) {
-            String v = types.get(k);
-            if (v.endsWith("+"))
-                result.append("(subclass " + k + " " + v.substring(0,v.length()-1) + ") ");
-            else
-                result.append("(instance " + k + " " + v + ") ");
+            HashSet<String> v = types.get(k);
+            for (String t : v) {
+                if (t.endsWith("+"))
+                    result.append("(subclass " + k + " " + t.substring(0, t.length() - 1) + ") ");
+                else
+                    result.append("(instance " + k + " " + t + ") ");
+            }
         }
         if (types.keySet().size() > 0)
             result.deleteCharAt(result.length()-1);
@@ -81,22 +85,49 @@ public class Sortals {
      * instance or subclass statement, remove it from the type list so
      * that it won't be added as a type guard
      */
-    public HashMap<String, String> removeExplicitTypes(HashMap<String,String> types,
+    public HashMap<String, HashSet<String>> removeExplicitTypes(HashMap<String,HashSet<String>> typesMap,
                                                        HashMap<String, HashSet<String>> explicit) {
 
-        HashMap<String, String> result = new HashMap<>();
-        for (String var : types.keySet()) {
-            HashSet<String> expType = explicit.get(var);
-            String type = types.get(var);
-            if (expType == null)
-                result.put(var,type);
+        HashMap<String, HashSet<String>> result = new HashMap<>();
+        for (String var : typesMap.keySet()) {
+            HashSet<String> expTypes = explicit.get(var);
+            HashSet<String> types = typesMap.get(var);
+            HashSet<String> newtypes = new HashSet<>();
+            if (expTypes == null)
+                newtypes.addAll(types);
             else {
-                for (String t : expType)
-                    if (kb.compareTermDepth(type, t) > 0)
-                        result.put(var, type);
+                for (String t : types) {
+                    if (!expTypes.contains(t))
+                        newtypes.add(t);
+                }
             }
+            if (newtypes.size() > 0)
+                result.put(var, newtypes);
         }
         return result;
+    }
+
+    /** ***************************************************************
+     * Eliminate more general types in favor of their more specific
+     * subclasses (if any)
+     */
+    public void elimSubsumedTypes(FormulaAST f) {
+
+        for (String var : f.varTypes.keySet()) {
+            HashSet<String> types = f.varTypes.get(var);
+            HashSet<String> remove = new HashSet<>();
+            for (String type1 : types) {
+                for (String type2 : types) {
+                    if (!StringUtil.emptyString(type1) && !StringUtil.emptyString(type2) && !type1.equals(type2)) {
+                        if (kb.kbCache.subclassOf(type1, type2))
+                            remove.add(type2);
+                        if (kb.kbCache.subclassOf(type2,type1))
+                            remove.add(type1);
+                    }
+                }
+            }
+            types.removeAll(remove);
+        }
     }
 
     /** ***************************************************************
@@ -104,19 +135,22 @@ public class Sortals {
      */
     public void winnowAllTypes(FormulaAST f) {
 
-        f.specvarmap = mostSpecificTypes(f.varTypes);
+        if (debug) System.out.println("Sortals.winnowAllTypes():input: " + f.varTypes);
+        elimSubsumedTypes(f);
+        if (debug) System.out.println("Sortals.winnowAllTypes():output: " + f.varTypes);
     }
 
     /** ***************************************************************
      * Find the most specific type constraint for each variable and
-     * create a new formula with type guards
+     * create a new String of the formula with type guards
      */
     public String addSortals(FormulaAST f) {
 
-        if (debug) System.out.println("Sortals.addSortals():types: " + f.specvarmap);
-        f.specvarmap = removeExplicitTypes(f.specvarmap,f.explicitTypes);
-        if (debug) System.out.println("Sortals.addSortals():after removeExplicitTypes: " + f.specvarmap);
-        String result = addSortals(f,f.specvarmap);
+        if (debug) System.out.println("Sortals.addSortals():types: " + f.varTypes);
+        HashMap<String,HashSet<String>> types = removeExplicitTypes(f.varTypes,f.explicitTypes);
+        if (debug) System.out.println("Sortals.addSortals():after removeExplicitTypes: " + f.varTypes);
+        String result = addSortals(f,types);
+        f.setFormula(result);
         return result;
     }
 }

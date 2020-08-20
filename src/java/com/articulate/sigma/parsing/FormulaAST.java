@@ -23,16 +23,22 @@ public class FormulaAST extends Formula {
     // a map of variables and all their inferred types
     public HashMap<String,HashSet<String>> varTypes = new HashMap<>();
 
-    // a map of variables and their most specific types
-    public HashMap<String,String> specvarmap = new HashMap<>();
-
     public HashSet<ParserRuleContext> rowvarLiterals = new HashSet<>(); // this can have a RelsentContext or FuntermContext
+
+    public HashMap<String,ArgStruct> constants = new HashMap<>(); // constants as arguments and their enclosing literal
 
     public HashMap<String,HashSet<RowStruct>> rowVarStructs = new HashMap<>(); // row var keys
 
-    public HashMap<String,String> predVarSub = new HashMap<>();
+    //public HashMap<String,String> predVarSub = new HashMap<>();
 
-    public static boolean isRule = false;
+    public SuokifParser.SentenceContext parsedFormula = null;
+
+    public boolean isRule = false;
+
+    public HashSet<String> antecedentTerms = new HashSet<>();
+    public HashSet<String> consequentTerms = new HashSet<>();
+
+    public String strForm = null; // a String version of this modified formula
 
     /** ***************************************************************
      */
@@ -77,16 +83,37 @@ public class FormulaAST extends Formula {
         }
 
         this.eqList.addAll(f.eqList);
-        this.explicitTypes.putAll(f.explicitTypes);
-        this.varTypes.putAll(f.varTypes);
-        this.specvarmap.putAll(f.specvarmap);
+
+        for (String var : f.explicitTypes.keySet()) {
+            HashSet<String> newtypes = f.explicitTypes.get(var);
+            if (explicitTypes.containsKey(var))
+                explicitTypes.get(var).addAll(newtypes);
+            else {
+                HashSet<String> existingTypes = new HashSet<>();
+                explicitTypes.put(var,existingTypes);
+                existingTypes.addAll(newtypes);
+            }
+        }
+
+        for (String var : f.varTypes.keySet()) {
+            HashSet<String> newtypes = f.varTypes.get(var);
+            if (varTypes.containsKey(var))
+                varTypes.get(var).addAll(newtypes);
+            else {
+                HashSet<String> existingTypes = new HashSet<>();
+                varTypes.put(var,existingTypes);
+                existingTypes.addAll(newtypes);
+            }
+        }
+
         this.isRule = f.isRule;
         this.rowvarLiterals.addAll(f.rowvarLiterals);
+        this.constants.putAll(f.constants);
         for (String var : f.rowVarStructs.keySet()) {
             HashSet<RowStruct> hsrs = f.rowVarStructs.get(var);
             if (debug) System.out.println("merge from rowVarStructs: " + hsrs);
             for (RowStruct rs : hsrs)
-                this.addRowVarStruct(var,rs);
+                this.addRowVarStruct(var, new RowStruct(rs));
         }
     }
 
@@ -124,17 +151,37 @@ public class FormulaAST extends Formula {
             }
             this.argMap.put(pred,newargnummap);
         }
-        this.varTypes.putAll(f2.varTypes);
+        for (String var : f2.explicitTypes.keySet()) {
+            HashSet<String> newtypes = f2.explicitTypes.get(var);
+            if (explicitTypes.containsKey(var))
+                explicitTypes.get(var).addAll(newtypes);
+            else {
+                HashSet<String> existingTypes = new HashSet<>();
+                explicitTypes.put(var,existingTypes);
+                existingTypes.addAll(newtypes);
+            }
+        }
+
+        for (String var : f2.varTypes.keySet()) {
+            HashSet<String> newtypes = f2.varTypes.get(var);
+            if (varTypes.containsKey(var))
+                varTypes.get(var).addAll(newtypes);
+            else {
+                HashSet<String> existingTypes = new HashSet<>();
+                varTypes.put(var,existingTypes);
+                existingTypes.addAll(newtypes);
+            }
+        }
+
         this.eqList.addAll(f2.eqList);
-        this.explicitTypes.putAll(f2.explicitTypes);
-        this.specvarmap.putAll(f2.specvarmap);
         this.isRule = this.isRule || f2.isRule;
         this.rowvarLiterals.addAll(f2.rowvarLiterals);
+        this.constants.putAll(f2.constants);
         for (String var : f2.rowVarStructs.keySet()) {
             HashSet<RowStruct> hsrs = f2.rowVarStructs.get(var);
             if (debug) System.out.println("merge from rowVarStructs: " + hsrs);
             for (RowStruct rs : hsrs)
-                this.addRowVarStruct(var,rs);
+                this.addRowVarStruct(var, new RowStruct(rs));
         }
         return this;
     }
@@ -174,25 +221,71 @@ public class FormulaAST extends Formula {
                 }
                 this.argMap.put(pred,newargnummap);
             }
-            this.varTypes.putAll(arf.varTypes);
+
             this.eqList.addAll(arf.eqList);
-            this.explicitTypes.putAll(arf.explicitTypes);
-            this.specvarmap.putAll(arf.specvarmap);
+            for (String var : arf.explicitTypes.keySet()) {
+                HashSet<String> newtypes = arf.explicitTypes.get(var);
+                if (explicitTypes.containsKey(var))
+                    explicitTypes.get(var).addAll(newtypes);
+                else {
+                    HashSet<String> existingTypes = new HashSet<>();
+                    explicitTypes.put(var,existingTypes);
+                    existingTypes.addAll(newtypes);
+                }
+            }
+
+            for (String var : arf.varTypes.keySet()) {
+                HashSet<String> newtypes = arf.varTypes.get(var);
+                if (varTypes.containsKey(var))
+                    varTypes.get(var).addAll(newtypes);
+                else {
+                    HashSet<String> existingTypes = new HashSet<>();
+                    varTypes.put(var,existingTypes);
+                    existingTypes.addAll(newtypes);
+                }
+            }
             this.isRule = this.isRule || arf.isRule;
             this.rowvarLiterals.addAll(arf.rowvarLiterals);
+            this.constants.putAll(arf.constants);
             for (String var : arf.rowVarStructs.keySet()) {
                 HashSet<RowStruct> hsrs = arf.rowVarStructs.get(var);
                 if (debug) System.out.println("merge from rowVarStructs: " + hsrs);
                 for (RowStruct rs : hsrs)
-                    this.addRowVarStruct(var,rs);
+                    this.addRowVarStruct(var, new RowStruct(rs));
             }
         }
         return this;
     }
 
     /** *****************************************************************
+     * A class for holding information about constants (non-variables) and the literal
+     * in which they appear
+     */
+    public class ArgStruct {
+        public String pred = "";
+        public String literal = "";
+        public String constant = "";
+        public int argPos = -1;
+
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            sb.append(pred + ":" + constant + ":" + ":" + argPos + ":" + literal);
+            return sb.toString();
+        }
+    }
+
+    /** *****************************************************************
+     * A class for holding information about row variables and the literal
+     * in which they appear
      */
     public class RowStruct {
+        public RowStruct() {}
+        public RowStruct(RowStruct rs) {
+            this.rowvar = rs.rowvar;
+            this.pred = rs.pred;
+            this.literal = rs.literal;
+            this.arity = rs.arity;
+        }
         public String rowvar = "";
         public String pred = "";
         public String literal = "";
@@ -248,8 +341,9 @@ public class FormulaAST extends Formula {
             System.out.println();
         }
         System.out.println("varTypes: " + varTypes);
-        System.out.println("specVarMap: " + specvarmap);
+        System.out.println("predVarCache: " + predVarCache);
         System.out.println("explicitTypes: " + explicitTypes);
+
         System.out.println("eqlist: ");
         for (ArrayList<SuokifParser.TermContext> al : eqList) {
             System.out.println(al.get(0).getText() + " = " + al.get(1).getText());
@@ -258,6 +352,14 @@ public class FormulaAST extends Formula {
         for (ParserRuleContext lit : rowvarLiterals) {
             System.out.println(lit.getText());
         }
+
+        System.out.println("constants: ");
+        for (String c : constants.keySet()) {
+            ArgStruct as = constants.get(c);
+            String lit = as.literal;
+            System.out.println(c + " : " + lit);
+        }
+
         System.out.println("row var struct: ");
         for (String var : rowVarStructs.keySet()) {
             HashSet<RowStruct> rvs = rowVarStructs.get(var);

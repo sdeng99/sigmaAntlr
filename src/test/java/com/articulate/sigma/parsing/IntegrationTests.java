@@ -9,6 +9,7 @@ import org.junit.runners.Suite;
         RowVarTest.class,
         SortalTest.class,
         TypeTest.class,
+        PreprocessorTest.class,
 })
 public class IntegrationTests {
 }

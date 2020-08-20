@@ -82,4 +82,23 @@ public class TypeTest {
         String result = process(input,expected);
         assertEquals(expected,result);
     }
+
+    /** ***************************************************************
+     */
+    @Test
+    public void test3() {
+
+        System.out.println("test2()");
+        String input = "(=>\n" +
+                "  (and\n" +
+                "    (maxValue ?REL ?ARG ?N)\n" +
+                "    (?REL @ARGS)\n" +
+                "    (equal ?VAL\n" +
+                "      (ListOrderFn\n" +
+                "        (ListFn @ARGS) ?ARG)))\n" +
+                "  (greaterThan ?N ?VAL))\n";
+        String expected = "{?OBJ=[SelfConnectedObject, Entity, Object], ?PART2=[Object], ?PART1=[Object]}";
+        String result = process(input,expected);
+        assertEquals(expected,result);
+    }
 }

@@ -23,7 +23,7 @@ relsent : ('(' IDENTIFIER argument+ ')') | ('(' variable argument+ ')')  ;
 
 argument : (sentence | term) ;
 term : (funterm | variable | string | number | FUNWORD | IDENTIFIER ) ;
-IDENTIFIER : LETTER (LETTER | DIGIT)* ;
+IDENTIFIER : LETTER WORDCHAR* ;
 
 NUMBER : '-'? DIGIT+ ([.,] DIGIT+)? EXPONENT? ;
 number : NUMBER ;

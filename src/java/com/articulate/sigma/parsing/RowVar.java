@@ -12,7 +12,7 @@ import java.util.HashSet;
 public class RowVar {
 
     public KB kb = null;
-    public boolean debug = false;
+    public boolean debug = true;
 
     /** ***************************************************************
      */
@@ -65,9 +65,18 @@ public class RowVar {
                             varName + " with varlist: " + varList);
                     String newliteral = literal.replace("@" + varName + ")", varList + ")"); // row vars are always at the end of an argument list
                     // and we don't want a false match to a part of a var name
-                    newliteral = newliteral.replace(pred, pred + "_" + (i+1));
+                    String newPredName = pred + "_" + Integer.toString(i+1);
+                    if (debug) System.out.println("expandVariableArityRowVar(): replace pred : " +
+                            pred + " with new pred: " + newPredName);
+                    newliteral = newliteral.replace(pred, newPredName);
+                    rs.literal = newliteral;
+                    if (debug) System.out.println("expandVariableArityRowVar(): fnew before " + fnew.getFormula());
+                    if (debug) System.out.println("expandVariableArityRowVar(): literal " + literal);
+                    if (debug) System.out.println("expandVariableArityRowVar(): newliteral " + newliteral);
                     fnew.setFormula(fnew.getFormula().replace(literal, newliteral));
+                    if (debug) System.out.println("expandVariableArityRowVar(): fnew after " + fnew.getFormula());
                 }
+                if (debug) System.out.println("expandVariableArityRowVar(): formulaList: " + formulaList);
             }
             result.addAll(formulaList);
         }
@@ -82,9 +91,14 @@ public class RowVar {
      */
     public HashMap<String, Integer> findArities(FormulaAST f) {
 
+        if (f.getFormula().indexOf(" maxValue ") != -1) {
+            System.out.println("findArities():" + f);
+            f.printCaches();
+        }
         HashMap<String, Integer> arities = new HashMap<>();
         for (HashSet<FormulaAST.RowStruct> rshs : f.rowVarStructs.values()) {
             for (FormulaAST.RowStruct rs : rshs) {
+                if (debug) System.out.println("findArities(): variable " + rs.rowvar + " pred: " + rs.pred);
                 if (KB.isVariable(rs.pred)) {
                     System.out.println("Error in findArities(): variable pred: " + rs.pred + " in "  + f);
                 }
@@ -114,6 +128,7 @@ public class RowVar {
      */
     public HashSet<FormulaAST> expandRowVar(FormulaAST f) {
 
+        if (debug) System.out.println("expandRowVar(): f: " + f);
         HashMap<String, Integer> varArities = findArities(f);
         HashSet<FormulaAST> result = new HashSet<>();
         if (debug) System.out.println("expandRowVar(): variable arity vars list " + varArities);
@@ -131,6 +146,29 @@ public class RowVar {
                 for (int i = 1; i <= arity; i++)
                     sb.append("?" + varName + i + " ");
                 sb.deleteCharAt(sb.length() - 1);
+
+                for (FormulaAST.RowStruct rs : f.rowVarStructs.get(var)) {
+                    if (debug) System.out.println("expandVariableArityRowVar(): variable row struct " + rs);
+                    String literal = rs.literal;
+                    String pred = rs.pred;
+                    if (kb.kbCache.valences.get(pred) == null) {
+                        System.out.println("expandVariableArityRowVar(): null valence for " + pred + " in " + f);
+                        continue;
+                    }
+                    if (kb.kbCache.valences.get(pred) == -1 && rs.rowvar.equals(var)) {
+                        String newliteral = literal.replace("@" + varName + ")", sb.toString() + ")"); // row vars are always at the end of an argument list
+                        // and we don't want a false match to a part of a var name
+                        String newPredName = pred + "_" + Integer.toString(arity);
+                        if (debug) System.out.println("expandVariableArityRowVar(): replace pred : " +
+                                pred + " with new pred: " + newPredName);
+                        if (debug) System.out.println("expandVariableArityRowVar(): in literal : " +
+                                newliteral);
+                        newliteral = newliteral.replace(pred, newPredName);
+                        rs.literal = newliteral;
+                        f.setFormula(f.getFormula().replace(literal, newliteral));
+                    }
+                }
+
                 f.setFormula(f.getFormula().replace(var, sb.toString()));
                 result.add(f);
             }
