@@ -51,22 +51,27 @@ public class VarTypes {
      */
     public String findTypeOfTerm(SuokifParser.TermContext input, String sigType) {
 
-        if (debug) System.out.println("VarTypes.findTypeOfTerm(): input: " + input);
+        if (debug) System.out.println("VarTypes.findTypeOfTerm(): input: " + input.getText());
         if (debug) System.out.println("VarTypes.findTypeOfTerm(): sigType: " + sigType);
         String type = null;
-        for (ParseTree c : ((SuokifParser.TermContext) input).children) {
-            if (input.IDENTIFIER() != null) {
-                String ident = input.IDENTIFIER().getText();
-                if (!kb.kbCache.isInstanceOf(ident,sigType))
-                    System.out.println("error in findTypeOfTerm(): signature " + sigType + " doesn't allow " + ident);
-                else
-                    type = kb.immediateParents(ident).iterator().next();
+        if (input.IDENTIFIER() != null) {
+            String ident = input.IDENTIFIER().getText();
+            if (sigType.endsWith("+")) {
+                if (kb.kbCache.subclassOf(ident,sigType))
+                    type = ident;
             }
+            else if (sigType.equals("SetOrClass") && !kb.isInstance(ident))
+                type = ident;
+            else if (kb.kbCache.isInstanceOf(ident,sigType))
+                type = kb.immediateParents(ident).iterator().next();
+            else
+                System.out.println("error in findTypeOfTerm(): signature " + sigType + " doesn't allow " + ident);
+        }
+        for (ParseTree c : ((SuokifParser.TermContext) input).children) {
             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$FuntermContext"))
                 type = findTypeOfFunterm((SuokifParser.FuntermContext) c);
-            else if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$VariableContext")) {
+            else if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$VariableContext"))
                 FormulaPreprocessor.addToMap(varTypeMap, c.getText(),sigType);
-            }
             else if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$StringContext")) {
                 if (!sigType.equals("SymbolicString"))
                     System.out.println("error in findTypeOfTerm(): signature doesn't allow string " + c.getText());
@@ -74,7 +79,7 @@ public class VarTypes {
                     type = "SymbolicString";
             }
             else if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$NumberContext")) {
-                if (!kb.kbCache.subclassOf("Number",sigType))
+                if (!kb.kbCache.subclassOf(sigType,"Number"))
                     System.out.println("error in findTypeOfTerm(): signature doesn't allow number " + c.getText());
                 else
                     type = "Number";
@@ -240,7 +245,10 @@ public class VarTypes {
             if (debug) System.out.println("VarTypes.findType(): argsForIndex: " + argsForIndex);
             if (argsForIndex == null || Formula.isVariable(pred))
                 continue;
-            printContexts(argsForIndex);
+            if (debug) {
+                System.out.println("VarTypes.findType(): ");
+                printContexts(argsForIndex);
+            }
             ArrayList<String> sig = kb.kbCache.getSignature(pred);
             if (debug) System.out.println("VarTypes.findType():signature: " + sig);
             if (sig == null) {
@@ -258,7 +266,7 @@ public class VarTypes {
             }
             else {
                 for (Integer i : argsForIndex.keySet()) {
-                    if (sig.size() <= i) {
+                    if (sig.size() <= i && kb.kbCache.getArity(pred) != -1) {
                         System.out.println("Error in VarTypes.findType() no signature element " + i + " for " + pred + " in " + sig);
                         continue;
                     }
@@ -285,10 +293,21 @@ public class VarTypes {
                             }
                             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$TermContext")) {
                                 String t = findTypeOfTerm((SuokifParser.TermContext) c, sigTypeAtIndex);
-                                if (!sigTypeAtIndex.equals(t) && !kb.isSubclass(t,sigTypeAtIndex))
-                                    System.out.println("Error in VarTypes.findType(): arg " + c.getText() + " of type " + t +
-                                            " not allowed as argument " + i + " to relation " + pred + " in formula " + f +
-                                            " that requires " + sigTypeAtIndex);
+                                if (kb.isInstance(c.getText())) {
+                                    if (!kb.kbCache.isInstanceOf(c.getText(),sigTypeAtIndex))
+                                        System.out.println("Error in VarTypes.findType(): arg " + c.getText() + " of type " + t +
+                                                " not allowed as argument " + i + " to relation " + pred + " in formula " + f +
+                                                " that requires " + sigTypeAtIndex);
+                                }
+                                else {
+                                    String sigTypeNoSuffix = sigTypeAtIndex;
+                                    if (sigTypeAtIndex.endsWith("+"))
+                                        sigTypeNoSuffix = sigTypeAtIndex.substring(0,sigTypeAtIndex.length()-1); // remove the trailing '+'
+                                    if (!sigTypeNoSuffix.equals(t) && !kb.isSubclass(t, sigTypeNoSuffix) && sigTypeNoSuffix.equals("SetOrClass") )
+                                        System.out.println("Error in VarTypes.findType(): arg " + c.getText() + " of type " + t +
+                                                " not allowed as argument " + i + " to relation " + pred + " in formula " + f +
+                                                " that requires " + sigTypeNoSuffix);
+                                }
                             }
                         }
                     }

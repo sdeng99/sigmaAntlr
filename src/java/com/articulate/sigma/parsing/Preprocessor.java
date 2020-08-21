@@ -29,6 +29,11 @@ public class Preprocessor {
         mismatch.addAll(predvar);
         mismatch.removeAll(rowvar);
         if (mismatch.size() > 0)
+            System.out.println("Error - Preprocessor.preprocess() rowvar statements without predvar: " + mismatch);
+        mismatch = new HashSet<>();
+        mismatch.addAll(rowvar);
+        mismatch.removeAll(predvar);
+        if (mismatch.size() > 0)
             System.out.println("Error - Preprocessor.preprocess() predvar statements without rowvar: " + mismatch);
         VarTypes vt = new VarTypes(rules,kb);
         vt.findTypes();
@@ -49,11 +54,11 @@ public class Preprocessor {
         HashSet<FormulaAST> finalRuleSet = new HashSet<>();
         newRules = reparse(newRules);
         for (FormulaAST r : newRules) {
-            System.out.println("Preprocessor.preprocess(): add sortals to r: " + r);
+            if (debug) System.out.println("Preprocessor.preprocess(): add sortals to r: " + r);
             sortals.addSortals(r);
-            System.out.println("Preprocessor.preprocess(): result adding sortals to r: " + r);
+            if (debug) System.out.println("Preprocessor.preprocess(): result adding sortals to r: " + r);
             SuokifVisitor visitor = SuokifVisitor.parseString(r.getFormula());
-            System.out.println("Preprocessor.preprocess(): parsed r: " + visitor.result);
+            if (debug) System.out.println("Preprocessor.preprocess(): parsed r: " + visitor.result);
             finalRuleSet.addAll(visitor.result.values());
         }
         return finalRuleSet;
@@ -65,12 +70,12 @@ public class Preprocessor {
      */
     public HashSet<FormulaAST> reparse(HashSet<FormulaAST> rules) {
 
-        System.out.println("Preprocessor.reparse()");
+        if (debug) System.out.println("Preprocessor.reparse()");
         HashSet<FormulaAST> result = new HashSet<>();
         for (FormulaAST f : rules) {
-            System.out.println("Preprocessor.reparse(): " + f);
+            if (debug) System.out.println("Preprocessor.reparse(): " + f);
             SuokifVisitor visitor = SuokifVisitor.parseString(f.getFormula());
-            System.out.println("Preprocessor.reparse(): result" + visitor.result);
+            if (debug) System.out.println("Preprocessor.reparse(): result" + visitor.result);
             if (visitor.result != null && visitor.result.values().size() > 0)
                 result.add(visitor.result.values().iterator().next());
         }

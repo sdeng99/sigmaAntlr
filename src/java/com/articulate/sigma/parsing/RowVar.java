@@ -12,7 +12,7 @@ import java.util.HashSet;
 public class RowVar {
 
     public KB kb = null;
-    public boolean debug = true;
+    public boolean debug = false;
 
     /** ***************************************************************
      */
@@ -65,7 +65,10 @@ public class RowVar {
                             varName + " with varlist: " + varList);
                     String newliteral = literal.replace("@" + varName + ")", varList + ")"); // row vars are always at the end of an argument list
                     // and we don't want a false match to a part of a var name
-                    String newPredName = pred + "_" + Integer.toString(i+1);
+                    String fnSuffix = "Fn";
+                    if (!pred.endsWith("Fn"))
+                        fnSuffix = "";
+                    String newPredName = pred + "_" + Integer.toString(i+1) + fnSuffix;
                     if (debug) System.out.println("expandVariableArityRowVar(): replace pred : " +
                             pred + " with new pred: " + newPredName);
                     newliteral = newliteral.replace(pred, newPredName);
@@ -158,7 +161,10 @@ public class RowVar {
                     if (kb.kbCache.valences.get(pred) == -1 && rs.rowvar.equals(var)) {
                         String newliteral = literal.replace("@" + varName + ")", sb.toString() + ")"); // row vars are always at the end of an argument list
                         // and we don't want a false match to a part of a var name
-                        String newPredName = pred + "_" + Integer.toString(arity);
+                        String fnSuffix = "Fn";
+                        if (!pred.endsWith("Fn"))
+                            fnSuffix = "";
+                        String newPredName = pred + "_" + Integer.toString(arity) + fnSuffix;
                         if (debug) System.out.println("expandVariableArityRowVar(): replace pred : " +
                                 pred + " with new pred: " + newPredName);
                         if (debug) System.out.println("expandVariableArityRowVar(): in literal : " +

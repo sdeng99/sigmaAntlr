@@ -11,7 +11,7 @@ public class Sortals {
 
     private KB kb;
 
-    public boolean debug = true;
+    public boolean debug = false;
 
     /** ***************************************************************
      */

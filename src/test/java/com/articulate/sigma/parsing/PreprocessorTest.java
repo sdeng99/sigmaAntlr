@@ -15,7 +15,10 @@ public class PreprocessorTest {
     @Before
     public void init() {
 
+        long start = System.currentTimeMillis();
         KBmanager.getMgr().initializeOnce();
+        long end = (System.currentTimeMillis()-start)/1000;
+        System.out.println("PreprocessorTest.init(): total init time: " + end + " seconds");
     }
 
     /** ***************************************************************
@@ -23,12 +26,20 @@ public class PreprocessorTest {
     @Test
     public void test1() {
 
+        long start = System.currentTimeMillis();
         SuokifVisitor sv = new SuokifVisitor();
         sv.parseFile(System.getenv("SIGMA_HOME") + File.separator + "KBs" + File.separator + "Merge.kif");
         Preprocessor pre = new Preprocessor(KBmanager.getMgr().getKB(KBmanager.getMgr().getPref("sumokbname")));
+
+        sv.hasPredVar.removeAll(sv.multiplePredVar); // remove explosive rules with multiple predicate variables
+        sv.rules.removeAll(sv.multiplePredVar);
+        sv.hasRowVar.removeAll(sv.multiplePredVar);
+
         HashSet<FormulaAST> rules = pre.preprocess(sv.hasPredVar,sv.hasRowVar,sv.rules);
         HashSet<FormulaAST> result = pre.reparse(rules);
         System.out.println(result);
+        long end = (System.currentTimeMillis()-start)/1000;
+        System.out.println("PreprocessorTest.init(): total preprocess time: " + end + " seconds");
     }
 
     /** ***************************************************************
