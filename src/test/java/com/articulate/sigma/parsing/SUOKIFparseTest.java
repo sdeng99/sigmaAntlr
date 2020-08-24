@@ -5,6 +5,8 @@ import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.util.HashMap;
 
 public class SUOKIFparseTest {
@@ -37,6 +39,10 @@ public class SUOKIFparseTest {
             sb.append(f.getFormula() + "\n");
         }
         System.out.println("result: " + sb);
+        if (input.equals(sb.toString().trim()))
+            System.out.println("test1(): success!");
+        else
+            System.out.println("test1(): fail!");
         assertEquals(input,sb.toString());
         System.out.println();
     }
@@ -55,6 +61,10 @@ public class SUOKIFparseTest {
             sb.append(f.getFormula() + " ");
         }
         System.out.println("result: " + sb);
+        if (input.equals(sb.toString().trim()))
+            System.out.println("test2(): success!");
+        else
+            System.out.println("test2(): fail!");
         assertEquals(input,sb.toString().trim());
         System.out.println();
     }
@@ -73,6 +83,10 @@ public class SUOKIFparseTest {
             sb.append(f.getFormula() + " ");
         }
         System.out.println("result: " + sb);
+        if (input.equals(sb.toString().trim()))
+            System.out.println("test3(): success!");
+        else
+            System.out.println("test3(): fail!");
         assertEquals(input,sb.toString().trim());
         System.out.println();
     }
@@ -83,13 +97,22 @@ public class SUOKIFparseTest {
     public void predRowUnder() {
 
         System.out.println("predRowUnder(): ");
-        String input = "(=> (and (exhaustiveAttribute ?CLASS ?ROW1) (inList ?ATTR (ListFn_1 ?ROW1))) (instance ?ATTR Attribute))";
+        String input = "(=> (and (exhaustiveAttribute ?CLASS ?ROW1) (inList ?ATTR (ListFn_1Fn ?ROW1))) (instance ?ATTR Attribute))";
         HashMap<Integer,FormulaAST> hm = process(input);
         FormulaAST f = hm.values().iterator().next();
 
         f.printCaches();
+        if (0 == f.predVarCache.size())
+            System.out.println("predRowUnder(): success!");
+        else
+            System.out.println("predRowUnder(): fail!");
         assertEquals(0,f.predVarCache.size());
-        assertEquals(1,f.rowVarCache.size());
+
+        if (0 == f.rowVarCache.size())
+            System.out.println("predRowUnder(): success!");
+        else
+            System.out.println("predRowUnder(): fail!");
+        assertEquals(0,f.rowVarCache.size());
         System.out.println();
     }
 
@@ -104,7 +127,16 @@ public class SUOKIFparseTest {
         FormulaAST f = hm.values().iterator().next();
 
         f.printCaches();
+
+        if (0 == f.predVarCache.size())
+            System.out.println("predRow(): success!");
+        else
+            System.out.println("predRow(): fail!");
         assertEquals(0,f.predVarCache.size());
+        if (1 == f.rowVarCache.size())
+            System.out.println("predRow(): success!");
+        else
+            System.out.println("predRow(): fail!");
         assertEquals(1,f.rowVarCache.size());
         System.out.println();
     }
@@ -121,8 +153,38 @@ public class SUOKIFparseTest {
         FormulaAST f = hm.values().iterator().next();
 
         f.printCaches();
+        if (0 == f.predVarCache.size())
+            System.out.println("withSortals(): success!");
+        else
+            System.out.println("withSortals(): fail!");
         assertEquals(0,f.predVarCache.size());
+        if (1 == f.rowVarCache.size())
+            System.out.println("withSortals(): success!");
+        else
+            System.out.println("withSortals(): fail!");
         assertEquals(1,f.rowVarCache.size());
+        System.out.println();
+    }
+
+    /** ***************************************************************
+     */
+    @Test
+    public void hasNumber() {
+        System.out.println("hasNumber(): ");
+        String input = "(=>\n" +
+                "  (instance ?MORNING Morning)\n" +
+                "  (exists (?HOUR)\n" +
+                "    (and\n" +
+                "      (instance ?HOUR\n" +
+                "        (HourFn 12 ?DAY))\n" +
+                "      (finishes ?HOUR ?MORNING))))";
+        HashMap<Integer,FormulaAST> hm = process(input);
+        FormulaAST f = hm.values().iterator().next();
+        if (f.containsNumber)
+            System.out.println("hasNumber(): success!");
+        else
+            System.out.println("hasNumber(): fail!");
+        assertTrue(f.containsNumber);
         System.out.println();
     }
 }

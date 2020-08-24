@@ -34,6 +34,7 @@ public class FormulaAST extends Formula {
     public SuokifParser.SentenceContext parsedFormula = null;
 
     public boolean isRule = false;
+    public boolean containsNumber = false;
 
     public HashSet<String> antecedentTerms = new HashSet<>();
     public HashSet<String> consequentTerms = new HashSet<>();
@@ -106,7 +107,9 @@ public class FormulaAST extends Formula {
             }
         }
 
-        this.isRule = f.isRule;
+        this.isRule = this.isRule || f.isRule;
+        if (f.containsNumber)
+            this.containsNumber = true;
         this.rowvarLiterals.addAll(f.rowvarLiterals);
         this.constants.putAll(f.constants);
         for (String var : f.rowVarStructs.keySet()) {
@@ -175,6 +178,8 @@ public class FormulaAST extends Formula {
 
         this.eqList.addAll(f2.eqList);
         this.isRule = this.isRule || f2.isRule;
+        if (f2.containsNumber)
+            this.containsNumber = true;
         this.rowvarLiterals.addAll(f2.rowvarLiterals);
         this.constants.putAll(f2.constants);
         for (String var : f2.rowVarStructs.keySet()) {
@@ -245,6 +250,8 @@ public class FormulaAST extends Formula {
                 }
             }
             this.isRule = this.isRule || arf.isRule;
+            if (arf.containsNumber)
+                this.containsNumber = true;
             this.rowvarLiterals.addAll(arf.rowvarLiterals);
             this.constants.putAll(arf.constants);
             for (String var : arf.rowVarStructs.keySet()) {
@@ -343,6 +350,9 @@ public class FormulaAST extends Formula {
         System.out.println("varTypes: " + varTypes);
         System.out.println("predVarCache: " + predVarCache);
         System.out.println("explicitTypes: " + explicitTypes);
+
+        System.out.println("containsNumber: " + containsNumber);
+        System.out.println("higherOrder: " + higherOrder);
 
         System.out.println("eqlist: ");
         for (ArrayList<SuokifParser.TermContext> al : eqList) {

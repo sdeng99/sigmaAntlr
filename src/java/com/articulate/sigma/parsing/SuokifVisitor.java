@@ -12,6 +12,7 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
 
     public HashSet<FormulaAST> hasRowVar = new HashSet<>();
     public HashSet<FormulaAST> hasPredVar = new HashSet<>();
+    public HashSet<FormulaAST> hasNumber = new HashSet<>();
     public HashSet<FormulaAST> multipleRowVar = new HashSet<>();
     public HashSet<FormulaAST> multiplePredVar = new HashSet<>();
     public HashSet<FormulaAST> rules = new HashSet<>();
@@ -46,7 +47,7 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
      */
     public static SuokifVisitor parseString(String input) {
 
-        System.out.println(input);
+        if (debug) System.out.println(input);
         CodePointCharStream inputStream = CharStreams.fromString(input);
         SuokifLexer suokifLexer = new SuokifLexer(inputStream);
         CommonTokenStream commonTokenStream = new CommonTokenStream(suokifLexer);
@@ -138,6 +139,8 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
                     nonRulePredRow.add(f);
                     generateNonRuleKeys(f);
                 }
+                if (f.containsNumber)
+                    hasNumber.add(f);
             }
             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$CommentContext")) {
                 f = visitComment((SuokifParser.CommentContext) c);
@@ -185,6 +188,7 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
             }
         }
         if (debug) System.out.println("visitSentence() return sentence: " + f);
+        if (debug) System.out.println("visitSentence() return containsNumber: " + f.containsNumber);
         if (debug) System.out.println("visitSentence() rowvarstruct: " + f.rowVarStructs);
         f.unquantVarsCache = f.allVarsCache;
         f.quantVarsCache.addAll(f.existVarsCache);
@@ -250,9 +254,9 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
             if (debug) System.out.println("isRowVarArgument(): Visiting argument: " + pt2.getText());
             if (debug) System.out.println("isRowVarArgument(): Visiting argument type: " + pt2.getClass().getName());
             if (pt2.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$SentenceContext")) { // note the grammar has an ambiguous path where this should be term
-                SuokifParser.SentenceContext tc = (SuokifParser.SentenceContext) pt2;
-                if (debug) System.out.println("isRowVarArgument(): Visiting term: " + tc.getText());
-                ParseTree ptv = tc.children.iterator().next();
+                SuokifParser.SentenceContext sc = (SuokifParser.SentenceContext) pt2;
+                if (debug) System.out.println("isRowVarArgument(): Visiting sentence: " + sc.getText());
+                ParseTree ptv = sc.children.iterator().next();
                 if (ptv.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$VariableContext")) {
                     SuokifParser.VariableContext vc = (SuokifParser.VariableContext) ptv;
                     if (debug) System.out.println("isRowVarArgument(): Visiting variable: " + vc.getText());
@@ -260,6 +264,24 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
                         return true;
                 }
             }
+        }
+        return false;
+    }
+
+    /** ***************************************************************
+     * An argument that is a sentence that is not a variable means
+     * it's higher-order
+     *
+     * argument : (sentence | term) ;
+     * sentence : (relsent | logsent | quantsent | variable) ;
+     */
+    private boolean nonTermArg(SuokifParser.SentenceContext c) {
+
+        for (ParseTree pt2 : c.children) {
+            if (debug) System.out.println("nonTermArg(): Visiting argument: " + pt2.getText());
+            if (debug) System.out.println("nonTermArg(): Visiting argument type: " + pt2.getClass().getName());
+            if (!pt2.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$VariableContext"))
+                return true;
         }
         return false;
     }
@@ -336,6 +358,7 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
                 argnum++;
                 sb.append(f.getFormula() + " ");
                 argList.add(f.getFormula());
+                if (debug) System.out.println("Visiting relsent: containsNumber: " + f.containsNumber);
                 result.mergeFormulaAST(f);
             }
         }
@@ -370,6 +393,7 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
             result.constants.put(as.constant, as);
         }
         if (debug) System.out.println("visitRelsent(): returning with row var struct: " + result.rowVarStructs);
+        if (debug) System.out.println("visitRelsent: returning with containsNumber: " + result.containsNumber);
         return result;
     }
 
@@ -386,11 +410,16 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         FormulaAST f = null;
         for (ParseTree c : context.children) {
             if (debug) System.out.println("child of argument: " + c.getClass().getName());
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$SentenceContext"))
+            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$SentenceContext")) {
                 f = visitSentence((SuokifParser.SentenceContext) c);
+                if (nonTermArg((SuokifParser.SentenceContext) c))
+                    f.higherOrder = true;
+            }
             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$TermContext"))
                 f = visitTerm((SuokifParser.TermContext) c);
         }
+        if (debug) System.out.println("Visiting argument: returning with containsNumber: " + f.containsNumber);
+        if (debug) System.out.println("Visiting argument: higherOrder: " + f.higherOrder);
         return f;
     }
 
@@ -523,6 +552,7 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         f1.setFormula("(=> " + f1.getFormula() + " " + f2.getFormula() + ")");
         f1.mergeFormulaAST(f2);
         f1.isRule = true;
+        if (debug) System.out.println("visitImplies: returning with containsNumber: " + f1.containsNumber);
         return f1;
     }
 
@@ -706,20 +736,20 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
     public FormulaAST visitTerm(SuokifParser.TermContext context) {
 
         FormulaAST f = new FormulaAST();
-        if (debug) System.out.println("Visiting Term: " + context.getText());
-        if (debug) System.out.println("# children: " + context.children.size());
+        if (debug) System.out.println("visitTerm() Visiting Term: " + context.getText());
+        if (debug) System.out.println("visitTerm() # children: " + context.children.size());
         if (context.children.size() != 1)
             System.out.println("error in visitTerm() wrong # children: " + context.children.size());
-        if (debug) System.out.println("text: " + context.getText());
+        if (debug) System.out.println("visitTerm() text: " + context.getText());
         if (context.IDENTIFIER() != null) {
             String ident = context.IDENTIFIER().toString();
-            if (debug) System.out.println("identifier: " + ident);
+            if (debug) System.out.println("visitTerm() identifier: " + ident);
             f.termCache.add(ident);
             f.setFormula(ident);
         }
         if (context.FUNWORD() != null) {
             String funword = context.FUNWORD().toString();
-            if (debug) System.out.println("funword: " + funword);
+            if (debug) System.out.println("visitTerm() funword: " + funword);
             f.termCache.add(funword);
             f.setFormula(funword);
         }
@@ -733,8 +763,11 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
             }
             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$StringContext"))
                 f = visitString((SuokifParser.StringContext) c);
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$NumberContext"))
+            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$NumberContext")) {
                 f = visitNumber((SuokifParser.NumberContext) c);
+                f.containsNumber = true;
+                if (debug) System.out.println("visitTerm() found a number: " + c.getText());
+            }
         }
         return f;
     }
@@ -784,6 +817,7 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
                 argnum++;
                 arf.add(farg);
                 sb.append(farg.getFormula() + " ");
+                if (debug) System.out.println("Visiting funterm: containsNumber: " + farg.containsNumber);
                 result.mergeFormulaAST(farg);
             }
         }
@@ -799,6 +833,7 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
             result.addRowVarStruct(rs.rowvar,rs);
         }
         if (debug) System.out.println("visitFunterm(): returning with row var struct: " + result.rowVarStructs);
+        if (debug) System.out.println("Visiting funterm: returning with containsNumber: " + result.containsNumber);
         return result;
     }
 

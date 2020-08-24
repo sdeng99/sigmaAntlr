@@ -78,7 +78,7 @@ public class RowVarTest {
                 "    (contraryAttribute @ROW2))";
 
         HashSet<FormulaAST> hm = process(input);
-        System.out.println("one result: " + hm.iterator().next());
+        System.out.println("RowVarTest.test1(): one result: " + hm.iterator().next());
         System.out.println("RowVarTest.test1(): result size: " + hm.size());
         System.out.println("RowVarTest.test1(): expected size: " + 49);
         assertEquals(49,hm.size());
@@ -91,14 +91,14 @@ public class RowVarTest {
     public void test2() {
 
         String input = "(=> (and (minValue part ?ARG ?N) (part @ARGS) (equal ?VAL (ListOrderFn (ListFn @ARGS) ?ARG))) (greaterThan ?VAL ?N))";
-        String expected = "(=> (and (minValue part ?ARG ?N) (part ?ARGS1 ?ARGS2) (equal ?VAL (ListOrderFn (ListFn ?ARGS1 ?ARGS2) ?ARG))) (greaterThan ?VAL ?N))";
+        String expected = "(=> (and (minValue part ?ARG ?N) (part ?ARGS1 ?ARGS2) (equal ?VAL (ListOrderFn (ListFn_2Fn ?ARGS1 ?ARGS2) ?ARG))) (greaterThan ?VAL ?N))";
         HashSet<FormulaAST> hm = process(input);
         StringBuilder sb = new StringBuilder();
         for (FormulaAST f : hm) {
             f.printCaches();
             sb.append(f.getFormula() + "\n");
         }
-        System.out.println("result: " + sb);
+        System.out.println("RowVarTest.test2(): result: " + sb);
         assertEquals(expected,sb.toString().trim());
         System.out.println();
     }

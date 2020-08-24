@@ -94,7 +94,7 @@ public class RowVar {
      */
     public HashMap<String, Integer> findArities(FormulaAST f) {
 
-        if (f.getFormula().indexOf(" maxValue ") != -1) {
+        if (debug && f.getFormula().indexOf(" maxValue ") != -1) {
             System.out.println("findArities():" + f);
             f.printCaches();
         }
@@ -181,8 +181,10 @@ public class RowVar {
             flist = new HashSet<>();
             flist.addAll(result);
             if (debug) System.out.println("expandRowVar()  result for var: " + var);
-            if (debug) for (FormulaAST fp : flist)
-                System.out.println(fp.getFormula() + "\n");
+            if (debug) {
+                for (FormulaAST fp : flist)
+                    System.out.println(fp.getFormula() + "\n");
+            }
             result = new HashSet<>();
             result.addAll(flist);
         }
@@ -195,6 +197,7 @@ public class RowVar {
 
         HashSet<FormulaAST> result = new HashSet<>();
         for (FormulaAST f : rowvars)
+            if (!f.higherOrder && !f.containsNumber)
             result.addAll(expandRowVar(f));
         return result;
     }

@@ -37,14 +37,16 @@ public class PreprocessorTest {
 
         HashSet<FormulaAST> rules = pre.preprocess(sv.hasPredVar,sv.hasRowVar,sv.rules);
         HashSet<FormulaAST> result = pre.reparse(rules);
-        System.out.println(result);
+        if (result.size() < 100)
+            System.out.println("PreprocessorTest.test1(): " + result);
+        else
+            System.out.println("PreprocessorTest.test1() results too large to show");
         long end = (System.currentTimeMillis()-start)/1000;
         System.out.println("PreprocessorTest.init(): total preprocess time: " + end + " seconds");
     }
 
     /** ***************************************************************
      */
-    @Ignore
     @Test
     public void test2() {
 
@@ -63,6 +65,9 @@ public class PreprocessorTest {
         HashSet<FormulaAST> rules = pre.preprocess(sv.hasPredVar,sv.hasRowVar,sv.rules);
         System.out.println("PreprocessorTest.test2(): # after preprocess: " + rules.size());
         HashSet<FormulaAST> result = pre.reparse(rules);
-        System.out.println(result);
+        if (result.size() < 100)
+            System.out.println("PreprocessorTest.test2(): " + result);
+        else
+            System.out.println("PreprocessorTest.test2() results too large to show");
     }
 }

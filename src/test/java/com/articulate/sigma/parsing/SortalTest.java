@@ -126,7 +126,11 @@ public class SortalTest {
                 "      (equal\n" +
                 "        (ListLengthFn\n" +
                 "          (ListFn_2 ?ROW1 ?ROW2)) ?NUMBER))))";
-        String expected = "(=> (instance ?NUMBER PositiveInteger) " +
+        String expected = "(=>     " +
+                "    (and" +
+                "      (instance ?ROW1 BinaryFunction)\n" +
+                "      (instance ?ROW2 Integer)" +
+                "      (instance ?NUMBER PositiveInteger))" +
                 "(=>\n" +
                 "  (and\n" +
                 "    (valence identityElement ?NUMBER)\n" +

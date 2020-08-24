@@ -36,7 +36,7 @@ public class PredVarInst {
             HashSet<String> types = f.varTypes.get(var);
             HashSet<String> relations = new HashSet<>();
             for (String type : types) {
-                System.out.println("PredVarInst.processOne(): var,type: " + var + ":" + type);
+                if (debug) System.out.println("PredVarInst.processOne(): var,type: " + var + ":" + type);
                 if (relations.size() == 0)
                     relations.addAll(kb.kbCache.getInstancesForType(type));
                 else
@@ -76,6 +76,7 @@ public class PredVarInst {
         if (debug) System.out.println("PredVarInst.processAll()");
         HashSet<FormulaAST> result = new HashSet<>();
         for (FormulaAST fast : fs) {
+            if (fast.higherOrder || fast.containsNumber) continue;
             result.addAll(processOne(fast));
         }
         predVarInstDone = true;

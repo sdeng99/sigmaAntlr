@@ -37,7 +37,7 @@ public class VarTypes {
      */
     public String findTypeOfFunterm(SuokifParser.FuntermContext input) {
 
-        if (debug) System.out.println("VarTypes.findTypeOfFunterm(): input: " + input);
+        if (debug) System.out.println("VarTypes.findTypeOfFunterm(): input: " + input.getText());
         String type = "Entity";
         if (input.FUNWORD() != null) {
             String funword = input.FUNWORD().toString();
@@ -48,6 +48,8 @@ public class VarTypes {
 
     /** ***************************************************************
      * term : (funterm | variable | string | number | FUNWORD | IDENTIFIER ) ;
+     * Since types are not instances, always remove any trailing '+' denoting a
+     * class
      */
     public String findTypeOfTerm(SuokifParser.TermContext input, String sigType) {
 
@@ -57,7 +59,7 @@ public class VarTypes {
         if (input.IDENTIFIER() != null) {
             String ident = input.IDENTIFIER().getText();
             if (sigType.endsWith("+")) {
-                if (kb.kbCache.subclassOf(ident,sigType))
+                if (kb.kbCache.subclassOf(ident,sigType.substring(0,sigType.length()-1)))
                     type = ident;
             }
             else if (sigType.equals("SetOrClass") && !kb.isInstance(ident))
@@ -79,10 +81,18 @@ public class VarTypes {
                     type = "SymbolicString";
             }
             else if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$NumberContext")) {
-                if (!kb.kbCache.subclassOf(sigType,"Number"))
+                if (!kb.kbCache.subclassOf(sigType,"Quantity") && !sigType.equals("Quantity"))
                     System.out.println("error in findTypeOfTerm(): signature doesn't allow number " + c.getText());
-                else
-                    type = "Number";
+                else {
+                    if (c.getText().contains("."))
+                        type = "RealNumber";
+                    else
+                        type = "Integer";
+                    if (c.getText().startsWith("-"))
+                        type = "Negative" + type;
+                    else
+                        type = "Positive" + type;
+                }
             }
         }
         return type;
@@ -106,7 +116,9 @@ public class VarTypes {
             SuokifParser.TermContext arg2 = pair.get(1);
             ParseTree child1 = arg1.children.iterator().next();
             ParseTree child2 = arg2.children.iterator().next();
-            if (child1.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$FuntermContext")) {
+            if (arg1.IDENTIFIER() != null)
+                type = findTypeOfTerm(arg1,"Entity");
+            else if (child1.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$FuntermContext")) {
                 String funterm = ((SuokifParser.FuntermContext) child1).FUNWORD().toString();
                 type = kb.kbCache.getRange(funterm);
             }
@@ -117,9 +129,10 @@ public class VarTypes {
                 type = "SymbolicString";
             else if (child1.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$NumberContext"))
                 type = "Number";
-            else
-                System.out.println("Error in findEquationType(): assignment not allowed in " + f);
-            if (child2.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$FuntermContext")) {
+
+            if (arg2.IDENTIFIER() != null)
+                type = findTypeOfTerm(arg2,"Entity");
+            else if (child2.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$FuntermContext")) {
                 String funterm = ((SuokifParser.FuntermContext) child2).FUNWORD().toString();
                 type = kb.kbCache.getRange(funterm);
             }
@@ -130,9 +143,8 @@ public class VarTypes {
                 type = "SymbolicString";
             else if (child2.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$NumberContext"))
                 type = "Number";
-            else
-                System.out.println("Error in findEquationType(): assignment not allowed in " + f);
-            if (debug) System.out.println("var&type: " + var + " : " + type);
+
+            if (debug) System.out.println("findEquationType(): var&type: " + var + " : " + type);
             FormulaPreprocessor.addToMap(f.varTypes,var, type);
         }
     }
@@ -143,16 +155,18 @@ public class VarTypes {
      */
     public FormulaAST constrainVars(String rel, String var, FormulaAST f) {
 
+        if (var.startsWith("@"))
+            return f;
         HashMap<Integer, HashSet<SuokifParser.ArgumentContext>> argsForIndex = f.argMap.get(var);
         ArrayList<String> sig = kb.kbCache.getSignature(rel);
         if (sig == null || argsForIndex == null || argsForIndex.keySet().size() != sig.size()-1) { // signatures have a 0 element for function return type
             StringBuilder sb = new StringBuilder();
             for (Integer i : argsForIndex.keySet()) {
-                sb.append(i + " : " );
+                sb.append(i + " : ");
                 for (SuokifParser.ArgumentContext arg : argsForIndex.get(i))
                     sb.append(arg.getText() + ", ");
             }
-            System.out.println(sb.toString());
+            if (debug) System.out.println("VarTypes.constrainVars(): " + sb.toString());
             if (sb.toString().contains("@")) {
                 if (debug) System.out.println("Arg mismatch caused by row variable " + argsForIndex.keySet());
             }
@@ -161,7 +175,17 @@ public class VarTypes {
                 System.out.println("VarTypes.constrainVars():line and file: " + f.sourceFile + " " + f.startLine);
                 System.out.println("When substituting " + rel + " for " + var);
                 System.out.println("sig " + sig);
-                System.out.print("argsForIndex ");
+                System.out.print("argsForIndex: ");
+                if (argsForIndex != null) {
+                    for (Integer i : argsForIndex.keySet()) {
+                        sb.append(i + " : ");
+                        for (SuokifParser.ArgumentContext arg : argsForIndex.get(i))
+                            sb.append(arg.getText() + ", ");
+                    }
+                    System.out.println("VarTypes.constrainVars(): " + sb.toString());
+                }
+                else
+                    System.out.println("is null");
             }
         }
         else {
@@ -197,15 +221,83 @@ public class VarTypes {
     }
 
     /** ***************************************************************
-     * @param pred is the relation name
-     * @param argType is the type of the argument, with an appended '+' if it's a subclass of a given class
-     * @param sigType is the required type of the argument,
+     * The type specialization of MeasureFn is a special case
+     * funterm : '(' FUNWORD argument+ ')' ;
+     * argument : (sentence | term) ;
+     * term : (funterm | variable | string | number | FUNWORD | IDENTIFIER ) ;
      */
-    public boolean argTypeOk(String pred, String argType, String sigType) {
+    public boolean functionSpecializationAllowed(ParseTree c, String sigTypeNoSuffix) {
 
-        if (!argType.equals(sigType) && !kb.kbCache.subclassOf(argType,sigType))
+        if (debug) System.out.println("VarTypes.functionSpecializationAllowed(): Checking " +
+                c.getText() + " for fit with sig " + sigTypeNoSuffix);
+        if (debug) System.out.println("VarTypes.functionSpecializationAllowed(): expression type: " + c.getClass().getName());
+        if (!c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$TermContext")) {
             return false;
-        return true;
+        }
+        else {
+            SuokifParser.TermContext tc = (SuokifParser.TermContext) c;
+            for (ParseTree firsttc : tc.children) {
+                if (debug) System.out.println("VarTypes.functionSpecializationAllowed(): firsttc expression type: " + firsttc.getClass().getName());
+                if (!firsttc.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$FuntermContext"))
+                    return false;
+                else {
+                    SuokifParser.FuntermContext fc = (SuokifParser.FuntermContext) firsttc;
+                    if (fc.FUNWORD() != null) {
+                        String funword = fc.FUNWORD().getText();
+                        if (debug)
+                            System.out.println("VarTypes.functionSpecializationAllowed(): funword: " + funword);
+                        if (funword.equals("MeasureFn")) {
+                            int argnum = 1;
+                            String type = null;
+                            for (ParseTree ptc : fc.children) {
+                                if (debug) System.out.println("VarTypes.functionSpecializationAllowed(): argnum: " + argnum);
+                                if (debug) System.out.println("VarTypes.functionSpecializationAllowed(): ptc expression type: " + ptc.getClass().getName());
+                                if (debug) System.out.println("VarTypes.functionSpecializationAllowed(): ptc: " + ptc.getText());
+                                if (ptc.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$ArgumentContext")) {
+                                    SuokifParser.ArgumentContext ac = (SuokifParser.ArgumentContext) ptc;
+                                    for (ParseTree ptc2 : ac.children) {
+                                        if (debug) System.out.println("VarTypes.functionSpecializationAllowed(): ptc2 expression type: " + ptc2.getClass().getName());
+                                        if (debug) System.out.println("VarTypes.functionSpecializationAllowed(): ptc2: " + ptc2.getText());
+                                        if (argnum == 4) {
+                                            SuokifParser.TermContext othertc = (SuokifParser.TermContext) ptc2;
+                                            if (othertc.IDENTIFIER() != null) {
+                                                type = othertc.IDENTIFIER().getText();
+                                                if (debug)
+                                                    System.out.println("VarTypes.functionSpecializationAllowed(): found type: " + type);
+                                            }
+                                        }
+                                    }
+                                }
+                                argnum++;
+                            }
+                            if (type == null)
+                                if (debug)
+                                    System.out.println("VarTypes.functionSpecializationAllowed(): no type found");
+                            if (type != null && type.endsWith("+") &&
+                                    (kb.kbCache.subclassOf(type.substring(0,type.length()-1), sigTypeNoSuffix) ||
+                                            type.substring(0,type.length()-1).equals(sigTypeNoSuffix))) {
+                                if (debug)
+                                    System.out.println("VarTypes.functionSpecializationAllowed(): type fits! (and is a class)");
+                                return true;
+                            }
+                            else if (type != null && !type.endsWith("+") && kb.kbCache.isInstanceOf(type, sigTypeNoSuffix)) {
+                                if (debug)
+                                    System.out.println("VarTypes.functionSpecializationAllowed(): type fits! (and is an instance)");
+                                return true;
+                            }
+                            else {
+                                if (debug)
+                                    System.out.println("VarTypes.functionSpecializationAllowed(): type " + type + " not an instance of " + sigTypeNoSuffix);
+                            }
+                        }
+                        else
+                            if (debug)
+                                System.out.println("VarTypes.functionSpecializationAllowed(): not a MeasureFn");
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /** ***************************************************************
@@ -230,7 +322,10 @@ public class VarTypes {
      * and find the type of that argument.  If the argument is a variable,
      * add the type to the variable type map (varTypeMap).  If the argument
      * is not a variable, make sure it is allowed as a argument, given the
-     * signature of the predicate.  If not, report an error.
+     * signature of the predicate.  If not, report an error.  Handling
+     * functions that are arguments requires a special case to call
+     * findTypeOfFunterm.  MeasureFn is a special case of function arguments
+     * since the type of the measure indicates the return type of the function.
      *
      * argument : (sentence | term) ;
      * sentence : (relsent | logsent | quantsent | variable) ;
@@ -242,7 +337,15 @@ public class VarTypes {
         for (String pred : f.argMap.keySet()) {
             if (debug) System.out.println("VarTypes.findType():relation: " + pred);
             HashMap<Integer, HashSet<SuokifParser.ArgumentContext>> argsForIndex = f.argMap.get(pred);
-            if (debug) System.out.println("VarTypes.findType(): argsForIndex: " + argsForIndex);
+            if (debug) {
+                for (Integer key : argsForIndex.keySet()) {
+                    System.out.println("VarTypes.findType(): argsForIndex: key " + key);
+                    for (SuokifParser.ArgumentContext ac : argsForIndex.get(key)) {
+                        System.out.print(ac.getText() + ", ");
+                    }
+                    System.out.println();
+                }
+            }
             if (argsForIndex == null || Formula.isVariable(pred))
                 continue;
             if (debug) {
@@ -250,19 +353,33 @@ public class VarTypes {
                 printContexts(argsForIndex);
             }
             ArrayList<String> sig = kb.kbCache.getSignature(pred);
-            if (debug) System.out.println("VarTypes.findType():signature: " + sig);
             if (sig == null) {
-                System.out.println("Error in VarTypes.findType(): null signature in formula " + f);
+                System.out.println("Error in VarTypes.findType(): null signature in formula " + f + " for pred: " + pred);
                 continue;
             }
+            if (sig.contains("Formula")) {
+                f.higherOrder = true;
+                return;  // no point in continuing since all preprocessing is just to translate to TPTP
+            }
+            if (debug) System.out.println("VarTypes.findType():signature: " + sig);
             if (kb.kbCache.getArity(pred) != -1 && argsForIndex.keySet().size() != sig.size()-1) { // signatures have a 0 element for function return type
-                System.out.println("Error in VarTypes.findType(): mismatched argument type lists:");
-                System.out.println("VarTypes.findType():relation: " + pred);
-                for (Integer argnum : argsForIndex.keySet())
-                    for (SuokifParser.ArgumentContext arg : argsForIndex.get(argnum))
-                        System.out.println("VarTypes.findType(): argsForIndex: " + argnum + " : " + arg.getText());
-                System.out.println("VarTypes.findType(): sig: " + sig);
-                System.out.println("VarTypes.findType():line and file: " + f.sourceFile + " " + f.startLine);
+                StringBuilder sb = new StringBuilder();
+                for (Integer i : argsForIndex.keySet()) {
+                    sb.append(i + " : ");
+                    for (SuokifParser.ArgumentContext arg : argsForIndex.get(i))
+                        sb.append(arg.getText() + ", ");
+                }
+                if (debug) System.out.println("VarTypes.findType(): " + sb.toString());
+                if (sb.toString().contains("@")) {
+                    if (debug) System.out.println("Arg mismatch caused by row variable " + argsForIndex.keySet());
+                }
+                else {
+                    System.out.println("Error in VarTypes.findType(): mismatched argument type lists:");
+                    System.out.println("VarTypes.findType():relation: " + pred);
+                    System.out.println("VarTypes.findType(): argsForIndex: " + sb.toString());
+                    System.out.println("VarTypes.findType(): sig: " + sig);
+                    System.out.println("VarTypes.findType():line and file: " + f.sourceFile + " " + f.startLine);
+                }
             }
             else {
                 for (Integer i : argsForIndex.keySet()) {
@@ -292,10 +409,10 @@ public class VarTypes {
                                 }
                             }
                             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$TermContext")) {
-                                String t = findTypeOfTerm((SuokifParser.TermContext) c, sigTypeAtIndex);
+                                String t = findTypeOfTerm((SuokifParser.TermContext) c, sigTypeAtIndex); // the type of the argument
                                 if (kb.isInstance(c.getText())) {
                                     if (!kb.kbCache.isInstanceOf(c.getText(),sigTypeAtIndex))
-                                        System.out.println("Error in VarTypes.findType(): arg " + c.getText() + " of type " + t +
+                                        System.out.println("Error in VarTypes.findType(): instance arg " + c.getText() + " of type " + t +
                                                 " not allowed as argument " + i + " to relation " + pred + " in formula " + f +
                                                 " that requires " + sigTypeAtIndex);
                                 }
@@ -303,8 +420,12 @@ public class VarTypes {
                                     String sigTypeNoSuffix = sigTypeAtIndex;
                                     if (sigTypeAtIndex.endsWith("+"))
                                         sigTypeNoSuffix = sigTypeAtIndex.substring(0,sigTypeAtIndex.length()-1); // remove the trailing '+'
-                                    if (!sigTypeNoSuffix.equals(t) && !kb.isSubclass(t, sigTypeNoSuffix) && sigTypeNoSuffix.equals("SetOrClass") )
-                                        System.out.println("Error in VarTypes.findType(): arg " + c.getText() + " of type " + t +
+                                    String tNoSuffix = t;
+                                    if (t.endsWith("+"))
+                                        tNoSuffix = t.substring(0,t.length()-1); // remove the trailing '+'
+                                    if (!sigTypeNoSuffix.equals(tNoSuffix) && !kb.isSubclass(tNoSuffix, sigTypeNoSuffix) && !sigTypeNoSuffix.equals("SetOrClass") )
+                                        if (!functionSpecializationAllowed(c,sigTypeNoSuffix))
+                                            System.out.println("Error in VarTypes.findType(): arg " + c.getText() + " of type " + tNoSuffix +
                                                 " not allowed as argument " + i + " to relation " + pred + " in formula " + f +
                                                 " that requires " + sigTypeNoSuffix);
                                 }
@@ -336,9 +457,12 @@ public class VarTypes {
     public void findTypes() {
 
         for (FormulaAST f : formulas) {
-            findType(f);
-            findEquationType(f);
-            findRelationsAsArgs(f);
+            if (!f.higherOrder) // could have been found while parsing
+                findType(f);
+            if (!f.higherOrder) { // or could have been found when looking at relation signatures
+                findEquationType(f);
+                findRelationsAsArgs(f);
+            }
         }
     }
 }

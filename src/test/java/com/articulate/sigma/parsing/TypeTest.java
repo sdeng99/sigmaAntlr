@@ -97,7 +97,7 @@ public class TypeTest {
                 "      (ListOrderFn\n" +
                 "        (ListFn @ARGS) ?ARG)))\n" +
                 "  (greaterThan ?N ?VAL))\n";
-        String expected = "{?OBJ=[SelfConnectedObject, Entity, Object], ?PART2=[Object], ?PART1=[Object]}";
+        String expected = "{?REL=[Predicate], ?ARG=[Integer, PositiveInteger], ?N=[Quantity], ?VAL=[Entity, Quantity]}";
         String result = process(input,expected);
         assertEquals(expected,result);
     }
