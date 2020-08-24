@@ -1,0 +1,1943 @@
+INFO in KB.main()
+row var axioms: [(=>
+  (and
+    (maxValue ?REL ?ARG ?N)
+    (?REL @ARGS)
+    (equal ?VAL
+      (ListOrderFn
+        (ListFn @ARGS) ?ARG)))
+  (greaterThan ?N ?VAL)), (forall (@ROW ?ITEM)
+  (initialList
+    (ListFn @ROW)
+    (ListFn @ROW ?ITEM))), (=>
+  (equal
+    (GreatestCommonDivisorFn @ROW) ?NUMBER)
+  (not
+    (exists (?GREATER)
+      (and
+        (greaterThan ?GREATER ?NUMBER)
+        (forall (?ELEMENT)
+          (=>
+            (inList ?ELEMENT
+              (ListFn @ROW))
+            (equal
+              (RemainderFn ?ELEMENT ?GREATER) 0))))))), (=>
+  (equal
+    (LeastCommonMultipleFn @ROW) ?NUMBER)
+  (=>
+    (inList ?ELEMENT
+      (ListFn @ROW))
+    (instance ?ELEMENT Number))), (=>
+  (and
+    (minValue ?REL ?ARG ?N)
+    (?REL @ARGS)
+    (equal ?VAL
+      (ListOrderFn
+        (ListFn @ARGS) ?ARG)))
+  (greaterThan ?VAL ?N)), (=>
+  (disjointDecomposition ?CLASS @ROW)
+  (forall (?ITEM)
+    (=>
+      (inList ?ITEM
+        (ListFn @ROW))
+      (subclass ?ITEM ?CLASS)))), (=>
+  (and
+    (domain ?REL ?NUMBER ?CLASS)
+    (instance ?REL Predicate)
+    (?REL @ROW))
+  (instance
+    (ListOrderFn
+      (ListFn @ROW) ?NUMBER) ?CLASS)), (=>
+  (equal
+    (GreatestCommonDivisorFn @ROW) ?NUMBER)
+  (forall (?ELEMENT)
+    (=>
+      (inList ?ELEMENT
+        (ListFn @ROW))
+      (equal
+        (RemainderFn ?ELEMENT ?NUMBER) 0)))), (=>
+  (equal
+    (LeastCommonMultipleFn @ROW) ?NUMBER)
+  (not
+    (exists (?LESS)
+      (and
+        (lessThan ?LESS ?NUMBER)
+        (forall (?ELEMENT)
+          (=>
+            (inList ?ELEMENT
+              (ListFn @ROW))
+            (equal
+              (RemainderFn ?LESS ?ELEMENT) 0))))))), (=>
+  (and
+    (instance ?REL1 Predicate)
+    (instance ?REL2 Predicate)
+    (disjointRelation ?REL1 ?REL2)
+    (?REL1 @ROW2))
+  (not
+    (?REL2 @ROW2))), (=>
+  (and
+    (domainSubclass ?REL ?NUMBER ?CLASS)
+    (instance ?REL Predicate)
+    (?REL @ROW))
+  (subclass
+    (ListOrderFn
+      (ListFn @ROW) ?NUMBER) ?CLASS)), (=>
+  (and
+    (exhaustiveAttribute ?CLASS @ROW)
+    (inList ?ATTR
+      (ListFn @ROW)))
+  (instance ?ATTR ?CLASS)), (=>
+  (and
+    (range ?FUNCTION ?CLASS)
+    (equal
+      (AssignmentFn ?FUNCTION @ROW) ?VALUE))
+  (instance ?VALUE ?CLASS)), (=>
+  (exhaustiveDecomposition @ROW)
+  (=>
+    (inList ?ELEMENT
+      (ListFn @ROW))
+    (instance ?ELEMENT Class))), (=>
+  (and
+    (exhaustiveAttribute ?CLASS @ROW)
+    (inList ?ATTR
+      (ListFn @ROW)))
+  (instance ?ATTR Attribute)), (=>
+  (and
+    (contraryAttribute @ROW1)
+    (identicalListItems
+      (ListFn @ROW1)
+      (ListFn @ROW2)))
+  (contraryAttribute @ROW2)), (<=>
+  (and
+    (instance ?REL TotalValuedRelation)
+    (instance ?REL Predicate))
+  (exists (?VALENCE)
+    (and
+      (instance ?REL Relation)
+      (valence ?REL ?VALENCE)
+      (=>
+        (forall (?NUMBER ?ELEMENT ?CLASS)
+          (=>
+            (and
+              (lessThan ?NUMBER ?VALENCE)
+              (domain ?REL ?NUMBER ?CLASS)
+              (equal ?ELEMENT
+                (ListOrderFn
+                  (ListFn @ROW) ?NUMBER)))
+            (instance ?ELEMENT ?CLASS)))
+        (exists (?ITEM)
+          (?REL @ROW ?ITEM)))))), (=>
+  (exhaustiveAttribute ?CLASS @ROW)
+  (=>
+    (equal ?ATTR1
+      (ListOrderFn
+        (ListFn @ROW) ?N1))
+    (not
+      (exists (?ATTR2 ?N2)
+        (and
+          (equal ?ATTR1 ?ATTR2)
+          (not
+            (equal ?N1 ?N2))))))), (=>
+  (contraryAttribute @ROW)
+  (=>
+    (inList ?ELEMENT
+      (ListFn @ROW))
+    (instance ?ELEMENT Attribute))), (=>
+  (and
+    (defaultMaxValue ?REL ?ARG ?N)
+    (?REL @ARGS)
+    (equal ?VAL
+      (ListOrderFn
+        (ListFn @ARGS) ?ARG)))
+  (modalAttribute
+    (greaterThan ?N ?VAL) Likely)), (=>
+  (equal
+    (LeastCommonMultipleFn @ROW) ?NUMBER)
+  (forall (?ELEMENT)
+    (=>
+      (inList ?ELEMENT
+        (ListFn @ROW))
+      (equal
+        (RemainderFn ?NUMBER ?ELEMENT) 0)))), (=>
+  (exhaustiveAttribute ?ATTRCLASS @ROW)
+  (not
+    (exists (?EL)
+      (and
+        (instance ?EL ?ATTRCLASS)
+        (not
+          (exists (?ATTR ?NUMBER)
+            (and
+              (equal ?EL ?ATTR)
+              (equal ?ATTR
+                (ListOrderFn
+                  (ListFn @ROW) ?NUMBER))))))))), (<=>
+  (partition @ROW)
+  (and
+    (exhaustiveDecomposition @ROW)
+    (disjointDecomposition @ROW))), (=>
+  (and
+    (defaultMinValue ?REL ?ARG ?N)
+    (?REL @ARGS)
+    (equal ?VAL
+      (ListOrderFn
+        (ListFn @ARGS) ?ARG)))
+  (modalAttribute
+    (greaterThan ?VAL ?N) Likely)), (=>
+  (disjointDecomposition @ROW)
+  (=>
+    (inList ?ELEMENT
+      (ListFn @ROW))
+    (instance ?ELEMENT Class))), (=>
+  (and
+    (rangeSubclass ?FUNCTION ?CLASS)
+    (equal
+      (AssignmentFn ?FUNCTION @ROW) ?VALUE))
+  (subclass ?VALUE ?CLASS)), (=>
+  (exhaustiveDecomposition ?CLASS @ROW)
+  (forall (?OBJ)
+    (=>
+      (instance ?OBJ ?CLASS)
+      (exists (?ITEM)
+        (and
+          (inList ?ITEM
+            (ListFn @ROW))
+          (instance ?OBJ ?ITEM)))))), (=>
+  (disjointDecomposition ?CLASS @ROW)
+  (forall (?ITEM1 ?ITEM2)
+    (=>
+      (and
+        (inList ?ITEM1
+          (ListFn @ROW))
+        (inList ?ITEM2
+          (ListFn @ROW))
+        (not
+          (equal ?ITEM1 ?ITEM2)))
+      (disjoint ?ITEM1 ?ITEM2)))), (=>
+  (and
+    (defaultValue ?REL ?ARG ?N)
+    (?REL @ARGS)
+    (equal ?VAL
+      (ListOrderFn
+        (ListFn @ARGS) ?ARG)))
+  (modalAttribute
+    (equal ?N ?VAL) Likely)), (=>
+  (and
+    (orientation ?OBJ1 ?OBJ2 ?ATTR1)
+    (contraryAttribute @ROW)
+    (inList ?ATTR1
+      (ListFn @ROW))
+    (inList ?ATTR2
+      (ListFn @ROW))
+    (not
+      (equal ?ATTR1 ?ATTR2)))
+  (not
+    (orientation ?OBJ1 ?OBJ2 ?ATTR2))), (=>
+  (and
+    (subrelation ?REL1 ?REL2)
+    (instance ?REL1 Predicate)
+    (instance ?REL2 Predicate)
+    (?REL1 @ROW))
+  (?REL2 @ROW)), (=>
+  (equal
+    (GreatestCommonDivisorFn @ROW) ?NUMBER)
+  (=>
+    (inList ?ELEMENT
+      (ListFn @ROW))
+    (instance ?ELEMENT Number))), (forall (@ROW ?ITEM)
+  (equal
+    (ListLengthFn
+      (ListFn @ROW ?ITEM))
+    (SuccessorFn
+      (ListLengthFn
+        (ListFn @ROW))))), (=>
+  (and
+    (valence ?REL ?NUMBER)
+    (instance ?REL Predicate))
+  (forall (@ROW)
+    (=>
+      (?REL @ROW)
+      (equal
+        (ListLengthFn
+          (ListFn @ROW)) ?NUMBER)))), (=>
+  (exhaustiveAttribute ?CLASS @ROW)
+  (forall (?ATTR1)
+    (=>
+      (instance ?ATTR1 ?CLASS)
+      (exists (?ATTR2)
+        (and
+          (inList ?ATTR2
+            (ListFn @ROW))
+          (equal ?ATTR1 ?ATTR2)))))), (forall (@ROW ?ITEM)
+  (equal
+    (ListOrderFn
+      (ListFn @ROW ?ITEM)
+      (ListLengthFn
+        (ListFn @ROW ?ITEM))) ?ITEM)), (=>
+  (equal ?LIST1 ?LIST2)
+  (=>
+    (and
+      (equal ?LIST1
+        (ListFn @ROW1))
+      (equal ?LIST2
+        (ListFn @ROW2)))
+    (forall (?NUMBER)
+      (equal
+        (ListOrderFn
+          (ListFn @ROW1) ?NUMBER)
+        (ListOrderFn
+          (ListFn @ROW2) ?NUMBER))))), (=>
+  (contraryAttribute @ROW)
+  (forall (?ATTR1 ?ATTR2)
+    (=>
+      (and
+        (equal ?ATTR1
+          (ListOrderFn
+            (ListFn @ROW) ?NUMBER1))
+        (equal ?ATTR2
+          (ListOrderFn
+            (ListFn @ROW) ?NUMBER2))
+        (not
+          (equal ?NUMBER1 ?NUMBER2)))
+      (=>
+        (property ?OBJ ?ATTR1)
+        (not
+          (property ?OBJ ?ATTR2)))))), (=>
+  (and
+    (instance ?REL IntentionalRelation)
+    (?REL ?AGENT @ROW)
+    (inList ?OBJ
+      (ListFn @ROW)))
+  (inScopeOfInterest ?AGENT ?OBJ))]
+row var count: 39
+pred var axioms: [(=>
+  (and
+    (maxValue ?REL ?ARG ?N)
+    (?REL @ARGS)
+    (equal ?VAL
+      (ListOrderFn
+        (ListFn @ARGS) ?ARG)))
+  (greaterThan ?N ?VAL)), (=>
+  (instance ?REL IrreflexiveRelation)
+  (forall (?INST)
+    (not
+      (?REL ?INST ?INST)))), (=>
+  (instance ?REL TransitiveRelation)
+  (forall (?INST1 ?INST2 ?INST3)
+    (=>
+      (and
+        (?REL ?INST1 ?INST2)
+        (?REL ?INST2 ?INST3))
+      (?REL ?INST1 ?INST3)))), (=>
+  (and
+    (minValue ?REL ?ARG ?N)
+    (?REL @ARGS)
+    (equal ?VAL
+      (ListOrderFn
+        (ListFn @ARGS) ?ARG)))
+  (greaterThan ?VAL ?N)), (=>
+  (and
+    (trichotomizingOn ?RELATION ?CLASS)
+    (instance ?RELATION Predicate))
+  (forall (?INST1 ?INST2)
+    (=>
+      (and
+        (instance ?INST1 ?CLASS)
+        (instance ?INST2 ?CLASS))
+      (and
+        (?RELATION ?INST1 ?INST2)
+        (?RELATION ?INST2 ?INST1)
+        (equal ?INST1 ?INST2))))), (=>
+  (and
+    (instance ?REL ObjectAttitude)
+    (?REL ?AGENT ?THING))
+  (instance ?THING Physical)), (=>
+  (capability ?PROCESS ?ROLE ?OBJ)
+  (modalAttribute
+    (exists (?P)
+      (and
+        (instance ?P ?PROCESS)
+        (?ROLE ?P ?OBJ))) Possibility)), (=>
+  (and
+    (holdsDuring ?INTERVAL
+      (?REL ?INST1 ?INST2))
+    (instance ?INST1 Physical)
+    (instance ?INST2 Physical))
+  (and
+    (time ?INST1 ?INTERVAL)
+    (time ?INST2 ?INTERVAL))), (=>
+  (and
+    (domain ?REL ?NUMBER ?CLASS)
+    (instance ?REL Predicate)
+    (?REL @ROW))
+  (instance
+    (ListOrderFn
+      (ListFn @ROW) ?NUMBER) ?CLASS)), (=>
+  (and
+    (instance ?REL1 Predicate)
+    (instance ?REL2 Predicate)
+    (disjointRelation ?REL1 ?REL2)
+    (?REL1 @ROW2))
+  (not
+    (?REL2 @ROW2))), (=>
+  (and
+    (instance ?FUNCTION UnitOfMeasureMultiplier)
+    (instance ?UNIT CompositeUnitOfMeasure))
+  (instance
+    (?FUNCTION ?UNIT) CompositeUnitOfMeasure)), (=>
+  (and
+    (instance ?REL RelationExtendedToQuantities)
+    (equal ?Q1
+      (MeasureFn ?I1 ?U))
+    (equal ?Q2
+      (MeasureFn ?I2 ?U))
+    (?REL ?I1 ?I2))
+  (?REL ?Q1 ?Q2)), (=>
+  (and
+    (domainSubclass ?REL ?NUMBER ?CLASS)
+    (instance ?REL Predicate)
+    (?REL @ROW))
+  (subclass
+    (ListOrderFn
+      (ListFn @ROW) ?NUMBER) ?CLASS)), (<=>
+  (and
+    (instance ?REL TotalValuedRelation)
+    (instance ?REL Predicate))
+  (exists (?VALENCE)
+    (and
+      (instance ?REL Relation)
+      (valence ?REL ?VALENCE)
+      (=>
+        (forall (?NUMBER ?ELEMENT ?CLASS)
+          (=>
+            (and
+              (lessThan ?NUMBER ?VALENCE)
+              (domain ?REL ?NUMBER ?CLASS)
+              (equal ?ELEMENT
+                (ListOrderFn
+                  (ListFn @ROW) ?NUMBER)))
+            (instance ?ELEMENT ?CLASS)))
+        (exists (?ITEM)
+          (?REL @ROW ?ITEM)))))), (=>
+  (instance ?REL TotalOrderingRelation)
+  (forall (?INST1 ?INST2)
+    (and
+      (and
+        (?REL ?INST1 ?INST2)
+        (?REL ?INST2 ?INST1))
+      (and
+        (not
+          (?REL ?INST1 ?INST2))
+        (not
+          (?REL ?INST2 ?INST1)))))), (=>
+  (and
+    (defaultMaxValue ?REL ?ARG ?N)
+    (?REL @ARGS)
+    (equal ?VAL
+      (ListOrderFn
+        (ListFn @ARGS) ?ARG)))
+  (modalAttribute
+    (greaterThan ?N ?VAL) Likely)), (=>
+  (instance ?REL TrichotomizingRelation)
+  (forall (?INST1 ?INST2)
+    (and
+      (and
+        (?REL ?INST1 ?INST2)
+        (not
+          (equal ?INST1 ?INST2))
+        (not
+          (?REL ?INST2 ?INST1)))
+      (and
+        (not
+          (?REL ?INST1 ?INST2))
+        (equal ?INST1 ?INST2)
+        (not
+          (?REL ?INST2 ?INST1)))
+      (and
+        (not
+          (?REL ?INST1 ?INST2))
+        (not
+          (equal ?INST1 ?INST2))
+        (?REL ?INST2 ?INST1))))), (=>
+  (and
+    (instance ?REL PropositionalAttitude)
+    (?REL ?AGENT ?FORMULA))
+  (instance ?FORMULA Formula)), (=>
+  (and
+    (instance ?REL CaseRole)
+    (instance ?OBJ Object)
+    (?REL ?PROCESS ?OBJ))
+  (exists (?TIME)
+    (overlapsSpatially
+      (WhereFn ?PROCESS ?TIME) ?OBJ))), (=>
+  (and
+    (defaultMinValue ?REL ?ARG ?N)
+    (?REL @ARGS)
+    (equal ?VAL
+      (ListOrderFn
+        (ListFn @ARGS) ?ARG)))
+  (modalAttribute
+    (greaterThan ?VAL ?N) Likely)), (=>
+  (and
+    (instance ?FUNCTION UnitOfMeasureMultiplier)
+    (instance ?UNIT NonCompositeUnitOfMeasure))
+  (instance
+    (?FUNCTION ?UNIT) NonCompositeUnitOfMeasure)), (=>
+  (and
+    (instance ?ROLE CaseRole)
+    (?ROLE ?ARG1 ?ARG2)
+    (instance ?ARG1 ?PROC)
+    (subclass ?PROC Process))
+  (capability ?PROC ?ROLE ?ARG2)), (=>
+  (and
+    (instance ?REL BinaryPredicate)
+    (instance ?REL SpatialRelation)
+    (?REL ?OBJ1 ?OBJ2))
+  (overlapsTemporally
+    (WhenFn ?OBJ1)
+    (WhenFn ?OBJ2))), (=>
+  (and
+    (instance ?REL RelationExtendedToQuantities)
+    (instance ?REL BinaryPredicate)
+    (instance ?NUMBER1 RealNumber)
+    (instance ?NUMBER2 RealNumber)
+    (?REL ?NUMBER1 ?NUMBER2))
+  (forall (?UNIT)
+    (=>
+      (instance ?UNIT UnitOfMeasure)
+      (?REL
+        (MeasureFn ?NUMBER1 ?UNIT)
+        (MeasureFn ?NUMBER2 ?UNIT))))), (=>
+  (instance ?REL SymmetricRelation)
+  (forall (?INST1 ?INST2)
+    (=>
+      (?REL ?INST1 ?INST2)
+      (?REL ?INST2 ?INST1)))), (=>
+  (instance ?REL AntisymmetricRelation)
+  (forall (?INST1 ?INST2)
+    (=>
+      (and
+        (?REL ?INST1 ?INST2)
+        (?REL ?INST2 ?INST1))
+      (equal ?INST1 ?INST2)))), (=>
+  (and
+    (defaultValue ?REL ?ARG ?N)
+    (?REL @ARGS)
+    (equal ?VAL
+      (ListOrderFn
+        (ListFn @ARGS) ?ARG)))
+  (modalAttribute
+    (equal ?N ?VAL) Likely)), (=>
+  (and
+    (irreflexiveOn ?RELATION ?CLASS)
+    (instance ?RELATION Predicate))
+  (forall (?INST)
+    (=>
+      (instance ?INST ?CLASS)
+      (not
+        (?RELATION ?INST ?INST))))), (=>
+  (and
+    (subrelation ?REL1 ?REL2)
+    (instance ?REL1 Predicate)
+    (instance ?REL2 Predicate)
+    (?REL1 @ROW))
+  (?REL2 @ROW)), (=>
+  (instance ?REL IntransitiveRelation)
+  (forall (?INST1 ?INST2 ?INST3)
+    (=>
+      (and
+        (?REL ?INST1 ?INST2)
+        (?REL ?INST2 ?INST3))
+      (not
+        (?REL ?INST1 ?INST3))))), (=>
+  (and
+    (valence ?REL ?NUMBER)
+    (instance ?REL Predicate))
+  (forall (@ROW)
+    (=>
+      (?REL @ROW)
+      (equal
+        (ListLengthFn
+          (ListFn @ROW)) ?NUMBER)))), (=>
+  (and
+    (reflexiveOn ?RELATION ?CLASS)
+    (instance ?RELATION Predicate))
+  (forall (?INST)
+    (=>
+      (instance ?INST ?CLASS)
+      (?RELATION ?INST ?INST)))), (=>
+  (and
+    (instance ?REL IntentionalRelation)
+    (?REL ?AGENT @ROW)
+    (inList ?OBJ
+      (ListFn @ROW)))
+  (inScopeOfInterest ?AGENT ?OBJ))]
+pred var count: 33
+multiple pred var: [(=>
+  (and
+    (subrelation ?REL1 ?REL2)
+    (instance ?REL1 Predicate)
+    (instance ?REL2 Predicate)
+    (?REL1 @ROW))
+  (?REL2 @ROW)), (=>
+  (and
+    (instance ?REL1 Predicate)
+    (instance ?REL2 Predicate)
+    (disjointRelation ?REL1 ?REL2)
+    (?REL1 @ROW2))
+  (not
+    (?REL2 @ROW2)))]
+multiple row var: [(=>
+  (and
+    (contraryAttribute @ROW1)
+    (identicalListItems
+      (ListFn @ROW1)
+      (ListFn @ROW2)))
+  (contraryAttribute @ROW2)), (=>
+  (equal ?LIST1 ?LIST2)
+  (=>
+    (and
+      (equal ?LIST1
+        (ListFn @ROW1))
+      (equal ?LIST2
+        (ListFn @ROW2)))
+    (forall (?NUMBER)
+      (equal
+        (ListOrderFn
+          (ListFn @ROW1) ?NUMBER)
+        (ListOrderFn
+          (ListFn @ROW2) ?NUMBER)))))]
+
+Formula: (=>
+  (and
+    (maxValue ?REL ?ARG ?N)
+    (?REL @ARGS)
+    (equal ?VAL
+      (ListOrderFn
+        (ListFn @ARGS) ?ARG)))
+  (greaterThan ?N ?VAL))
+all vars: [?REL, ?ARG, ?N, ?VAL]
+all vars pair: []
+quant vars: []
+unquant vars: [?REL, ?ARG, ?N, ?VAL]
+exist vars: []
+univ vars: []
+terms: [maxValue, ListOrderFn, ListFn, greaterThan]
+pred vars: [?REL]
+row vars: [@ARGS]
+argMap: 
+	ListOrderFn	1: (ListFn@ARGS), 2: ?ARG, 
+	ListFn	1: @ARGS, 
+	maxValue	1: ?REL, 2: ?ARG, 3: ?N, 
+	?REL	1: @ARGS, 
+	greaterThan	1: ?N, 2: ?VAL, 
+varTypes: {}
+specVarMap: {}
+explicitTypes: {}
+eqlist: 
+?VAL = (ListOrderFn(ListFn@ARGS)?ARG)
+row var literal: 
+(?REL@ARGS)
+(ListFn@ARGS)
+row var struct: 
+ListFn:@ARGS:(ListFn @ARGS)
+
+Formula: (forall (@ROW ?ITEM)
+  (initialList
+    (ListFn @ROW)
+    (ListFn @ROW ?ITEM)))
+all vars: []
+all vars pair: []
+quant vars: [@ROW, ?ITEM]
+unquant vars: []
+exist vars: []
+univ vars: [@ROW, ?ITEM]
+terms: [initialList, ListFn]
+pred vars: []
+row vars: [@ROW]
+argMap: 
+	initialList	1: (ListFn@ROW), 2: (ListFn@ROW?ITEM), 
+	ListFn	1: @ROW, 2: ?ITEM, 
+varTypes: {}
+specVarMap: {}
+explicitTypes: {}
+eqlist: 
+row var literal: 
+(ListFn@ROW?ITEM)
+(ListFn@ROW)
+row var struct: 
+ListFn:@ROW:(ListFn @ROW ?ITEM)
+
+Formula: (=>
+  (equal
+    (GreatestCommonDivisorFn @ROW) ?NUMBER)
+  (not
+    (exists (?GREATER)
+      (and
+        (greaterThan ?GREATER ?NUMBER)
+        (forall (?ELEMENT)
+          (=>
+            (inList ?ELEMENT
+              (ListFn @ROW))
+            (equal
+              (RemainderFn ?ELEMENT ?GREATER) 0)))))))
+all vars: [?NUMBER]
+all vars pair: []
+quant vars: [?ELEMENT, ?GREATER]
+unquant vars: [?NUMBER]
+exist vars: [?GREATER]
+univ vars: [?ELEMENT]
+terms: [RemainderFn, ListFn, inList, GreatestCommonDivisorFn, greaterThan]
+pred vars: []
+row vars: [@ROW]
+argMap: 
+	RemainderFn	1: ?ELEMENT, 2: ?GREATER, 
+	ListFn	1: @ROW, 
+	inList	1: ?ELEMENT, 2: (ListFn@ROW), 
+	GreatestCommonDivisorFn	1: @ROW, 
+	greaterThan	1: ?GREATER, 2: ?NUMBER, 
+varTypes: {}
+specVarMap: {}
+explicitTypes: {}
+eqlist: 
+(GreatestCommonDivisorFn@ROW) = ?NUMBER
+(RemainderFn?ELEMENT?GREATER) = 0
+row var literal: 
+(GreatestCommonDivisorFn@ROW)
+(ListFn@ROW)
+row var struct: 
+ListFn:@ROW:(ListFn @ROW)
+
+Formula: (=>
+  (equal
+    (LeastCommonMultipleFn @ROW) ?NUMBER)
+  (=>
+    (inList ?ELEMENT
+      (ListFn @ROW))
+    (instance ?ELEMENT Number)))
+all vars: [?ELEMENT, ?NUMBER]
+all vars pair: []
+quant vars: []
+unquant vars: [?ELEMENT, ?NUMBER]
+exist vars: []
+univ vars: []
+terms: [instance, Number, ListFn, LeastCommonMultipleFn, inList]
+pred vars: []
+row vars: [@ROW]
+argMap: 
+	instance	1: ?ELEMENT, 2: Number, 
+	ListFn	1: @ROW, 
+	LeastCommonMultipleFn	1: @ROW, 
+	inList	1: ?ELEMENT, 2: (ListFn@ROW), 
+varTypes: {?ELEMENT=[Number]}
+specVarMap: {}
+explicitTypes: {?ELEMENT=Number}
+eqlist: 
+(LeastCommonMultipleFn@ROW) = ?NUMBER
+row var literal: 
+(LeastCommonMultipleFn@ROW)
+(ListFn@ROW)
+row var struct: 
+ListFn:@ROW:(ListFn @ROW)
+
+Formula: (=>
+  (and
+    (minValue ?REL ?ARG ?N)
+    (?REL @ARGS)
+    (equal ?VAL
+      (ListOrderFn
+        (ListFn @ARGS) ?ARG)))
+  (greaterThan ?VAL ?N))
+all vars: [?REL, ?ARG, ?N, ?VAL]
+all vars pair: []
+quant vars: []
+unquant vars: [?REL, ?ARG, ?N, ?VAL]
+exist vars: []
+univ vars: []
+terms: [minValue, ListOrderFn, ListFn, greaterThan]
+pred vars: [?REL]
+row vars: [@ARGS]
+argMap: 
+	ListOrderFn	1: (ListFn@ARGS), 2: ?ARG, 
+	minValue	1: ?REL, 2: ?ARG, 3: ?N, 
+	ListFn	1: @ARGS, 
+	?REL	1: @ARGS, 
+	greaterThan	1: ?VAL, 2: ?N, 
+varTypes: {}
+specVarMap: {}
+explicitTypes: {}
+eqlist: 
+?VAL = (ListOrderFn(ListFn@ARGS)?ARG)
+row var literal: 
+(ListFn@ARGS)
+(?REL@ARGS)
+row var struct: 
+ListFn:@ARGS:(ListFn @ARGS)
+
+Formula: (=>
+  (disjointDecomposition ?CLASS @ROW)
+  (forall (?ITEM)
+    (=>
+      (inList ?ITEM
+        (ListFn @ROW))
+      (subclass ?ITEM ?CLASS))))
+all vars: [?CLASS]
+all vars pair: []
+quant vars: [?ITEM]
+unquant vars: [?CLASS]
+exist vars: []
+univ vars: [?ITEM]
+terms: [subclass, disjointDecomposition, ListFn, inList]
+pred vars: []
+row vars: [@ROW]
+argMap: 
+	subclass	1: ?ITEM, 2: ?CLASS, 
+	disjointDecomposition	1: ?CLASS, 2: @ROW, 
+	ListFn	1: @ROW, 
+	inList	1: ?ITEM, 2: (ListFn@ROW), 
+varTypes: {}
+specVarMap: {}
+explicitTypes: {}
+eqlist: 
+row var literal: 
+(ListFn@ROW)
+(disjointDecomposition?CLASS@ROW)
+row var struct: 
+ListFn:@ROW:(ListFn @ROW)
+
+Formula: (=>
+  (and
+    (domain ?REL ?NUMBER ?CLASS)
+    (instance ?REL Predicate)
+    (?REL @ROW))
+  (instance
+    (ListOrderFn
+      (ListFn @ROW) ?NUMBER) ?CLASS))
+all vars: [?REL, ?NUMBER, ?CLASS]
+all vars pair: []
+quant vars: []
+unquant vars: [?REL, ?NUMBER, ?CLASS]
+exist vars: []
+univ vars: []
+terms: [instance, domain, ListOrderFn, ListFn, Predicate]
+pred vars: [?REL]
+row vars: [@ROW]
+argMap: 
+	ListOrderFn	1: (ListFn@ROW), 2: ?NUMBER, 
+	instance	1: (ListOrderFn(ListFn@ROW)?NUMBER), 2: ?CLASS, 
+	ListFn	1: @ROW, 
+	domain	1: ?REL, 2: ?NUMBER, 3: ?CLASS, 
+	?REL	1: @ROW, 
+varTypes: {?REL=[Predicate]}
+specVarMap: {}
+explicitTypes: {?REL=Predicate}
+eqlist: 
+row var literal: 
+(ListFn@ROW)
+(?REL@ROW)
+row var struct: 
+ListFn:@ROW:(ListFn @ROW)
+
+Formula: (=>
+  (equal
+    (GreatestCommonDivisorFn @ROW) ?NUMBER)
+  (forall (?ELEMENT)
+    (=>
+      (inList ?ELEMENT
+        (ListFn @ROW))
+      (equal
+        (RemainderFn ?ELEMENT ?NUMBER) 0))))
+all vars: [?NUMBER]
+all vars pair: []
+quant vars: [?ELEMENT]
+unquant vars: [?NUMBER]
+exist vars: []
+univ vars: [?ELEMENT]
+terms: [RemainderFn, ListFn, inList, GreatestCommonDivisorFn]
+pred vars: []
+row vars: [@ROW]
+argMap: 
+	RemainderFn	1: ?ELEMENT, 2: ?NUMBER, 
+	ListFn	1: @ROW, 
+	inList	1: ?ELEMENT, 2: (ListFn@ROW), 
+	GreatestCommonDivisorFn	1: @ROW, 
+varTypes: {}
+specVarMap: {}
+explicitTypes: {}
+eqlist: 
+(GreatestCommonDivisorFn@ROW) = ?NUMBER
+(RemainderFn?ELEMENT?NUMBER) = 0
+row var literal: 
+(ListFn@ROW)
+(GreatestCommonDivisorFn@ROW)
+row var struct: 
+ListFn:@ROW:(ListFn @ROW)
+
+Formula: (=>
+  (equal
+    (LeastCommonMultipleFn @ROW) ?NUMBER)
+  (not
+    (exists (?LESS)
+      (and
+        (lessThan ?LESS ?NUMBER)
+        (forall (?ELEMENT)
+          (=>
+            (inList ?ELEMENT
+              (ListFn @ROW))
+            (equal
+              (RemainderFn ?LESS ?ELEMENT) 0)))))))
+all vars: [?NUMBER]
+all vars pair: []
+quant vars: [?LESS, ?ELEMENT]
+unquant vars: [?NUMBER]
+exist vars: [?LESS]
+univ vars: [?ELEMENT]
+terms: [lessThan, RemainderFn, ListFn, LeastCommonMultipleFn, inList]
+pred vars: []
+row vars: [@ROW]
+argMap: 
+	lessThan	1: ?LESS, 2: ?NUMBER, 
+	RemainderFn	1: ?LESS, 2: ?ELEMENT, 
+	ListFn	1: @ROW, 
+	LeastCommonMultipleFn	1: @ROW, 
+	inList	1: ?ELEMENT, 2: (ListFn@ROW), 
+varTypes: {}
+specVarMap: {}
+explicitTypes: {}
+eqlist: 
+(LeastCommonMultipleFn@ROW) = ?NUMBER
+(RemainderFn?LESS?ELEMENT) = 0
+row var literal: 
+(ListFn@ROW)
+(LeastCommonMultipleFn@ROW)
+row var struct: 
+ListFn:@ROW:(ListFn @ROW)
+
+Formula: (=>
+  (and
+    (instance ?REL1 Predicate)
+    (instance ?REL2 Predicate)
+    (disjointRelation ?REL1 ?REL2)
+    (?REL1 @ROW2))
+  (not
+    (?REL2 @ROW2)))
+all vars: [?REL2, ?REL1]
+all vars pair: []
+quant vars: []
+unquant vars: [?REL2, ?REL1]
+exist vars: []
+univ vars: []
+terms: [instance, disjointRelation, Predicate]
+pred vars: [?REL2, ?REL1]
+row vars: [@ROW2]
+argMap: 
+	?REL1	1: @ROW2, 
+	instance	1: ?REL2, 2: Predicate, 
+	disjointRelation	1: ?REL1, 2: ?REL2, 
+	?REL2	1: @ROW2, 
+varTypes: {?REL1=[Predicate], ?REL2=[Predicate]}
+specVarMap: {}
+explicitTypes: {?REL1=Predicate, ?REL2=Predicate}
+eqlist: 
+row var literal: 
+(?REL1@ROW2)
+(?REL2@ROW2)
+row var struct: 
+?REL2:@ROW2:(?REL2 @ROW2)
+
+Formula: (=>
+  (and
+    (domainSubclass ?REL ?NUMBER ?CLASS)
+    (instance ?REL Predicate)
+    (?REL @ROW))
+  (subclass
+    (ListOrderFn
+      (ListFn @ROW) ?NUMBER) ?CLASS))
+all vars: [?REL, ?NUMBER, ?CLASS]
+all vars pair: []
+quant vars: []
+unquant vars: [?REL, ?NUMBER, ?CLASS]
+exist vars: []
+univ vars: []
+terms: [instance, subclass, ListOrderFn, ListFn, domainSubclass, Predicate]
+pred vars: [?REL]
+row vars: [@ROW]
+argMap: 
+	ListOrderFn	1: (ListFn@ROW), 2: ?NUMBER, 
+	subclass	1: (ListOrderFn(ListFn@ROW)?NUMBER), 2: ?CLASS, 
+	instance	1: ?REL, 2: Predicate, 
+	ListFn	1: @ROW, 
+	domainSubclass	1: ?REL, 2: ?NUMBER, 3: ?CLASS, 
+	?REL	1: @ROW, 
+varTypes: {?REL=[Predicate]}
+specVarMap: {}
+explicitTypes: {?REL=Predicate}
+eqlist: 
+row var literal: 
+(ListFn@ROW)
+(?REL@ROW)
+row var struct: 
+ListFn:@ROW:(ListFn @ROW)
+
+Formula: (=>
+  (and
+    (exhaustiveAttribute ?CLASS @ROW)
+    (inList ?ATTR
+      (ListFn @ROW)))
+  (instance ?ATTR ?CLASS))
+all vars: [?ATTR, ?CLASS]
+all vars pair: []
+quant vars: []
+unquant vars: [?ATTR, ?CLASS]
+exist vars: []
+univ vars: []
+terms: [instance, exhaustiveAttribute, ListFn, inList]
+pred vars: []
+row vars: [@ROW]
+argMap: 
+	exhaustiveAttribute	1: ?CLASS, 2: @ROW, 
+	ListFn	1: @ROW, 
+	instance	1: ?ATTR, 2: ?CLASS, 
+	inList	1: ?ATTR, 2: (ListFn@ROW), 
+varTypes: {}
+specVarMap: {}
+explicitTypes: {}
+eqlist: 
+row var literal: 
+(exhaustiveAttribute?CLASS@ROW)
+(ListFn@ROW)
+row var struct: 
+ListFn:@ROW:(ListFn @ROW)
+
+Formula: (=>
+  (and
+    (range ?FUNCTION ?CLASS)
+    (equal
+      (AssignmentFn ?FUNCTION @ROW) ?VALUE))
+  (instance ?VALUE ?CLASS))
+all vars: [?VALUE, ?FUNCTION, ?CLASS]
+all vars pair: []
+quant vars: []
+unquant vars: [?VALUE, ?FUNCTION, ?CLASS]
+exist vars: []
+univ vars: []
+terms: [instance, AssignmentFn, range]
+pred vars: []
+row vars: [@ROW]
+argMap: 
+	range	1: ?FUNCTION, 2: ?CLASS, 
+	AssignmentFn	1: ?FUNCTION, 2: @ROW, 
+	instance	1: ?VALUE, 2: ?CLASS, 
+varTypes: {}
+specVarMap: {}
+explicitTypes: {}
+eqlist: 
+(AssignmentFn?FUNCTION@ROW) = ?VALUE
+row var literal: 
+(AssignmentFn?FUNCTION@ROW)
+row var struct: 
+AssignmentFn:@ROW:(AssignmentFn ?FUNCTION @ROW)
+
+Formula: (=>
+  (exhaustiveDecomposition @ROW)
+  (=>
+    (inList ?ELEMENT
+      (ListFn @ROW))
+    (instance ?ELEMENT Class)))
+all vars: [?ELEMENT]
+all vars pair: []
+quant vars: []
+unquant vars: [?ELEMENT]
+exist vars: []
+univ vars: []
+terms: [instance, exhaustiveDecomposition, Class, ListFn, inList]
+pred vars: []
+row vars: [@ROW]
+argMap: 
+	instance	1: ?ELEMENT, 2: Class, 
+	exhaustiveDecomposition	1: @ROW, 
+	ListFn	1: @ROW, 
+	inList	1: ?ELEMENT, 2: (ListFn@ROW), 
+varTypes: {?ELEMENT=[Class]}
+specVarMap: {}
+explicitTypes: {?ELEMENT=Class}
+eqlist: 
+row var literal: 
+(ListFn@ROW)
+(exhaustiveDecomposition@ROW)
+row var struct: 
+ListFn:@ROW:(ListFn @ROW)
+
+Formula: (=>
+  (and
+    (exhaustiveAttribute ?CLASS @ROW)
+    (inList ?ATTR
+      (ListFn @ROW)))
+  (instance ?ATTR Attribute))
+all vars: [?ATTR, ?CLASS]
+all vars pair: []
+quant vars: []
+unquant vars: [?ATTR, ?CLASS]
+exist vars: []
+univ vars: []
+terms: [instance, Attribute, exhaustiveAttribute, ListFn, inList]
+pred vars: []
+row vars: [@ROW]
+argMap: 
+	exhaustiveAttribute	1: ?CLASS, 2: @ROW, 
+	ListFn	1: @ROW, 
+	instance	1: ?ATTR, 2: Attribute, 
+	inList	1: ?ATTR, 2: (ListFn@ROW), 
+varTypes: {?ATTR=[Attribute]}
+specVarMap: {}
+explicitTypes: {?ATTR=Attribute}
+eqlist: 
+row var literal: 
+(exhaustiveAttribute?CLASS@ROW)
+(ListFn@ROW)
+row var struct: 
+ListFn:@ROW:(ListFn @ROW)
+
+Formula: (=>
+  (and
+    (contraryAttribute @ROW1)
+    (identicalListItems
+      (ListFn @ROW1)
+      (ListFn @ROW2)))
+  (contraryAttribute @ROW2))
+all vars: []
+all vars pair: []
+quant vars: []
+unquant vars: []
+exist vars: []
+univ vars: []
+terms: [contraryAttribute, identicalListItems, ListFn]
+pred vars: []
+row vars: [@ROW2, @ROW1]
+argMap: 
+	contraryAttribute	1: @ROW2, 
+	ListFn	1: @ROW2, 
+	identicalListItems	1: (ListFn@ROW1), 2: (ListFn@ROW2), 
+varTypes: {}
+specVarMap: {}
+explicitTypes: {}
+eqlist: 
+row var literal: 
+(contraryAttribute@ROW1)
+(ListFn@ROW1)
+(ListFn@ROW2)
+(contraryAttribute@ROW2)
+row var struct: 
+contraryAttribute:@ROW2:(contraryAttribute @ROW2)
+ListFn:@ROW1:(ListFn @ROW1)
+
+Formula: (<=>
+  (and
+    (instance ?REL TotalValuedRelation)
+    (instance ?REL Predicate))
+  (exists (?VALENCE)
+    (and
+      (instance ?REL Relation)
+      (valence ?REL ?VALENCE)
+      (=>
+        (forall (?NUMBER ?ELEMENT ?CLASS)
+          (=>
+            (and
+              (lessThan ?NUMBER ?VALENCE)
+              (domain ?REL ?NUMBER ?CLASS)
+              (equal ?ELEMENT
+                (ListOrderFn
+                  (ListFn @ROW) ?NUMBER)))
+            (instance ?ELEMENT ?CLASS)))
+        (exists (?ITEM)
+          (?REL @ROW ?ITEM))))))
+all vars: [?REL]
+all vars pair: []
+quant vars: [?VALENCE, ?ELEMENT, ?ITEM, ?NUMBER, ?CLASS]
+unquant vars: [?REL]
+exist vars: [?VALENCE, ?ITEM]
+univ vars: [?ELEMENT, ?NUMBER, ?CLASS]
+terms: [Relation, instance, lessThan, domain, ListOrderFn, TotalValuedRelation, valence, ListFn, Predicate]
+pred vars: [?REL]
+row vars: [@ROW]
+argMap: 
+	instance	1: ?ELEMENT, 2: ?CLASS, 
+	lessThan	1: ?NUMBER, 2: ?VALENCE, 
+	domain	1: ?REL, 2: ?NUMBER, 3: ?CLASS, 
+	?REL	1: @ROW, 2: ?ITEM, 
+	ListOrderFn	1: (ListFn@ROW), 2: ?NUMBER, 
+	valence	1: ?REL, 2: ?VALENCE, 
+	ListFn	1: @ROW, 
+varTypes: {?REL=[Relation]}
+specVarMap: {}
+explicitTypes: {?REL=Relation}
+eqlist: 
+?ELEMENT = (ListOrderFn(ListFn@ROW)?NUMBER)
+row var literal: 
+(ListFn@ROW)
+(?REL@ROW?ITEM)
+row var struct: 
+?REL:@ROW:(?REL @ROW ?ITEM)
+
+Formula: (=>
+  (exhaustiveAttribute ?CLASS @ROW)
+  (=>
+    (equal ?ATTR1
+      (ListOrderFn
+        (ListFn @ROW) ?N1))
+    (not
+      (exists (?ATTR2 ?N2)
+        (and
+          (equal ?ATTR1 ?ATTR2)
+          (not
+            (equal ?N1 ?N2)))))))
+all vars: [?N1, ?CLASS, ?ATTR1]
+all vars pair: []
+quant vars: [?N2, ?ATTR2]
+unquant vars: [?N1, ?CLASS, ?ATTR1]
+exist vars: [?N2, ?ATTR2]
+univ vars: []
+terms: [ListOrderFn, exhaustiveAttribute, ListFn]
+pred vars: []
+row vars: [@ROW]
+argMap: 
+	ListOrderFn	1: (ListFn@ROW), 2: ?N1, 
+	exhaustiveAttribute	1: ?CLASS, 2: @ROW, 
+	ListFn	1: @ROW, 
+varTypes: {}
+specVarMap: {}
+explicitTypes: {}
+eqlist: 
+?ATTR1 = (ListOrderFn(ListFn@ROW)?N1)
+?ATTR1 = ?ATTR2
+?N1 = ?N2
+row var literal: 
+(exhaustiveAttribute?CLASS@ROW)
+(ListFn@ROW)
+row var struct: 
+ListFn:@ROW:(ListFn @ROW)
+
+Formula: (=>
+  (contraryAttribute @ROW)
+  (=>
+    (inList ?ELEMENT
+      (ListFn @ROW))
+    (instance ?ELEMENT Attribute)))
+all vars: [?ELEMENT]
+all vars pair: []
+quant vars: []
+unquant vars: [?ELEMENT]
+exist vars: []
+univ vars: []
+terms: [contraryAttribute, instance, Attribute, ListFn, inList]
+pred vars: []
+row vars: [@ROW]
+argMap: 
+	contraryAttribute	1: @ROW, 
+	instance	1: ?ELEMENT, 2: Attribute, 
+	ListFn	1: @ROW, 
+	inList	1: ?ELEMENT, 2: (ListFn@ROW), 
+varTypes: {?ELEMENT=[Attribute]}
+specVarMap: {}
+explicitTypes: {?ELEMENT=Attribute}
+eqlist: 
+row var literal: 
+(ListFn@ROW)
+(contraryAttribute@ROW)
+row var struct: 
+ListFn:@ROW:(ListFn @ROW)
+
+Formula: (=>
+  (and
+    (defaultMaxValue ?REL ?ARG ?N)
+    (?REL @ARGS)
+    (equal ?VAL
+      (ListOrderFn
+        (ListFn @ARGS) ?ARG)))
+  (modalAttribute
+    (greaterThan ?N ?VAL) Likely))
+all vars: [?REL, ?ARG, ?N, ?VAL]
+all vars pair: []
+quant vars: []
+unquant vars: [?REL, ?ARG, ?N, ?VAL]
+exist vars: []
+univ vars: []
+terms: [ListOrderFn, defaultMaxValue, ListFn, Likely, modalAttribute, greaterThan]
+pred vars: [?REL]
+row vars: [@ARGS]
+argMap: 
+	ListOrderFn	1: (ListFn@ARGS), 2: ?ARG, 
+	defaultMaxValue	1: ?REL, 2: ?ARG, 3: ?N, 
+	ListFn	1: @ARGS, 
+	?REL	1: @ARGS, 
+	greaterThan	1: ?N, 2: ?VAL, 
+	modalAttribute	1: (greaterThan?N?VAL), 2: Likely, 
+varTypes: {}
+specVarMap: {}
+explicitTypes: {}
+eqlist: 
+?VAL = (ListOrderFn(ListFn@ARGS)?ARG)
+row var literal: 
+(?REL@ARGS)
+(ListFn@ARGS)
+row var struct: 
+ListFn:@ARGS:(ListFn @ARGS)
+
+Formula: (=>
+  (equal
+    (LeastCommonMultipleFn @ROW) ?NUMBER)
+  (forall (?ELEMENT)
+    (=>
+      (inList ?ELEMENT
+        (ListFn @ROW))
+      (equal
+        (RemainderFn ?NUMBER ?ELEMENT) 0))))
+all vars: [?NUMBER]
+all vars pair: []
+quant vars: [?ELEMENT]
+unquant vars: [?NUMBER]
+exist vars: []
+univ vars: [?ELEMENT]
+terms: [RemainderFn, ListFn, LeastCommonMultipleFn, inList]
+pred vars: []
+row vars: [@ROW]
+argMap: 
+	RemainderFn	1: ?NUMBER, 2: ?ELEMENT, 
+	ListFn	1: @ROW, 
+	LeastCommonMultipleFn	1: @ROW, 
+	inList	1: ?ELEMENT, 2: (ListFn@ROW), 
+varTypes: {}
+specVarMap: {}
+explicitTypes: {}
+eqlist: 
+(LeastCommonMultipleFn@ROW) = ?NUMBER
+(RemainderFn?NUMBER?ELEMENT) = 0
+row var literal: 
+(ListFn@ROW)
+(LeastCommonMultipleFn@ROW)
+row var struct: 
+ListFn:@ROW:(ListFn @ROW)
+
+Formula: (=>
+  (exhaustiveAttribute ?ATTRCLASS @ROW)
+  (not
+    (exists (?EL)
+      (and
+        (instance ?EL ?ATTRCLASS)
+        (not
+          (exists (?ATTR ?NUMBER)
+            (and
+              (equal ?EL ?ATTR)
+              (equal ?ATTR
+                (ListOrderFn
+                  (ListFn @ROW) ?NUMBER)))))))))
+all vars: [?ATTRCLASS]
+all vars pair: []
+quant vars: [?ATTR, ?EL, ?NUMBER]
+unquant vars: [?ATTRCLASS]
+exist vars: [?ATTR, ?EL, ?NUMBER]
+univ vars: []
+terms: [instance, ListOrderFn, exhaustiveAttribute, ListFn]
+pred vars: []
+row vars: [@ROW]
+argMap: 
+	instance	1: ?EL, 2: ?ATTRCLASS, 
+	ListOrderFn	1: (ListFn@ROW), 2: ?NUMBER, 
+	exhaustiveAttribute	1: ?ATTRCLASS, 2: @ROW, 
+	ListFn	1: @ROW, 
+varTypes: {}
+specVarMap: {}
+explicitTypes: {}
+eqlist: 
+?EL = ?ATTR
+?ATTR = (ListOrderFn(ListFn@ROW)?NUMBER)
+row var literal: 
+(ListFn@ROW)
+(exhaustiveAttribute?ATTRCLASS@ROW)
+row var struct: 
+ListFn:@ROW:(ListFn @ROW)
+
+Formula: (<=>
+  (partition @ROW)
+  (and
+    (exhaustiveDecomposition @ROW)
+    (disjointDecomposition @ROW)))
+all vars: []
+all vars pair: []
+quant vars: []
+unquant vars: []
+exist vars: []
+univ vars: []
+terms: [partition, exhaustiveDecomposition, disjointDecomposition]
+pred vars: []
+row vars: [@ROW]
+argMap: 
+	partition	1: @ROW, 
+	exhaustiveDecomposition	1: @ROW, 
+	disjointDecomposition	1: @ROW, 
+varTypes: {}
+specVarMap: {}
+explicitTypes: {}
+eqlist: 
+row var literal: 
+(disjointDecomposition@ROW)
+(exhaustiveDecomposition@ROW)
+(partition@ROW)
+row var struct: 
+disjointDecomposition:@ROW:(disjointDecomposition @ROW)
+
+Formula: (=>
+  (and
+    (defaultMinValue ?REL ?ARG ?N)
+    (?REL @ARGS)
+    (equal ?VAL
+      (ListOrderFn
+        (ListFn @ARGS) ?ARG)))
+  (modalAttribute
+    (greaterThan ?VAL ?N) Likely))
+all vars: [?REL, ?ARG, ?N, ?VAL]
+all vars pair: []
+quant vars: []
+unquant vars: [?REL, ?ARG, ?N, ?VAL]
+exist vars: []
+univ vars: []
+terms: [defaultMinValue, ListOrderFn, ListFn, Likely, modalAttribute, greaterThan]
+pred vars: [?REL]
+row vars: [@ARGS]
+argMap: 
+	ListOrderFn	1: (ListFn@ARGS), 2: ?ARG, 
+	ListFn	1: @ARGS, 
+	defaultMinValue	1: ?REL, 2: ?ARG, 3: ?N, 
+	?REL	1: @ARGS, 
+	greaterThan	1: ?VAL, 2: ?N, 
+	modalAttribute	1: (greaterThan?VAL?N), 2: Likely, 
+varTypes: {}
+specVarMap: {}
+explicitTypes: {}
+eqlist: 
+?VAL = (ListOrderFn(ListFn@ARGS)?ARG)
+row var literal: 
+(?REL@ARGS)
+(ListFn@ARGS)
+row var struct: 
+ListFn:@ARGS:(ListFn @ARGS)
+
+Formula: (=>
+  (disjointDecomposition @ROW)
+  (=>
+    (inList ?ELEMENT
+      (ListFn @ROW))
+    (instance ?ELEMENT Class)))
+all vars: [?ELEMENT]
+all vars pair: []
+quant vars: []
+unquant vars: [?ELEMENT]
+exist vars: []
+univ vars: []
+terms: [instance, disjointDecomposition, Class, ListFn, inList]
+pred vars: []
+row vars: [@ROW]
+argMap: 
+	instance	1: ?ELEMENT, 2: Class, 
+	disjointDecomposition	1: @ROW, 
+	ListFn	1: @ROW, 
+	inList	1: ?ELEMENT, 2: (ListFn@ROW), 
+varTypes: {?ELEMENT=[Class]}
+specVarMap: {}
+explicitTypes: {?ELEMENT=Class}
+eqlist: 
+row var literal: 
+(ListFn@ROW)
+(disjointDecomposition@ROW)
+row var struct: 
+ListFn:@ROW:(ListFn @ROW)
+
+Formula: (=>
+  (and
+    (rangeSubclass ?FUNCTION ?CLASS)
+    (equal
+      (AssignmentFn ?FUNCTION @ROW) ?VALUE))
+  (subclass ?VALUE ?CLASS))
+all vars: [?VALUE, ?FUNCTION, ?CLASS]
+all vars pair: []
+quant vars: []
+unquant vars: [?VALUE, ?FUNCTION, ?CLASS]
+exist vars: []
+univ vars: []
+terms: [rangeSubclass, AssignmentFn, subclass]
+pred vars: []
+row vars: [@ROW]
+argMap: 
+	subclass	1: ?VALUE, 2: ?CLASS, 
+	rangeSubclass	1: ?FUNCTION, 2: ?CLASS, 
+	AssignmentFn	1: ?FUNCTION, 2: @ROW, 
+varTypes: {}
+specVarMap: {}
+explicitTypes: {}
+eqlist: 
+(AssignmentFn?FUNCTION@ROW) = ?VALUE
+row var literal: 
+(AssignmentFn?FUNCTION@ROW)
+row var struct: 
+AssignmentFn:@ROW:(AssignmentFn ?FUNCTION @ROW)
+
+Formula: (=>
+  (exhaustiveDecomposition ?CLASS @ROW)
+  (forall (?OBJ)
+    (=>
+      (instance ?OBJ ?CLASS)
+      (exists (?ITEM)
+        (and
+          (inList ?ITEM
+            (ListFn @ROW))
+          (instance ?OBJ ?ITEM))))))
+all vars: [?CLASS]
+all vars pair: []
+quant vars: [?OBJ, ?ITEM]
+unquant vars: [?CLASS]
+exist vars: [?ITEM]
+univ vars: [?OBJ]
+terms: [instance, exhaustiveDecomposition, ListFn, inList]
+pred vars: []
+row vars: [@ROW]
+argMap: 
+	instance	1: ?OBJ, 2: ?ITEM, 
+	exhaustiveDecomposition	1: ?CLASS, 2: @ROW, 
+	ListFn	1: @ROW, 
+	inList	1: ?ITEM, 2: (ListFn@ROW), 
+varTypes: {}
+specVarMap: {}
+explicitTypes: {}
+eqlist: 
+row var literal: 
+(ListFn@ROW)
+(exhaustiveDecomposition?CLASS@ROW)
+row var struct: 
+ListFn:@ROW:(ListFn @ROW)
+
+Formula: (=>
+  (disjointDecomposition ?CLASS @ROW)
+  (forall (?ITEM1 ?ITEM2)
+    (=>
+      (and
+        (inList ?ITEM1
+          (ListFn @ROW))
+        (inList ?ITEM2
+          (ListFn @ROW))
+        (not
+          (equal ?ITEM1 ?ITEM2)))
+      (disjoint ?ITEM1 ?ITEM2))))
+all vars: [?CLASS]
+all vars pair: []
+quant vars: [?ITEM1, ?ITEM2]
+unquant vars: [?CLASS]
+exist vars: []
+univ vars: [?ITEM1, ?ITEM2]
+terms: [disjoint, disjointDecomposition, ListFn, inList]
+pred vars: []
+row vars: [@ROW]
+argMap: 
+	disjoint	1: ?ITEM1, 2: ?ITEM2, 
+	disjointDecomposition	1: ?CLASS, 2: @ROW, 
+	ListFn	1: @ROW, 
+	inList	1: ?ITEM2, 2: (ListFn@ROW), 
+varTypes: {}
+specVarMap: {}
+explicitTypes: {}
+eqlist: 
+?ITEM1 = ?ITEM2
+row var literal: 
+(disjointDecomposition?CLASS@ROW)
+(ListFn@ROW)
+(ListFn@ROW)
+row var struct: 
+ListFn:@ROW:(ListFn @ROW)
+
+Formula: (=>
+  (and
+    (defaultValue ?REL ?ARG ?N)
+    (?REL @ARGS)
+    (equal ?VAL
+      (ListOrderFn
+        (ListFn @ARGS) ?ARG)))
+  (modalAttribute
+    (equal ?N ?VAL) Likely))
+all vars: [?REL, ?ARG, ?N, ?VAL]
+all vars pair: []
+quant vars: []
+unquant vars: [?REL, ?ARG, ?N, ?VAL]
+exist vars: []
+univ vars: []
+terms: [defaultValue, ListOrderFn, ListFn, Likely, modalAttribute]
+pred vars: [?REL]
+row vars: [@ARGS]
+argMap: 
+	ListOrderFn	1: (ListFn@ARGS), 2: ?ARG, 
+	ListFn	1: @ARGS, 
+	defaultValue	1: ?REL, 2: ?ARG, 3: ?N, 
+	?REL	1: @ARGS, 
+	modalAttribute	1: (equal?N?VAL), 2: Likely, 
+varTypes: {}
+specVarMap: {}
+explicitTypes: {}
+eqlist: 
+?VAL = (ListOrderFn(ListFn@ARGS)?ARG)
+?N = ?VAL
+row var literal: 
+(?REL@ARGS)
+(ListFn@ARGS)
+row var struct: 
+ListFn:@ARGS:(ListFn @ARGS)
+
+Formula: (=>
+  (and
+    (orientation ?OBJ1 ?OBJ2 ?ATTR1)
+    (contraryAttribute @ROW)
+    (inList ?ATTR1
+      (ListFn @ROW))
+    (inList ?ATTR2
+      (ListFn @ROW))
+    (not
+      (equal ?ATTR1 ?ATTR2)))
+  (not
+    (orientation ?OBJ1 ?OBJ2 ?ATTR2)))
+all vars: [?OBJ1, ?OBJ2, ?ATTR1, ?ATTR2]
+all vars pair: []
+quant vars: []
+unquant vars: [?OBJ1, ?OBJ2, ?ATTR1, ?ATTR2]
+exist vars: []
+univ vars: []
+terms: [orientation, contraryAttribute, ListFn, inList]
+pred vars: []
+row vars: [@ROW]
+argMap: 
+	orientation	1: ?OBJ1, 2: ?OBJ2, 3: ?ATTR2, 
+	contraryAttribute	1: @ROW, 
+	ListFn	1: @ROW, 
+	inList	1: ?ATTR2, 2: (ListFn@ROW), 
+varTypes: {}
+specVarMap: {}
+explicitTypes: {}
+eqlist: 
+?ATTR1 = ?ATTR2
+row var literal: 
+(contraryAttribute@ROW)
+(ListFn@ROW)
+(ListFn@ROW)
+row var struct: 
+ListFn:@ROW:(ListFn @ROW)
+
+Formula: (=>
+  (and
+    (subrelation ?REL1 ?REL2)
+    (instance ?REL1 Predicate)
+    (instance ?REL2 Predicate)
+    (?REL1 @ROW))
+  (?REL2 @ROW))
+all vars: [?REL2, ?REL1]
+all vars pair: []
+quant vars: []
+unquant vars: [?REL2, ?REL1]
+exist vars: []
+univ vars: []
+terms: [instance, subrelation, Predicate]
+pred vars: [?REL2, ?REL1]
+row vars: [@ROW]
+argMap: 
+	?REL1	1: @ROW, 
+	instance	1: ?REL2, 2: Predicate, 
+	?REL2	1: @ROW, 
+	subrelation	1: ?REL1, 2: ?REL2, 
+varTypes: {?REL1=[Predicate], ?REL2=[Predicate]}
+specVarMap: {}
+explicitTypes: {?REL1=Predicate, ?REL2=Predicate}
+eqlist: 
+row var literal: 
+(?REL2@ROW)
+(?REL1@ROW)
+row var struct: 
+?REL2:@ROW:(?REL2 @ROW)
+
+Formula: (=>
+  (equal
+    (GreatestCommonDivisorFn @ROW) ?NUMBER)
+  (=>
+    (inList ?ELEMENT
+      (ListFn @ROW))
+    (instance ?ELEMENT Number)))
+all vars: [?ELEMENT, ?NUMBER]
+all vars pair: []
+quant vars: []
+unquant vars: [?ELEMENT, ?NUMBER]
+exist vars: []
+univ vars: []
+terms: [instance, Number, ListFn, inList, GreatestCommonDivisorFn]
+pred vars: []
+row vars: [@ROW]
+argMap: 
+	instance	1: ?ELEMENT, 2: Number, 
+	ListFn	1: @ROW, 
+	inList	1: ?ELEMENT, 2: (ListFn@ROW), 
+	GreatestCommonDivisorFn	1: @ROW, 
+varTypes: {?ELEMENT=[Number]}
+specVarMap: {}
+explicitTypes: {?ELEMENT=Number}
+eqlist: 
+(GreatestCommonDivisorFn@ROW) = ?NUMBER
+row var literal: 
+(ListFn@ROW)
+(GreatestCommonDivisorFn@ROW)
+row var struct: 
+ListFn:@ROW:(ListFn @ROW)
+
+Formula: (forall (@ROW ?ITEM)
+  (equal
+    (ListLengthFn
+      (ListFn @ROW ?ITEM))
+    (SuccessorFn
+      (ListLengthFn
+        (ListFn @ROW)))))
+all vars: []
+all vars pair: []
+quant vars: [@ROW, ?ITEM]
+unquant vars: []
+exist vars: []
+univ vars: [@ROW, ?ITEM]
+terms: [SuccessorFn, ListFn, ListLengthFn]
+pred vars: []
+row vars: [@ROW]
+argMap: 
+	ListLengthFn	1: (ListFn@ROW), 
+	ListFn	1: @ROW, 
+	SuccessorFn	1: (ListLengthFn(ListFn@ROW)), 
+varTypes: {}
+specVarMap: {}
+explicitTypes: {}
+eqlist: 
+(ListLengthFn(ListFn@ROW?ITEM)) = (SuccessorFn(ListLengthFn(ListFn@ROW)))
+row var literal: 
+(ListFn@ROW)
+(ListFn@ROW?ITEM)
+row var struct: 
+ListFn:@ROW:(ListFn @ROW)
+
+Formula: (=>
+  (and
+    (valence ?REL ?NUMBER)
+    (instance ?REL Predicate))
+  (forall (@ROW)
+    (=>
+      (?REL @ROW)
+      (equal
+        (ListLengthFn
+          (ListFn @ROW)) ?NUMBER))))
+all vars: [?REL, ?NUMBER]
+all vars pair: []
+quant vars: [@ROW]
+unquant vars: [?REL, ?NUMBER]
+exist vars: []
+univ vars: [@ROW]
+terms: [instance, valence, ListFn, ListLengthFn, Predicate]
+pred vars: [?REL]
+row vars: [@ROW]
+argMap: 
+	valence	1: ?REL, 2: ?NUMBER, 
+	instance	1: ?REL, 2: Predicate, 
+	ListFn	1: @ROW, 
+	ListLengthFn	1: (ListFn@ROW), 
+	?REL	1: @ROW, 
+varTypes: {?REL=[Predicate]}
+specVarMap: {}
+explicitTypes: {?REL=Predicate}
+eqlist: 
+(ListLengthFn(ListFn@ROW)) = ?NUMBER
+row var literal: 
+(?REL@ROW)
+(ListFn@ROW)
+row var struct: 
+ListFn:@ROW:(ListFn @ROW)
+
+Formula: (=>
+  (exhaustiveAttribute ?CLASS @ROW)
+  (forall (?ATTR1)
+    (=>
+      (instance ?ATTR1 ?CLASS)
+      (exists (?ATTR2)
+        (and
+          (inList ?ATTR2
+            (ListFn @ROW))
+          (equal ?ATTR1 ?ATTR2))))))
+all vars: [?CLASS]
+all vars pair: []
+quant vars: [?ATTR1, ?ATTR2]
+unquant vars: [?CLASS]
+exist vars: [?ATTR2]
+univ vars: [?ATTR1]
+terms: [instance, exhaustiveAttribute, ListFn, inList]
+pred vars: []
+row vars: [@ROW]
+argMap: 
+	instance	1: ?ATTR1, 2: ?CLASS, 
+	exhaustiveAttribute	1: ?CLASS, 2: @ROW, 
+	ListFn	1: @ROW, 
+	inList	1: ?ATTR2, 2: (ListFn@ROW), 
+varTypes: {}
+specVarMap: {}
+explicitTypes: {}
+eqlist: 
+?ATTR1 = ?ATTR2
+row var literal: 
+(exhaustiveAttribute?CLASS@ROW)
+(ListFn@ROW)
+row var struct: 
+ListFn:@ROW:(ListFn @ROW)
+
+Formula: (forall (@ROW ?ITEM)
+  (equal
+    (ListOrderFn
+      (ListFn @ROW ?ITEM)
+      (ListLengthFn
+        (ListFn @ROW ?ITEM))) ?ITEM))
+all vars: []
+all vars pair: []
+quant vars: [@ROW, ?ITEM]
+unquant vars: []
+exist vars: []
+univ vars: [@ROW, ?ITEM]
+terms: [ListOrderFn, ListFn, ListLengthFn]
+pred vars: []
+row vars: [@ROW]
+argMap: 
+	ListLengthFn	1: (ListFn@ROW?ITEM), 
+	ListOrderFn	1: (ListFn@ROW?ITEM), 2: (ListLengthFn(ListFn@ROW?ITEM)), 
+	ListFn	1: @ROW, 2: ?ITEM, 
+varTypes: {}
+specVarMap: {}
+explicitTypes: {}
+eqlist: 
+(ListOrderFn(ListFn@ROW?ITEM)(ListLengthFn(ListFn@ROW?ITEM))) = ?ITEM
+row var literal: 
+(ListFn@ROW?ITEM)
+(ListFn@ROW?ITEM)
+row var struct: 
+ListFn:@ROW:(ListFn @ROW ?ITEM)
+
+Formula: (=>
+  (equal ?LIST1 ?LIST2)
+  (=>
+    (and
+      (equal ?LIST1
+        (ListFn @ROW1))
+      (equal ?LIST2
+        (ListFn @ROW2)))
+    (forall (?NUMBER)
+      (equal
+        (ListOrderFn
+          (ListFn @ROW1) ?NUMBER)
+        (ListOrderFn
+          (ListFn @ROW2) ?NUMBER)))))
+all vars: [?LIST1, ?LIST2]
+all vars pair: []
+quant vars: [?NUMBER]
+unquant vars: [?LIST1, ?LIST2]
+exist vars: []
+univ vars: [?NUMBER]
+terms: [ListOrderFn, ListFn]
+pred vars: []
+row vars: [@ROW2, @ROW1]
+argMap: 
+	ListOrderFn	1: (ListFn@ROW2), 2: ?NUMBER, 
+	ListFn	1: @ROW2, 
+varTypes: {}
+specVarMap: {}
+explicitTypes: {}
+eqlist: 
+?LIST1 = ?LIST2
+?LIST1 = (ListFn@ROW1)
+?LIST2 = (ListFn@ROW2)
+(ListOrderFn(ListFn@ROW1)?NUMBER) = (ListOrderFn(ListFn@ROW2)?NUMBER)
+row var literal: 
+(ListFn@ROW1)
+(ListFn@ROW2)
+(ListFn@ROW1)
+(ListFn@ROW2)
+row var struct: 
+ListFn:@ROW2:(ListFn @ROW2)
+ListFn:@ROW1:(ListFn @ROW1)
+
+Formula: (=>
+  (contraryAttribute @ROW)
+  (forall (?ATTR1 ?ATTR2)
+    (=>
+      (and
+        (equal ?ATTR1
+          (ListOrderFn
+            (ListFn @ROW) ?NUMBER1))
+        (equal ?ATTR2
+          (ListOrderFn
+            (ListFn @ROW) ?NUMBER2))
+        (not
+          (equal ?NUMBER1 ?NUMBER2)))
+      (=>
+        (property ?OBJ ?ATTR1)
+        (not
+          (property ?OBJ ?ATTR2))))))
+all vars: [?NUMBER1, ?NUMBER2, ?OBJ]
+all vars pair: []
+quant vars: [?ATTR1, ?ATTR2]
+unquant vars: [?NUMBER1, ?NUMBER2, ?OBJ]
+exist vars: []
+univ vars: [?ATTR1, ?ATTR2]
+terms: [contraryAttribute, ListOrderFn, property, ListFn]
+pred vars: []
+row vars: [@ROW]
+argMap: 
+	contraryAttribute	1: @ROW, 
+	ListOrderFn	1: (ListFn@ROW), 2: ?NUMBER2, 
+	property	1: ?OBJ, 2: ?ATTR2, 
+	ListFn	1: @ROW, 
+varTypes: {}
+specVarMap: {}
+explicitTypes: {}
+eqlist: 
+?ATTR1 = (ListOrderFn(ListFn@ROW)?NUMBER1)
+?ATTR2 = (ListOrderFn(ListFn@ROW)?NUMBER2)
+?NUMBER1 = ?NUMBER2
+row var literal: 
+(ListFn@ROW)
+(ListFn@ROW)
+(contraryAttribute@ROW)
+row var struct: 
+ListFn:@ROW:(ListFn @ROW)
+
+Formula: (=>
+  (and
+    (instance ?REL IntentionalRelation)
+    (?REL ?AGENT @ROW)
+    (inList ?OBJ
+      (ListFn @ROW)))
+  (inScopeOfInterest ?AGENT ?OBJ))
+all vars: [?AGENT, ?OBJ, ?REL]
+all vars pair: []
+quant vars: []
+unquant vars: [?AGENT, ?OBJ, ?REL]
+exist vars: []
+univ vars: []
+terms: [instance, IntentionalRelation, ListFn, inList, inScopeOfInterest]
+pred vars: [?REL]
+row vars: [@ROW]
+argMap: 
+	instance	1: ?REL, 2: IntentionalRelation, 
+	ListFn	1: @ROW, 
+	inList	1: ?OBJ, 2: (ListFn@ROW), 
+	inScopeOfInterest	1: ?AGENT, 2: ?OBJ, 
+	?REL	1: ?AGENT, 2: @ROW, 
+varTypes: {?REL=[IntentionalRelation]}
+specVarMap: {}
+explicitTypes: {?REL=IntentionalRelation}
+eqlist: 
+row var literal: 
+(ListFn@ROW)
+(?REL?AGENT@ROW)
+row var struct: 
+ListFn:@ROW:(ListFn @ROW)
+

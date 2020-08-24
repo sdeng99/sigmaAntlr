@@ -1,0 +1,16 @@
+<component name="libraryTable">
+  <library name="hamcrest-core-1.3">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/hamcrest-core-1.3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/junit-4.12.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/sigmakee.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/antlr-4.8-complete.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/lib/sigmakee.jar!/test/corpus/java" />
+      <root url="jar://$PROJECT_DIR$/lib/sigmakee.jar!/test/integration/java" />
+      <root url="jar://$PROJECT_DIR$/lib/sigmakee.jar!/test/unit/java" />
+    </SOURCES>
+  </library>
+</component>

@@ -1,0 +1,616 @@
+JUnit version 4.12
+.Info in KBmanager.initializeOnce()
+Info in KBmanager.initializeOnce(): initializing with /home/apease/.sigmakee/KBs
+KBmanager.readConfiguration()
+KBmanager.serializedExists(): true
+KBmanager.serializedOld(config): 
+KBmanager.serializedOld(config): save date: Mon Aug 24 12:46:16 PDT 2020
+kbsFilenamesFromXML(): Completed loading KB names
+KBmanager.serializedOld(config): returning false (not old)
+KBmanager.loadSerialized(): KBmanager has been deserialized 
+WordNet.initOnce(): disable: false
+WordNet.initOnce(): using baseDir = /home/apease/.sigmakee/KBs/WordNetMappings
+WordNet.initOnce(): disable: false
+WordNet.loadSerialized(): WN has been deserialized 
+INFO in WordNet.loadSerialized(): origMaxNounSynsetID: 15300051 maxNounSynsetID: 15300051
+ENTER DB.readSpreadsheet(/home/apease/.sigmakee/KBs/WordNetMappings/sentiment.csv, null)
+ENTER DB.readSpreadsheet(java.io.FileReader@39a054a5, null)
+EXIT DB.readSpreadsheet(java.io.FileReader@39a054a5, null)
+  rows == [list of 8222 rows]
+  0.259 seconds elapsed time
+EXIT DB.readSpreadsheet(/home/apease/.sigmakee/KBs/WordNetMappings/sentiment.csv, null)
+NLGUtils.init(): initializing with /home/apease/.sigmakee/KBs
+NLGUtils.readKeywordMap():
+NLGUtils.serializedExists(): true
+NLGUtils.loadSerialized()
+NLGUtils.loadSerialized(): NLGUtils has been deserialized 
+INFO in OMWordnet.readOMWfiles(): reading files: 
+OMWordnet.loadSerialized(): OMW has been deserialized 
+VerbNet.readVerbFiles(): loading files from: 
+VerbNet.readVerbFiles(): no such dir: 
+Info in KBmanager.initializeOnce(): initialized is true
+KBmanager.initializeOnce(): total init time in seconds: 49
+PreprocessorTest.init(): total init time: 49 seconds
+Preprocessor.preprocess()
+Preprocessor.preprocess() rowvar statements without predvar: [(forall (@ROW ?ITEM)
+  (initialList
+    (ListFn @ROW)
+    (ListFn @ROW ?ITEM))), (=>
+  (equal
+    (GreatestCommonDivisorFn @ROW) ?NUMBER)
+  (not
+    (exists (?GREATER)
+      (and
+        (greaterThan ?GREATER ?NUMBER)
+        (forall (?ELEMENT)
+          (=>
+            (inList ?ELEMENT
+              (ListFn @ROW))
+            (equal
+              (RemainderFn ?ELEMENT ?GREATER) 0))))))), (=>
+  (equal
+    (LeastCommonMultipleFn @ROW) ?NUMBER)
+  (=>
+    (inList ?ELEMENT
+      (ListFn @ROW))
+    (instance ?ELEMENT Number))), (=>
+  (disjointDecomposition ?CLASS @ROW)
+  (forall (?ITEM)
+    (=>
+      (inList ?ITEM
+        (ListFn @ROW))
+      (subclass ?ITEM ?CLASS)))), (=>
+  (equal
+    (GreatestCommonDivisorFn @ROW) ?NUMBER)
+  (forall (?ELEMENT)
+    (=>
+      (inList ?ELEMENT
+        (ListFn @ROW))
+      (equal
+        (RemainderFn ?ELEMENT ?NUMBER) 0)))), (=>
+  (equal
+    (LeastCommonMultipleFn @ROW) ?NUMBER)
+  (not
+    (exists (?LESS)
+      (and
+        (lessThan ?LESS ?NUMBER)
+        (forall (?ELEMENT)
+          (=>
+            (inList ?ELEMENT
+              (ListFn @ROW))
+            (equal
+              (RemainderFn ?LESS ?ELEMENT) 0))))))), (=>
+  (and
+    (exhaustiveAttribute ?CLASS @ROW)
+    (inList ?ATTR
+      (ListFn @ROW)))
+  (instance ?ATTR ?CLASS)), (=>
+  (and
+    (range ?FUNCTION ?CLASS)
+    (equal
+      (AssignmentFn ?FUNCTION @ROW) ?VALUE))
+  (instance ?VALUE ?CLASS)), (=>
+  (exhaustiveDecomposition @ROW)
+  (=>
+    (inList ?ELEMENT
+      (ListFn @ROW))
+    (instance ?ELEMENT Class))), (=>
+  (and
+    (exhaustiveAttribute ?CLASS @ROW)
+    (inList ?ATTR
+      (ListFn @ROW)))
+  (instance ?ATTR Attribute)), (=>
+  (and
+    (contraryAttribute @ROW1)
+    (identicalListItems
+      (ListFn @ROW1)
+      (ListFn @ROW2)))
+  (contraryAttribute @ROW2)), (=>
+  (exhaustiveAttribute ?CLASS @ROW)
+  (=>
+    (equal ?ATTR1
+      (ListOrderFn
+        (ListFn @ROW) ?N1))
+    (not
+      (exists (?ATTR2 ?N2)
+        (and
+          (equal ?ATTR1 ?ATTR2)
+          (not
+            (equal ?N1 ?N2))))))), (=>
+  (contraryAttribute @ROW)
+  (=>
+    (inList ?ELEMENT
+      (ListFn @ROW))
+    (instance ?ELEMENT Attribute))), (=>
+  (equal
+    (LeastCommonMultipleFn @ROW) ?NUMBER)
+  (forall (?ELEMENT)
+    (=>
+      (inList ?ELEMENT
+        (ListFn @ROW))
+      (equal
+        (RemainderFn ?NUMBER ?ELEMENT) 0)))), (=>
+  (exhaustiveAttribute ?ATTRCLASS @ROW)
+  (not
+    (exists (?EL)
+      (and
+        (instance ?EL ?ATTRCLASS)
+        (not
+          (exists (?ATTR ?NUMBER)
+            (and
+              (equal ?EL ?ATTR)
+              (equal ?ATTR
+                (ListOrderFn
+                  (ListFn @ROW) ?NUMBER))))))))), (<=>
+  (partition @ROW)
+  (and
+    (exhaustiveDecomposition @ROW)
+    (disjointDecomposition @ROW))), (=>
+  (disjointDecomposition @ROW)
+  (=>
+    (inList ?ELEMENT
+      (ListFn @ROW))
+    (instance ?ELEMENT Class))), (=>
+  (and
+    (rangeSubclass ?FUNCTION ?CLASS)
+    (equal
+      (AssignmentFn ?FUNCTION @ROW) ?VALUE))
+  (subclass ?VALUE ?CLASS)), (=>
+  (exhaustiveDecomposition ?CLASS @ROW)
+  (forall (?OBJ)
+    (=>
+      (instance ?OBJ ?CLASS)
+      (exists (?ITEM)
+        (and
+          (inList ?ITEM
+            (ListFn @ROW))
+          (instance ?OBJ ?ITEM)))))), (=>
+  (disjointDecomposition ?CLASS @ROW)
+  (forall (?ITEM1 ?ITEM2)
+    (=>
+      (and
+        (inList ?ITEM1
+          (ListFn @ROW))
+        (inList ?ITEM2
+          (ListFn @ROW))
+        (not
+          (equal ?ITEM1 ?ITEM2)))
+      (disjoint ?ITEM1 ?ITEM2)))), (=>
+  (and
+    (orientation ?OBJ1 ?OBJ2 ?ATTR1)
+    (contraryAttribute @ROW)
+    (inList ?ATTR1
+      (ListFn @ROW))
+    (inList ?ATTR2
+      (ListFn @ROW))
+    (not
+      (equal ?ATTR1 ?ATTR2)))
+  (not
+    (orientation ?OBJ1 ?OBJ2 ?ATTR2))), (=>
+  (equal
+    (GreatestCommonDivisorFn @ROW) ?NUMBER)
+  (=>
+    (inList ?ELEMENT
+      (ListFn @ROW))
+    (instance ?ELEMENT Number))), (forall (@ROW ?ITEM)
+  (equal
+    (ListLengthFn
+      (ListFn @ROW ?ITEM))
+    (SuccessorFn
+      (ListLengthFn
+        (ListFn @ROW))))), (=>
+  (exhaustiveAttribute ?CLASS @ROW)
+  (forall (?ATTR1)
+    (=>
+      (instance ?ATTR1 ?CLASS)
+      (exists (?ATTR2)
+        (and
+          (inList ?ATTR2
+            (ListFn @ROW))
+          (equal ?ATTR1 ?ATTR2)))))), (forall (@ROW ?ITEM)
+  (equal
+    (ListOrderFn
+      (ListFn @ROW ?ITEM)
+      (ListLengthFn
+        (ListFn @ROW ?ITEM))) ?ITEM)), (=>
+  (equal ?LIST1 ?LIST2)
+  (=>
+    (and
+      (equal ?LIST1
+        (ListFn @ROW1))
+      (equal ?LIST2
+        (ListFn @ROW2)))
+    (forall (?NUMBER)
+      (equal
+        (ListOrderFn
+          (ListFn @ROW1) ?NUMBER)
+        (ListOrderFn
+          (ListFn @ROW2) ?NUMBER))))), (=>
+  (contraryAttribute @ROW)
+  (forall (?ATTR1 ?ATTR2)
+    (=>
+      (and
+        (equal ?ATTR1
+          (ListOrderFn
+            (ListFn @ROW) ?NUMBER1))
+        (equal ?ATTR2
+          (ListOrderFn
+            (ListFn @ROW) ?NUMBER2))
+        (not
+          (equal ?NUMBER1 ?NUMBER2)))
+      (=>
+        (property ?OBJ ?ATTR1)
+        (not
+          (property ?OBJ ?ATTR2))))))]
+Preprocessor.preprocess() predvar statements without rowvar: [(=>
+  (instance ?REL IrreflexiveRelation)
+  (forall (?INST)
+    (not
+      (?REL ?INST ?INST)))), (=>
+  (instance ?REL TransitiveRelation)
+  (forall (?INST1 ?INST2 ?INST3)
+    (=>
+      (and
+        (?REL ?INST1 ?INST2)
+        (?REL ?INST2 ?INST3))
+      (?REL ?INST1 ?INST3)))), (=>
+  (and
+    (trichotomizingOn ?RELATION ?CLASS)
+    (instance ?RELATION Predicate))
+  (forall (?INST1 ?INST2)
+    (=>
+      (and
+        (instance ?INST1 ?CLASS)
+        (instance ?INST2 ?CLASS))
+      (and
+        (?RELATION ?INST1 ?INST2)
+        (?RELATION ?INST2 ?INST1)
+        (equal ?INST1 ?INST2))))), (=>
+  (and
+    (instance ?REL ObjectAttitude)
+    (?REL ?AGENT ?THING))
+  (instance ?THING Physical)), (=>
+  (capability ?PROCESS ?ROLE ?OBJ)
+  (modalAttribute
+    (exists (?P)
+      (and
+        (instance ?P ?PROCESS)
+        (?ROLE ?P ?OBJ))) Possibility)), (=>
+  (and
+    (holdsDuring ?INTERVAL
+      (?REL ?INST1 ?INST2))
+    (instance ?INST1 Physical)
+    (instance ?INST2 Physical))
+  (and
+    (time ?INST1 ?INTERVAL)
+    (time ?INST2 ?INTERVAL))), (=>
+  (and
+    (instance ?FUNCTION UnitOfMeasureMultiplier)
+    (instance ?UNIT CompositeUnitOfMeasure))
+  (instance
+    (?FUNCTION ?UNIT) CompositeUnitOfMeasure)), (=>
+  (and
+    (instance ?REL RelationExtendedToQuantities)
+    (equal ?Q1
+      (MeasureFn ?I1 ?U))
+    (equal ?Q2
+      (MeasureFn ?I2 ?U))
+    (?REL ?I1 ?I2))
+  (?REL ?Q1 ?Q2)), (=>
+  (instance ?REL TotalOrderingRelation)
+  (forall (?INST1 ?INST2)
+    (and
+      (and
+        (?REL ?INST1 ?INST2)
+        (?REL ?INST2 ?INST1))
+      (and
+        (not
+          (?REL ?INST1 ?INST2))
+        (not
+          (?REL ?INST2 ?INST1)))))), (=>
+  (instance ?REL TrichotomizingRelation)
+  (forall (?INST1 ?INST2)
+    (and
+      (and
+        (?REL ?INST1 ?INST2)
+        (not
+          (equal ?INST1 ?INST2))
+        (not
+          (?REL ?INST2 ?INST1)))
+      (and
+        (not
+          (?REL ?INST1 ?INST2))
+        (equal ?INST1 ?INST2)
+        (not
+          (?REL ?INST2 ?INST1)))
+      (and
+        (not
+          (?REL ?INST1 ?INST2))
+        (not
+          (equal ?INST1 ?INST2))
+        (?REL ?INST2 ?INST1))))), (=>
+  (and
+    (instance ?REL PropositionalAttitude)
+    (?REL ?AGENT ?FORMULA))
+  (instance ?FORMULA Formula)), (=>
+  (and
+    (instance ?REL CaseRole)
+    (instance ?OBJ Object)
+    (?REL ?PROCESS ?OBJ))
+  (exists (?TIME)
+    (overlapsSpatially
+      (WhereFn ?PROCESS ?TIME) ?OBJ))), (=>
+  (and
+    (instance ?FUNCTION UnitOfMeasureMultiplier)
+    (instance ?UNIT NonCompositeUnitOfMeasure))
+  (instance
+    (?FUNCTION ?UNIT) NonCompositeUnitOfMeasure)), (=>
+  (and
+    (instance ?ROLE CaseRole)
+    (?ROLE ?ARG1 ?ARG2)
+    (instance ?ARG1 ?PROC)
+    (subclass ?PROC Process))
+  (capability ?PROC ?ROLE ?ARG2)), (=>
+  (and
+    (instance ?REL BinaryPredicate)
+    (instance ?REL SpatialRelation)
+    (?REL ?OBJ1 ?OBJ2))
+  (overlapsTemporally
+    (WhenFn ?OBJ1)
+    (WhenFn ?OBJ2))), (=>
+  (and
+    (instance ?REL RelationExtendedToQuantities)
+    (instance ?REL BinaryPredicate)
+    (instance ?NUMBER1 RealNumber)
+    (instance ?NUMBER2 RealNumber)
+    (?REL ?NUMBER1 ?NUMBER2))
+  (forall (?UNIT)
+    (=>
+      (instance ?UNIT UnitOfMeasure)
+      (?REL
+        (MeasureFn ?NUMBER1 ?UNIT)
+        (MeasureFn ?NUMBER2 ?UNIT))))), (=>
+  (instance ?REL SymmetricRelation)
+  (forall (?INST1 ?INST2)
+    (=>
+      (?REL ?INST1 ?INST2)
+      (?REL ?INST2 ?INST1)))), (=>
+  (instance ?REL AntisymmetricRelation)
+  (forall (?INST1 ?INST2)
+    (=>
+      (and
+        (?REL ?INST1 ?INST2)
+        (?REL ?INST2 ?INST1))
+      (equal ?INST1 ?INST2)))), (=>
+  (and
+    (irreflexiveOn ?RELATION ?CLASS)
+    (instance ?RELATION Predicate))
+  (forall (?INST)
+    (=>
+      (instance ?INST ?CLASS)
+      (not
+        (?RELATION ?INST ?INST))))), (=>
+  (instance ?REL IntransitiveRelation)
+  (forall (?INST1 ?INST2 ?INST3)
+    (=>
+      (and
+        (?REL ?INST1 ?INST2)
+        (?REL ?INST2 ?INST3))
+      (not
+        (?REL ?INST1 ?INST3))))), (=>
+  (and
+    (reflexiveOn ?RELATION ?CLASS)
+    (instance ?RELATION Predicate))
+  (forall (?INST)
+    (=>
+      (instance ?INST ?CLASS)
+      (?RELATION ?INST ?INST))))]
+Error in VarTypes.findType(): arg (MultiplicationFn?N746) of type Quantity not allowed as argument 1 to relation MeasureFn in formula (=>
+  (instance ?N RealNumber)
+  (equal
+    (MeasureFn ?N Horsepower)
+    (MeasureFn
+      (MultiplicationFn ?N 746) Watt))) that requires RealNumber
+Error in VarTypes.findType(): arg (TemporalCompositionFn?HOURMinute) of type TimeInterval not allowed as argument 1 to relation CardinalityFn in formula (=>
+  (instance ?HOUR Hour)
+  (equal
+    (CardinalityFn
+      (TemporalCompositionFn ?HOUR Minute)) 60)) that requires (UnionFn SetOrClass Collection)
+Error in VarTypes.findType(): arg (AdditionFn1?S) of type Quantity not allowed as argument 1 to relation SubListFn in formula (=>
+  (and
+    (equal ?R
+      (SubListFn ?S ?E ?L))
+    (greaterThan
+      (SubtractionFn ?E ?S) 1))
+  (equal ?R
+    (ListConcatenateFn
+      (ListFn
+        (ListOrderFn ?L ?S))
+      (SubListFn
+        (AdditionFn 1 ?S) ?E ?L)))) that requires Integer
+Error in VarTypes.findType(): arg Organism of type null not allowed as argument 1 to relation FoodForFn in formula (=>
+  (and
+    (instance ?ACT Ingesting)
+    (resource ?ACT ?FOOD))
+  (instance ?FOOD
+    (FoodForFn Organism))) that requires Organism
+Error in VarTypes.findType(): arg (PropertyFn?PERSON) of type Set not allowed as argument 1 to relation monetaryValue in formula (<=>
+  (equal
+    (WealthFn ?PERSON) ?AMOUNT)
+  (monetaryValue
+    (PropertyFn ?PERSON) ?AMOUNT)) that requires Physical
+Error in VarTypes.findType(): arg (MeasureFn?MELTKelvinDegree) of type PhysicalQuantity not allowed as argument 2 to relation meltingPoint in formula (=>
+  (and
+    (instance ?X ?Y)
+    (subclass ?Y PureSubstance)
+    (meltingPoint ?Y
+      (MeasureFn ?MELT KelvinDegree))
+    (barometricPressure ?X
+      (MeasureFn ?PRES InchMercury))
+    (greaterThan ?PRES 29.92)
+    (measure ?X
+      (MeasureFn ?TEMP KelvinDegree))
+    (lessThan ?TEMP ?MELT))
+  (attribute ?X Solid)) that requires TemperatureMeasure
+Error in VarTypes.findType(): arg Organism of type null not allowed as argument 1 to relation FoodForFn in formula (=>
+  (instance ?COOK Cooking)
+  (exists (?FOOD)
+    (and
+      (instance ?FOOD
+        (FoodForFn Organism))
+      (result ?COOK ?FOOD)))) that requires Organism
+Error in VarTypes.findType(): arg (DivisionFn?NUMBER1?NUMBER2) of type Quantity not allowed as argument 1 to relation FloorFn in formula (<=>
+  (equal
+    (RemainderFn ?NUMBER1 ?NUMBER2) ?NUMBER)
+  (equal
+    (AdditionFn
+      (MultiplicationFn
+        (FloorFn
+          (DivisionFn ?NUMBER1 ?NUMBER2)) ?NUMBER2) ?NUMBER) ?NUMBER1)) that requires RealNumber
+Error in VarTypes.findType(): arg (FirstFn?L) of type Entity not allowed as argument 1 to relation AdditionFn in formula (=>
+  (and
+    (equal ?A
+      (ListSumFn ?L))
+    (greaterThan
+      (ListLengthFn ?L) 1))
+  (equal ?A
+    (AdditionFn
+      (FirstFn ?L)
+      (ListSumFn
+        (SubListFn 2
+          (ListLengthFn ?L) ?L))))) that requires Quantity
+Error in VarTypes.findType(): arg (WhereFn?PROCESS(BeginFn(WhenFn?PROCESS))) of type Region not allowed as argument 1 to relation eventLocated in formula (=>
+  (origin ?PROCESS ?OBJ)
+  (eventLocated
+    (WhereFn ?PROCESS
+      (BeginFn
+        (WhenFn ?PROCESS)))
+    (WhereFn ?OBJ
+      (BeginFn
+        (WhenFn ?OBJ))))) that requires Process
+Error in VarTypes.findType(): arg (TemporalCompositionFn?YEARMonth) of type TimeInterval not allowed as argument 1 to relation CardinalityFn in formula (=>
+  (instance ?YEAR Year)
+  (equal
+    (CardinalityFn
+      (TemporalCompositionFn ?YEAR Month)) 12)) that requires (UnionFn SetOrClass Collection)
+Error in VarTypes.findType(): arg (TemporalCompositionFn?MINUTESecond) of type TimeInterval not allowed as argument 1 to relation CardinalityFn in formula (=>
+  (instance ?MINUTE Minute)
+  (equal
+    (CardinalityFn
+      (TemporalCompositionFn ?MINUTE Second)) 60)) that requires (UnionFn SetOrClass Collection)
+Error in VarTypes.findType(): arg (KappaFn?HEAR(and(instance?HEARHearing)(agent?HEAR?HUMAN)(destination?HEAR?HUMAN)(origin?HEAR?OBJ))) of type Class not allowed as argument 1 to relation capability in formula (=>
+  (and
+    (instance ?SOUND RadiatingSound)
+    (agent ?SOUND ?OBJ)
+    (attribute ?SOUND Audible))
+  (exists (?HUMAN)
+    (and
+      (instance ?HUMAN Human)
+      (capability
+        (KappaFn ?HEAR
+          (and
+            (instance ?HEAR Hearing)
+            (agent ?HEAR ?HUMAN)
+            (destination ?HEAR ?HUMAN)
+            (origin ?HEAR ?OBJ))) agent ?HUMAN)))) that requires Process
+Error in VarTypes.findType(): arg (MeasureFn?BOILKelvinDegree) of type PhysicalQuantity not allowed as argument 2 to relation boilingPoint in formula (=>
+  (and
+    (instance ?X ?Y)
+    (subclass ?Y PureSubstance)
+    (barometricPressure ?X
+      (MeasureFn ?PRES InchMercury))
+    (greaterThan 29.92 ?PRES)
+    (boilingPoint ?Y
+      (MeasureFn ?BOIL KelvinDegree))
+    (measure ?X
+      (MeasureFn ?TEMP KelvinDegree))
+    (greaterThan ?TEMP ?BOIL))
+  (attribute ?X Gas)) that requires TemperatureMeasure
+Error in VarTypes.findType(): arg (TemporalCompositionFn?WEEKDay) of type TimeInterval not allowed as argument 1 to relation CardinalityFn in formula (=>
+  (instance ?WEEK Week)
+  (equal
+    (CardinalityFn
+      (TemporalCompositionFn ?WEEK Day)) 7)) that requires (UnionFn SetOrClass Collection)
+Error in VarTypes.findType(): arg (MeasureFn?NHALF?UHALF) of type PhysicalQuantity not allowed as argument 2 to relation radius in formula (=>
+  (diameter ?CIRCLE ?LENGTH)
+  (exists (?NHALF ?UHALF)
+    (and
+      (radius ?CIRCLE
+        (MeasureFn ?NHALF ?UHALF))
+      (equal
+        (MeasureFn
+          (MultiplicationFn ?NHALF 2) ?UHALF) ?LENGTH)))) that requires LengthMeasure
+Error in VarTypes.findType(): arg (MultiplicationFn?NHALF2) of type Quantity not allowed as argument 1 to relation MeasureFn in formula (=>
+  (diameter ?CIRCLE ?LENGTH)
+  (exists (?NHALF ?UHALF)
+    (and
+      (radius ?CIRCLE
+        (MeasureFn ?NHALF ?UHALF))
+      (equal
+        (MeasureFn
+          (MultiplicationFn ?NHALF 2) ?UHALF) ?LENGTH)))) that requires RealNumber
+Error in VarTypes.findType(): arg (TemporalCompositionFn?MONTHDay) of type TimeInterval not allowed as argument 1 to relation CardinalityFn in formula (=>
+  (and
+    (instance ?MONTH Month)
+    (duration ?MONTH
+      (MeasureFn ?NUMBER DayDuration)))
+  (equal
+    (CardinalityFn
+      (TemporalCompositionFn ?MONTH Day)) ?NUMBER)) that requires (UnionFn SetOrClass Collection)
+Error in VarTypes.findType(): arg (TemporalCompositionFn?DAYHour) of type TimeInterval not allowed as argument 1 to relation CardinalityFn in formula (=>
+  (instance ?DAY Day)
+  (equal
+    (CardinalityFn
+      (TemporalCompositionFn ?DAY Hour)) 24)) that requires (UnionFn SetOrClass Collection)
+Error in VarTypes.findType(): arg (MultiplicationFn?NUMBER10) of type Quantity not allowed as argument 1 to relation MeasureFn in formula (=>
+  (equal ?NUMBER
+    (MultiplicationFn 1 ?NUMBER))
+  (equal
+    (MeasureFn ?NUMBER DecadeDuration)
+    (MeasureFn
+      (MultiplicationFn ?NUMBER 10) YearDuration))) that requires RealNumber
+Error in VarTypes.findType(): arg (MeasureFn?MELTKelvinDegree) of type PhysicalQuantity not allowed as argument 2 to relation meltingPoint in formula (=>
+  (and
+    (instance ?X ?Y)
+    (subclass ?Y PureSubstance)
+    (boilingPoint ?Y
+      (MeasureFn ?BOIL KelvinDegree))
+    (meltingPoint ?Y
+      (MeasureFn ?MELT KelvinDegree))
+    (measure ?X
+      (MeasureFn ?TEMP KelvinDegree))
+    (greaterThan ?TEMP ?MELT)
+    (lessThan ?TEMP ?BOIL))
+  (attribute ?X Liquid)) that requires TemperatureMeasure
+Error in VarTypes.findType(): arg (MeasureFn?BOILKelvinDegree) of type PhysicalQuantity not allowed as argument 2 to relation boilingPoint in formula (=>
+  (and
+    (instance ?X ?Y)
+    (subclass ?Y PureSubstance)
+    (boilingPoint ?Y
+      (MeasureFn ?BOIL KelvinDegree))
+    (meltingPoint ?Y
+      (MeasureFn ?MELT KelvinDegree))
+    (measure ?X
+      (MeasureFn ?TEMP KelvinDegree))
+    (greaterThan ?TEMP ?MELT)
+    (lessThan ?TEMP ?BOIL))
+  (attribute ?X Liquid)) that requires TemperatureMeasure
+preprocess(): pred var instantiation time: 0
+PreprocessorTest.test1() results too large to show
+PreprocessorTest.init(): total preprocess time: 19 seconds
+.Info in KBmanager.initializeOnce()
+Info in KBmanager.initializeOnce(): initialized is true
+Info in KBmanager.initializeOnce(): initializing is false
+Info in KBmanager.initializeOnce(): returning 
+PreprocessorTest.init(): total init time: 0 seconds
+PreprocessorTest.test2(): # rules: 1
+PreprocessorTest.test2(): # before preprocess: 1
+Preprocessor.preprocess()
+preprocess(): pred var instantiation time: 0
+PreprocessorTest.test2(): # after preprocess: 292
+PreprocessorTest.test2() results too large to show
+
+Time: 69.957
+
+OK (2 tests)
+

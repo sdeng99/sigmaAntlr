@@ -1,0 +1,31 @@
+running test: com.articulate.sigma.parsing.SUOKIFparseTest : predRowUnder
+predRowUnder(): 
+(=> (and (exhaustiveAttribute ?CLASS ?ROW1) (inList ?ATTR (ListFn_1 ?ROW1))) (instance ?ATTR Attribute))
+Formula: (=>
+  (and
+    (exhaustiveAttribute ?CLASS ?ROW1)
+    (inList ?ATTR
+      (ListFn_1 ?ROW1)))
+  (instance ?ATTR Attribute))
+all vars: [?ATTR, ?ROW1, ?CLASS]
+all vars pair: []
+quant vars: []
+unquant vars: [?ATTR, ?ROW1, ?CLASS]
+exist vars: []
+univ vars: []
+terms: [ListFn_1, instance, Attribute, exhaustiveAttribute, inList]
+pred vars: []
+row vars: []
+argMap: 
+	ListFn_1	1: ?ROW1, 
+	instance	1: ?ATTR, 2: Attribute, 
+	exhaustiveAttribute	1: ?CLASS, 2: ?ROW1, 
+	inList	1: ?ATTR, 2: (ListFn_1?ROW1), 
+varTypes: {?ATTR=[Attribute]}
+predVarCache: []
+explicitTypes: {?ATTR=[Attribute]}
+eqlist: 
+row var literal: 
+constants: 
+row var struct: 
+
