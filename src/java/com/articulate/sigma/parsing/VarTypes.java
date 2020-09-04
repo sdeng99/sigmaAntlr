@@ -258,7 +258,7 @@ public class VarTypes {
                                     for (ParseTree ptc2 : ac.children) {
                                         if (debug) System.out.println("VarTypes.functionSpecializationAllowed(): ptc2 expression type: " + ptc2.getClass().getName());
                                         if (debug) System.out.println("VarTypes.functionSpecializationAllowed(): ptc2: " + ptc2.getText());
-                                        if (argnum == 4) {
+                                        if (argnum == 4 && ptc2.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$TermContext")) {
                                             SuokifParser.TermContext othertc = (SuokifParser.TermContext) ptc2;
                                             if (othertc.IDENTIFIER() != null) {
                                                 type = othertc.IDENTIFIER().getText();
@@ -421,7 +421,7 @@ public class VarTypes {
                                     if (sigTypeAtIndex.endsWith("+"))
                                         sigTypeNoSuffix = sigTypeAtIndex.substring(0,sigTypeAtIndex.length()-1); // remove the trailing '+'
                                     String tNoSuffix = t;
-                                    if (t.endsWith("+"))
+                                    if (t != null && t.endsWith("+"))
                                         tNoSuffix = t.substring(0,t.length()-1); // remove the trailing '+'
                                     if (!sigTypeNoSuffix.equals(tNoSuffix) && !kb.isSubclass(tNoSuffix, sigTypeNoSuffix) && !sigTypeNoSuffix.equals("SetOrClass") )
                                         if (!functionSpecializationAllowed(c,sigTypeNoSuffix))
