@@ -159,7 +159,7 @@ public class RowVar {
                         continue;
                     }
                     if (kb.kbCache.valences.get(pred) == -1 && rs.rowvar.equals(var)) {
-                        String newliteral = literal.replace("@" + varName + ")", sb.toString() + ")"); // row vars are always at the end of an argument list
+                        String newliteral = literal.replace("@" + varName, sb.toString());
                         // and we don't want a false match to a part of a var name
                         String fnSuffix = "Fn";
                         if (!pred.endsWith("Fn"))
@@ -182,8 +182,11 @@ public class RowVar {
             flist.addAll(result);
             if (debug) System.out.println("expandRowVar()  result for var: " + var);
             if (debug) {
-                for (FormulaAST fp : flist)
+                for (FormulaAST fp : flist) {
+                    if (fp.getFormula().contains("@"))
+                        System.out.println("RowVar.expandRowVar(): Error - row var in ouput -");
                     System.out.println(fp.getFormula() + "\n");
+                }
             }
             result = new HashSet<>();
             result.addAll(flist);

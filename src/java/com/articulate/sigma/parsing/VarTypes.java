@@ -423,7 +423,7 @@ public class VarTypes {
                                     String tNoSuffix = t;
                                     if (t != null && t.endsWith("+"))
                                         tNoSuffix = t.substring(0,t.length()-1); // remove the trailing '+'
-                                    if (!sigTypeNoSuffix.equals(tNoSuffix) && !kb.isSubclass(tNoSuffix, sigTypeNoSuffix) && !sigTypeNoSuffix.equals("SetOrClass") )
+                                    if (!sigTypeNoSuffix.equals(c.getText()) && !kb.isSubclass(tNoSuffix, sigTypeNoSuffix) && !sigTypeNoSuffix.equals("SetOrClass") )
                                         if (!functionSpecializationAllowed(c,sigTypeNoSuffix))
                                             System.out.println("Error in VarTypes.findType(): arg " + c.getText() + " of type " + tNoSuffix +
                                                 " not allowed as argument " + i + " to relation " + pred + " in formula " + f +

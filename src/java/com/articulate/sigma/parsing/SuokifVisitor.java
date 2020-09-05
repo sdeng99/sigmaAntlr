@@ -62,6 +62,35 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
     }
 
     /** ***************************************************************
+     * Parse a single formula and use this SuokifVisitor to process
+     * as the cached information for the formula. Copy the formula
+     * meta-data to the new formulas.
+     * @return a Map that should have a single formula
+     */
+    public static SuokifVisitor parseFormula(FormulaAST input) {
+
+        if (debug) System.out.println(input);
+        CodePointCharStream inputStream = CharStreams.fromString(input.getFormula());
+        SuokifLexer suokifLexer = new SuokifLexer(inputStream);
+        CommonTokenStream commonTokenStream = new CommonTokenStream(suokifLexer);
+        SuokifParser suokifParser = new SuokifParser(commonTokenStream);
+        SuokifParser.FileContext fileContext = suokifParser.file();
+        SuokifVisitor visitor = new SuokifVisitor();
+        HashMap<Integer,FormulaAST> hm = visitor.visitFile(fileContext);
+        result = hm;
+        if (hm == null || hm.values().size() == 0)
+            System.out.println("Error in SuokifVisitor.parseString(): no results for input: "  + input);
+        else {
+            for (FormulaAST f : hm.values()) {
+                f.startLine = input.startLine;
+                f.endLine = input.endLine;
+                f.sourceFile = input.sourceFile;
+            }
+        }
+        return visitor;
+    }
+
+    /** ***************************************************************
      */
     public void addToKeys(String k, FormulaAST f) {
 
@@ -120,6 +149,9 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$SentenceContext")) {
                 f = visitSentence((SuokifParser.SentenceContext) c);
                 f.parsedFormula = (SuokifParser.SentenceContext) c;
+                f.startLine = ((SuokifParser.SentenceContext) c).start.getLine();
+                f.startLine = ((SuokifParser.SentenceContext) c).stop.getLine();
+                f.sourceFile = ((SuokifParser.SentenceContext) c).start.getTokenSource().getSourceName();
                 result.put(counter++,f);
                 if (f.predVarCache.size() > 0) {
                     hasPredVar.add(f);
@@ -509,7 +541,7 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         if (debug) System.out.println("text: " + context.getText());
         ArrayList<FormulaAST> ar = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
-        sb.append("(and ");
+        sb.append("(or ");
         for (ParseTree c : context.children) {
             if (debug) System.out.println("visitOrsent() child: " + c.getClass().getName());
             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$SentenceContext")) {

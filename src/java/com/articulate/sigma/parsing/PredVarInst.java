@@ -35,12 +35,14 @@ public class PredVarInst {
             if (debug) System.out.println("PredVarInst.processOne(): substituting for var: " + var);
             HashSet<String> types = f.varTypes.get(var);
             HashSet<String> relations = new HashSet<>();
-            for (String type : types) {
-                if (debug) System.out.println("PredVarInst.processOne(): var,type: " + var + ":" + type);
-                if (relations.size() == 0)
-                    relations.addAll(kb.kbCache.getInstancesForType(type));
-                else
-                    relations.retainAll(kb.kbCache.getInstancesForType(type));
+            if (types != null) {
+                for (String type : types) {
+                    if (debug) System.out.println("PredVarInst.processOne(): var,type: " + var + ":" + type);
+                    if (relations.size() == 0)
+                        relations.addAll(kb.kbCache.getInstancesForType(type));
+                    else
+                        relations.retainAll(kb.kbCache.getInstancesForType(type));
+                }
             }
             HashSet<FormulaAST> newresult = new HashSet<>();
             for (FormulaAST f2 : result) {
