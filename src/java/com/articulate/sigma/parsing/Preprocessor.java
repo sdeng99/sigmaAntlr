@@ -19,6 +19,16 @@ public class Preprocessor {
     public Preprocessor(KB kbin) {kb = kbin;}
 
     /** ***************************************************************
+     * utility to remove explosive rules
+     */
+    public static void removeMultiplePredVar(SuokifVisitor sv) {
+
+        sv.hasPredVar.removeAll(sv.multiplePredVar); // remove explosive rules with multiple predicate variables
+        sv.rules.removeAll(sv.multiplePredVar);
+        sv.hasRowVar.removeAll(sv.multiplePredVar);
+    }
+
+    /** ***************************************************************
      */
     public HashSet<FormulaAST> preprocess(HashSet<FormulaAST> rowvar,
                                   HashSet<FormulaAST> predvar,
