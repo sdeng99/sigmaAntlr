@@ -55,6 +55,12 @@ public class Preprocessor {
         System.out.println("preprocess(): pred var instantiation time: " + end);
         RowVar rv = new RowVar(kb);
         HashSet<FormulaAST> rvResults = rv.expandRowVar(pviResults);
+        if (debug) {
+            for (FormulaAST r : rvResults) {
+                if (r.getFormula().contains("@"))
+                    System.out.println("Error in Preprocessor.preprocess(): rvresults contains rowvar: " + r);
+            }
+        }
         HashSet<FormulaAST> newRules = new HashSet<>();
         for (FormulaAST r : rules) {
             if (!rowvar.contains(r) && !predvar.contains(r) && !r.higherOrder && !r.containsNumber) { // only add rules without pred and row vars
@@ -67,7 +73,11 @@ public class Preprocessor {
         // newRules.addAll(pviResults); // now add the new rules expanded from pred vars <- should not be needed
         newRules.addAll(rvResults); // now add the new rules expanded from row vars
         HashSet<FormulaAST> finalRuleSet = new HashSet<>();
+        if (debug)
+            System.out.println("Preprocessor.preprocess(): before reparse");
         newRules = reparse(newRules);
+        if (debug)
+            System.out.println("Preprocessor.preprocess(): after reparse");
         for (FormulaAST r : newRules) {
             if (r.higherOrder || r.containsNumber) continue;
             if (debug) System.out.println("Preprocessor.preprocess(): add sortals to r: " + r);
