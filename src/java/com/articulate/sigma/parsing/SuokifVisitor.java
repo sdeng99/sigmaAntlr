@@ -417,6 +417,7 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
 
         for (FormulaAST.RowStruct rs : newRowVarStructs) { // now we have the whole literal to add to the structure
             rs.literal = result.getFormula();
+            rs.arity = argnum-1;
             if (debug) System.out.println("visitRelsent(): adding row var struct: " + rs);
             result.addRowVarStruct(rs.rowvar,rs);
         }
@@ -684,23 +685,41 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         StringBuilder fstring = new StringBuilder();
         FormulaAST f = null;
         String body = null;
+        FormulaAST farg = null;
         if (debug) System.out.println("text: " + context.getText());
         for (ParseTree c : context.children) {
             if (debug) System.out.println("visitForall() child: " + c.getClass().getName());
             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$VariableContext")) {
-                FormulaAST farg = visitVariable((SuokifParser.VariableContext) c);
+                farg = visitVariable((SuokifParser.VariableContext) c);
                 quant.add(farg.getFormula());
                 varlist.append(farg.getFormula() + " ");
             }
             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$SentenceContext")) {
+                varlist.deleteCharAt(varlist.length()-1); // remove trailing space
                 f = visitSentence((SuokifParser.SentenceContext) c);
                 body = f.getFormula();
+                if (debug) System.out.println("visitForall(): farg: " + farg);
+                if (varlist != null && varlist.toString().contains("@")) {
+                    f.rowvarLiterals.add(context);
+                    String[] vars = varlist.toString().split(" ");
+                    for (String var : vars) {
+                        if (var.startsWith("@")) {
+                            FormulaAST.RowStruct rs = f.new RowStruct();
+                            rs.pred = "__quantList";
+                            rs.rowvar = var;
+                            if (debug) System.out.println("rs: " + rs);
+                            rs.literal = varlist.toString();
+                            if (debug) System.out.println("visitForall(): adding row var struct: " + rs);
+                            f.addRowVarStruct(rs.rowvar, rs);
+                        }
+                    }
+                }
             }
         }
-        varlist.delete(varlist.length()-1,varlist.length());
         f.univVarsCache.addAll(quant);
         f.allVarsCache.addAll(quant);
         f.setFormula("(forall (" + varlist + ") " + body + ")");
+        if (debug) System.out.println("visitForall(): varlist: " + varlist);
         return f;
     }
 
@@ -720,14 +739,25 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         if (debug) System.out.println("text: " + context.getText());
         for (ParseTree c : context.children) {
             if (debug) System.out.println("visitExists() child: " + c.getClass().getName());
+            FormulaAST farg = null;
             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$VariableContext")) {
-                FormulaAST farg = visitVariable((SuokifParser.VariableContext) c);
+                farg = visitVariable((SuokifParser.VariableContext) c);
                 quant.add(farg.getFormula());
                 varlist.append(farg.getFormula() + " ");
             }
             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$SentenceContext")) {
                 f = visitSentence((SuokifParser.SentenceContext) c);
                 body = f.getFormula();
+                if (farg != null && farg.getFormula().contains("@")) {
+                    f.rowvarLiterals.add(context);
+                    FormulaAST.RowStruct rs = f.new RowStruct();
+                    rs.pred = "__quantList";
+                    rs.rowvar = farg.toString();
+                    if (debug) System.out.println("rs: " + rs);
+                    rs.literal = varlist.toString();
+                    if (debug) System.out.println("visitForall(): adding row var struct: " + rs);
+                    f.addRowVarStruct(rs.rowvar,rs);
+                }
             }
         }
         varlist.delete(varlist.length()-1,varlist.length());
@@ -861,6 +891,7 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         result.isFunctional = true;
         for (FormulaAST.RowStruct rs : newRowVarStructs) { // now we have the whole literal to add to the structure
             rs.literal = result.getFormula();
+            rs.arity = argnum-1;
             if (debug) System.out.println("visitFunterm(): adding row var struct: " + rs);
             result.addRowVarStruct(rs.rowvar,rs);
         }
