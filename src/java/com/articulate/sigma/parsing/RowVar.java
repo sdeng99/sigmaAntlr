@@ -61,22 +61,35 @@ public class RowVar {
                 for (int i = 0; i <= 6; i++) {
                     FormulaAST fnew = formulaList.get(i);
                     String varList = varLists.get(i);
-                    if (debug) System.out.println("expandVariableArityRowVar(): replace varname : " +
+                    if (debug) System.out.println("expandVariableArityRowVar(): replace varname : @" +
                             varName + " with varlist: " + varList);
-                    String newliteral = literal.replace("@" + varName + ")", varList + ")"); // row vars are always at the end of an argument list
-                    // and we don't want a false match to a part of a var name
+                    String newliteral = literal.replace("@" + varName, varList);
                     String fnSuffix = "Fn";
                     if (!pred.endsWith("Fn"))
                         fnSuffix = "";
-                    String newPredName = pred + "_" + Integer.toString(i+1) + fnSuffix;
-                    if (debug) System.out.println("expandVariableArityRowVar(): replace pred : " +
-                            pred + " with new pred: " + newPredName);
-                    newliteral = newliteral.replace(pred, newPredName);
+                    int predArity = i-1;
+                    if (debug) System.out.println("expandVariableArityRowVar(): literal arity: " + rs.arity);
+                    if (debug) System.out.println("expandVariableArityRowVar(): i: " + i);
+                    if (rs.arity > 1)
+                        predArity = i + rs.arity;
+                    else
+                        predArity = i+1;
+                    String newPredName = pred + "_" + predArity + fnSuffix;
+                    if (!pred.equals("__quantList")) {
+                        if (debug) System.out.println("expandVariableArityRowVar(): replace pred : " +
+                                pred + " with new pred: " + newPredName + " in " + newliteral);
+                        newliteral = newliteral.replace(pred, newPredName);
+                    }
                     rs.literal = newliteral;
                     if (debug) System.out.println("expandVariableArityRowVar(): fnew before " + fnew.getFormula());
                     if (debug) System.out.println("expandVariableArityRowVar(): literal " + literal);
                     if (debug) System.out.println("expandVariableArityRowVar(): newliteral " + newliteral);
-                    fnew.setFormula(fnew.getFormula().replace(literal, newliteral));
+                    if (!pred.equals("__quantList"))
+                        fnew.setFormula(fnew.getFormula().replace(literal, newliteral));
+                    else {
+                        if (debug) System.out.println("expandVariableArityRowVar(): replace (" + literal + ") with (" + newliteral + ")");
+                        fnew.setFormula(fnew.getFormula().replace("(" + literal + ")", "(" + newliteral + ")"));
+                    }
                     if (debug) System.out.println("expandVariableArityRowVar(): fnew after " + fnew.getFormula());
                 }
                 if (debug) System.out.println("expandVariableArityRowVar(): formulaList: " + formulaList);
@@ -108,14 +121,20 @@ public class RowVar {
                 else if (kb.kbCache.isInstanceOf(rs.pred,"VariableArityPredicate") && arities.get(rs.rowvar) == null )
                     arities.put(rs.rowvar,-1);
                 else {
+                    if (rs.pred.equals("__quantList"))
+                        continue;
                     int predArity = kb.kbCache.getArity(rs.pred);
-                    int rowVarArity = predArity - rs.arity; // if there's more than one argument, var arity is reduced
+                    int rowVarArity = predArity;
+                    if (rs.arity > 1)
+                        rowVarArity = rowVarArity - (rs.arity - 1); // if there's more than one argument, var arity is reduced
                     if (predArity == -1)
                         rowVarArity = -1;
                     if (debug) System.out.println("findArities(): variable " + rs.rowvar + " pred: " +
                             rs.pred + " pred arity: " + predArity + " row arity: " + rowVarArity + " rs.arity: " + rs.arity + " in "  + f);
-                    if (arities.get(rs.rowvar) == null || predArity != -1)
-                        arities.put(rs.rowvar,rowVarArity);
+                    if (arities.get(rs.rowvar) == null || predArity != -1) {
+                        arities.put(rs.rowvar, rowVarArity);
+                        if (debug) System.out.println("findArities(): put " + rs.rowvar + " row arity: " + rowVarArity);
+                    }
                 }
             }
         }
@@ -141,6 +160,7 @@ public class RowVar {
             result = new HashSet<>();
             if (debug) System.out.println("expandRowVar(): expanding var: " + var);
             int arity = varArities.get(var);
+            if (debug) System.out.println("expandRowVar(): var arity: " + arity);
             if (arity == -1)
                 result.addAll(expandVariableArityRowVar(flist,var));
             else {
@@ -151,11 +171,11 @@ public class RowVar {
                 sb.deleteCharAt(sb.length() - 1);
 
                 for (FormulaAST.RowStruct rs : f.rowVarStructs.get(var)) {
-                    if (debug) System.out.println("expandVariableArityRowVar(): variable row struct " + rs);
+                    if (debug) System.out.println("expandRowVar(): variable row struct " + rs);
                     String literal = rs.literal;
                     String pred = rs.pred;
-                    if (kb.kbCache.valences.get(pred) == null) {
-                        System.out.println("expandVariableArityRowVar(): null valence for " + pred + " in " + f);
+                    if (kb.kbCache.valences.get(pred) == null && !pred.equals("__quantList")) {
+                        System.out.println("expandRowVar(): null valence for " + pred + " in " + f);
                         continue;
                     }
                     if (kb.kbCache.valences.get(pred) == -1 && rs.rowvar.equals(var)) {
@@ -164,12 +184,15 @@ public class RowVar {
                         String fnSuffix = "Fn";
                         if (!pred.endsWith("Fn"))
                             fnSuffix = "";
-                        String newPredName = pred + "_" + Integer.toString(arity) + fnSuffix;
-                        if (debug) System.out.println("expandVariableArityRowVar(): replace pred : " +
+                        String newPredName = pred;
+                        if (!pred.equals("__quantList"))
+                            newPredName = pred + "_" + Integer.toString(arity) + fnSuffix;
+                        if (debug) System.out.println("expandRowVar(): replace pred : " +
                                 pred + " with new pred: " + newPredName);
-                        if (debug) System.out.println("expandVariableArityRowVar(): in literal : " +
+                        if (debug) System.out.println("expandRowVar(): in literal : " +
                                 newliteral);
-                        newliteral = newliteral.replace(pred, newPredName);
+                        if (!pred.equals("__quantList"))
+                            newliteral = newliteral.replace(pred, newPredName);
                         rs.literal = newliteral;
                         f.setFormula(f.getFormula().replace(literal, newliteral));
                     }
@@ -184,7 +207,7 @@ public class RowVar {
             if (debug) {
                 for (FormulaAST fp : flist) {
                     if (fp.getFormula().contains("@"))
-                        System.out.println("RowVar.expandRowVar(): Error - row var in ouput -");
+                        System.out.println("RowVar.expandRowVar(): Error - row var in output -");
                     System.out.println(fp.getFormula() + "\n");
                 }
             }
