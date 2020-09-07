@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class RowVarTest {
 
@@ -68,7 +69,8 @@ public class RowVarTest {
     @Test
     public void test1() {
 
-        String input = "\n" +
+        System.out.println("===================== RowVarTest.test1() =====================");
+                String input = "\n" +
                 "(=>\n" +
                 "    (and\n" +
                 "        (contraryAttribute @ROW1)\n" +
@@ -90,6 +92,7 @@ public class RowVarTest {
     @Test
     public void test2() {
 
+        System.out.println("===================== RowVarTest.test2() =====================");
         String input = "(=> (and (minValue part ?ARG ?N) (part @ARGS) (equal ?VAL (ListOrderFn (ListFn @ARGS) ?ARG))) (greaterThan ?VAL ?N))";
         String expected = "(=> (and (minValue part ?ARG ?N) (part ?ARGS1 ?ARGS2) (equal ?VAL (ListOrderFn (ListFn_2Fn ?ARGS1 ?ARGS2) ?ARG))) (greaterThan ?VAL ?N))";
         HashSet<FormulaAST> hm = process(input);
@@ -100,6 +103,44 @@ public class RowVarTest {
         }
         System.out.println("RowVarTest.test2(): result: " + sb);
         assertEquals(expected,sb.toString().trim());
+        System.out.println();
+    }
+
+    /** ***************************************************************
+     */
+    @Test
+    public void test3() {
+
+        System.out.println("===================== RowVarTest.test3() =====================");
+        String input = "(forall (@ROW ?ITEM)\n" +
+                "    (equal\n" +
+                "        (ListLengthFn\n" +
+                "            (ListFn @ROW ?ITEM))\n" +
+                "        (SuccessorFn\n" +
+                "            (ListLengthFn\n" +
+                "                (ListFn @ROW)))))";
+
+        HashSet<FormulaAST> hm = process(input);
+        System.out.println("RowVarTest.test3(): result size: " + hm.size());
+        System.out.println("RowVarTest.test3(): expected size: " + 7);
+        System.out.println("RowVarTest.test3(): result size: " + hm);
+        HashSet<String> results = new HashSet<>();
+        for (FormulaAST f : hm) {
+            results.add(f.toString());
+            if (f.getFormula().contains("@")) {
+                System.out.println("RowVarTest.test3(): shouldn't contain row variable " + f);
+                assertTrue(false);
+            }
+        }
+
+        String expected = "(forall (?ROW1 ?ROW2 ?ITEM)\n" +
+                "  (equal\n" +
+                "    (ListLengthFn\n" +
+                "      (ListFn_3Fn ?ROW1 ?ROW2 ?ITEM))\n" +
+                "    (SuccessorFn\n" +
+                "      (ListLengthFn\n" +
+                "        (ListFn_2Fn ?ROW1 ?ROW2)))))";
+        assertTrue(results.contains(expected));
         System.out.println();
     }
 }
