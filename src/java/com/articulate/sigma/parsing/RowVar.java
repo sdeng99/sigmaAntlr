@@ -174,7 +174,7 @@ public class RowVar {
                     if (debug) System.out.println("expandRowVar(): variable row struct " + rs);
                     String literal = rs.literal;
                     String pred = rs.pred;
-                    if (kb.kbCache.valences.get(pred) == null && !pred.equals("__quantList")) {
+                    if (!pred.equals("__quantList") && kb.kbCache.valences.get(pred) == null) {
                         System.out.println("expandRowVar(): null valence for " + pred + " in " + f);
                         continue;
                     }
@@ -221,6 +221,7 @@ public class RowVar {
      */
     public HashSet<FormulaAST> expandRowVar(HashSet<FormulaAST> rowvars) {
 
+        kb.kbCache.valences.put("__quantList",-1); // quantifier list doesn't have a real predicate
         HashSet<FormulaAST> result = new HashSet<>();
         for (FormulaAST f : rowvars)
             if (!f.higherOrder && !f.containsNumber)
