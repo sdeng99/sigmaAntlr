@@ -33,9 +33,8 @@ public class TPTPWriterTest {
         sv.parseFile(System.getenv("SIGMA_HOME") + File.separator + "KBs" + File.separator + "Merge.kif");
         Preprocessor pre = new Preprocessor(KBmanager.getMgr().getKB(KBmanager.getMgr().getPref("sumokbname")));
 
-        sv.hasPredVar.removeAll(sv.multiplePredVar); // remove explosive rules with multiple predicate variables
-        sv.rules.removeAll(sv.multiplePredVar);
-        sv.hasRowVar.removeAll(sv.multiplePredVar);
+        pre.removeMultiplePredVar(sv); // remove explosive rules with multiple predicate variables
+
         System.out.println("TPTPWriterTest.test1(): sourceFile after parsing: " + sv.rules.iterator().next().sourceFile);
         HashSet<FormulaAST> rules = pre.preprocess(sv.hasPredVar,sv.hasRowVar,sv.rules);
         System.out.println("TPTPWriterTest.test1(): sourceFile after preprocessing:" + rules.iterator().next().sourceFile);
@@ -56,7 +55,6 @@ public class TPTPWriterTest {
 
     /** ***************************************************************
      */
-    @Ignore // it works just no point running it now
     @Test
     public void test2() {
 
