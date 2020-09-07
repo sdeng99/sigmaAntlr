@@ -2,9 +2,14 @@ package com.articulate.sigma.parsing;
 
 import com.articulate.sigma.Formula;
 import com.articulate.sigma.FormulaPreprocessor;
+import com.articulate.sigma.KB;
+import com.articulate.sigma.KBmanager;
+import com.articulate.sigma.utils.FileUtil;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -484,5 +489,49 @@ public class TPTPWriter {
         if (debug) System.out.println("# children: " + context.children.size());
         if (debug) System.out.println("text: " + context.getText());
         return context.getText();
+    }
+
+    /** ***************************************************************
+     */
+    public String wrappedMetaFormat(FormulaAST f) {
+        return "fof(kb_" + FileUtil.noExt(FileUtil.noPath(f.sourceFile)) + "_" + f.startLine + ",axiom," + this.visitSentence(f.parsedFormula) + ").";
+    }
+
+    /** ***************************************************************
+     */
+    public static void showHelp() {
+
+        System.out.println("KBTPTPWriter class");
+        System.out.println("  options (with a leading '-':");
+        System.out.println("  h - show this help screen");
+        System.out.println("  t - translate configured KB");
+    }
+
+    /** ***************************************************************
+     */
+    public static void main(String[] args) throws IOException {
+
+        System.out.println("INFO in TPTPWriter.main()");
+        if (args != null && args.length > 0 && args[0].equals("-h"))
+            showHelp();
+        else {
+            KBmanager.getMgr().initializeOnce();
+            String kbName = KBmanager.getMgr().getPref("sumokbname");
+            KB kb = KBmanager.getMgr().getKB(kbName);
+            if (args != null && args.length > 0 && args[0].contains("t")) {
+                KBmanager.getMgr().initializeOnce();
+                SuokifVisitor sv = new SuokifVisitor();
+                sv.parseFile(System.getenv("SIGMA_HOME") + File.separator + "KBs" + File.separator + "Merge.kif");
+                Preprocessor pre = new Preprocessor(KBmanager.getMgr().getKB(KBmanager.getMgr().getPref("sumokbname")));
+                pre.removeMultiplePredVar(sv); // remove explosive rules with multiple predicate variables
+                HashSet<FormulaAST> rules = pre.preprocess(sv.hasPredVar, sv.hasRowVar, sv.rules);
+                TPTPWriter tptpW = new TPTPWriter();
+                for (FormulaAST f : rules) {
+                    System.out.println("fof(kb_" + FileUtil.noExt(FileUtil.noPath(f.sourceFile)) + "_" + f.startLine + ",axiom," + tptpW.visitSentence(f.parsedFormula) + ").");
+                }
+            }
+            else
+                showHelp();
+        }
     }
 }
