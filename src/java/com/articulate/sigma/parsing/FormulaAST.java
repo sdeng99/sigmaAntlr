@@ -23,7 +23,8 @@ public class FormulaAST extends Formula {
     // a map of variables and all their inferred types
     public HashMap<String,HashSet<String>> varTypes = new HashMap<>();
 
-    public HashSet<ParserRuleContext> rowvarLiterals = new HashSet<>(); // this can have a RelsentContext or FuntermContext
+    public HashSet<ParserRuleContext> rowvarLiterals = new HashSet<>(); // this can have a RelsentContext, FuntermContext,
+      // as well as ForallContext or ExistsContext for vars in a quantifier list
 
     public HashMap<String,ArgStruct> constants = new HashMap<>(); // constants as arguments and their enclosing literal
 
