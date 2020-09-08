@@ -1,11 +1,8 @@
 package com.articulate.sigma.parsing;
 
-import com.articulate.sigma.Formula;
-import com.articulate.sigma.FormulaPreprocessor;
 import com.articulate.sigma.KB;
 import com.articulate.sigma.KBmanager;
 import com.articulate.sigma.utils.FileUtil;
-import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.io.File;
@@ -19,13 +16,6 @@ public class TPTPWriter {
     public HashSet<FormulaAST> formulas = null;
 
     public static boolean debug = false;
-    
-    public void generateTPTP() {
-
-        for (FormulaAST f : formulas) {
-            
-        }
-    }
 
     /** ***************************************************************
      * file : (sentence | comment)+ EOF ;
@@ -118,7 +108,10 @@ public class TPTPWriter {
             }
             else if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$ArgumentContext")) {
                 SuokifParser.ArgumentContext ac = (SuokifParser.ArgumentContext) c;
-                sb.append(visitArgument(ac) + ",");
+                if (Preprocessor.kb.kbCache.relations.contains(ac.getText()))
+                    sb.append(visitArgument(ac) + "__m,");
+                else
+                    sb.append(visitArgument(ac) + ",");
                 if (debug) System.out.println("ac: " + ac.getText());
             }
         }
@@ -461,7 +454,10 @@ public class TPTPWriter {
             FormulaAST farg = null;
             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$ArgumentContext")) {
                 SuokifParser.ArgumentContext ac = (SuokifParser.ArgumentContext) c;
-                sb.append(visitArgument(ac) + ",");
+                if (Preprocessor.kb.kbCache.relations.contains(ac.getText()))
+                    sb.append(visitArgument(ac) + "__m,");
+                else
+                    sb.append(visitArgument(ac) + ",");
             }
         }
         sb.delete(sb.length()-1,sb.length());
@@ -505,6 +501,7 @@ public class TPTPWriter {
         System.out.println("  options (with a leading '-':");
         System.out.println("  h - show this help screen");
         System.out.println("  t - translate configured KB");
+        System.out.println("  r - remove explosive multiple pred vars (can be combined with t)");
     }
 
     /** ***************************************************************
@@ -523,7 +520,8 @@ public class TPTPWriter {
                 SuokifVisitor sv = new SuokifVisitor();
                 sv.parseFile(System.getenv("SIGMA_HOME") + File.separator + "KBs" + File.separator + "Merge.kif");
                 Preprocessor pre = new Preprocessor(KBmanager.getMgr().getKB(KBmanager.getMgr().getPref("sumokbname")));
-                pre.removeMultiplePredVar(sv); // remove explosive rules with multiple predicate variables
+                if (args[0].contains("r"))
+                    pre.removeMultiplePredVar(sv); // remove explosive rules with multiple predicate variables
                 HashSet<FormulaAST> rules = pre.preprocess(sv.hasPredVar, sv.hasRowVar, sv.rules);
                 TPTPWriter tptpW = new TPTPWriter();
                 for (FormulaAST f : rules) {
