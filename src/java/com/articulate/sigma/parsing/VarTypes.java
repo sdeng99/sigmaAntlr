@@ -412,8 +412,8 @@ public class VarTypes {
                                 String t = findTypeOfTerm((SuokifParser.TermContext) c, sigTypeAtIndex); // the type of the argument
                                 if (kb.isInstance(c.getText())) {
                                     if (!kb.kbCache.isInstanceOf(c.getText(),sigTypeAtIndex))
-                                        System.out.println("Error in VarTypes.findType(): instance arg " + c.getText() + " of type " + t +
-                                                " not allowed as argument " + i + " to relation " + pred + " in formula " + f +
+                                        System.out.println("Warning in VarTypes.findType(): instance arg " + c.getText() + " of type " + t +
+                                                " may not be allowed as argument " + i + " to relation " + pred + " in formula " + f +
                                                 " that requires " + sigTypeAtIndex);
                                 }
                                 else {
@@ -425,8 +425,8 @@ public class VarTypes {
                                         tNoSuffix = t.substring(0,t.length()-1); // remove the trailing '+'
                                     if (!sigTypeNoSuffix.equals(c.getText()) && !kb.isSubclass(tNoSuffix, sigTypeNoSuffix) && !sigTypeNoSuffix.equals("SetOrClass") )
                                         if (!functionSpecializationAllowed(c,sigTypeNoSuffix))
-                                            System.out.println("Error in VarTypes.findType(): arg " + c.getText() + " of type " + tNoSuffix +
-                                                " not allowed as argument " + i + " to relation " + pred + " in formula " + f +
+                                            System.out.println("warning in VarTypes.findType(): arg " + c.getText() + " of type " + tNoSuffix +
+                                                " may not be allowed as argument " + i + " to relation " + pred + " in formula " + f +
                                                 " that requires " + sigTypeNoSuffix);
                                 }
                             }
