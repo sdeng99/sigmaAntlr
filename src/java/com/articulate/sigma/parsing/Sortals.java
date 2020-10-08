@@ -12,6 +12,7 @@ public class Sortals {
     private KB kb;
 
     public boolean debug = false;
+    public long disjointTime = 0;
 
     /** ***************************************************************
      */
@@ -59,10 +60,13 @@ public class Sortals {
 
         if (types.size() == 1)
             return types.iterator().next();
+        long start = System.currentTimeMillis();
         if (kb.kbCache.checkDisjoint(kb,types)) {
             System.out.println("Error in Sortals.mostSpecificType(): disjoint type spec: " + types);
             return "";
         }
+        long end = (System.currentTimeMillis()-start);
+        disjointTime = disjointTime + end;
         return kb.kbCache.getCommonChild(types);
     }
 
@@ -70,7 +74,7 @@ public class Sortals {
      * if variables in a formula has several possible type constraints,
      * based on their being arguments to relations, find the most
      * specific type for each
-     */
+
     public HashMap<String, String> mostSpecificTypes(HashMap<String, HashSet<String>> vmap) {
 
         HashMap<String, String> themap = new HashMap<>();
@@ -79,7 +83,7 @@ public class Sortals {
         }
         return themap;
     }
-
+*/
     /** ***************************************************************
      * If a type is already specified for a variable in a rule with an
      * instance or subclass statement, remove it from the type list so
