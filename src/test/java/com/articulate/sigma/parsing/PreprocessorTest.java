@@ -6,6 +6,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 
 public class PreprocessorTest {
@@ -35,7 +37,7 @@ public class PreprocessorTest {
         sv.rules.removeAll(sv.multiplePredVar);
         sv.hasRowVar.removeAll(sv.multiplePredVar);
 
-        HashSet<FormulaAST> rules = pre.preprocess(sv.hasPredVar,sv.hasRowVar,sv.rules);
+        Collection<FormulaAST> rules = pre.preprocess(sv.hasPredVar,sv.hasRowVar,sv.rules);
         HashSet<FormulaAST> result = pre.reparse(rules);
         if (result.size() < 100)
             System.out.println("PreprocessorTest.test1(): " + result);
@@ -62,7 +64,7 @@ public class PreprocessorTest {
         System.out.println("PreprocessorTest.test2(): # rules: " + sv.rules.size());
         Preprocessor pre = new Preprocessor(KBmanager.getMgr().getKB(KBmanager.getMgr().getPref("sumokbname")));
         System.out.println("PreprocessorTest.test2(): # before preprocess: " + sv.rules.size());
-        HashSet<FormulaAST> rules = pre.preprocess(sv.hasPredVar,sv.hasRowVar,sv.rules);
+        Collection<FormulaAST> rules = pre.preprocess(sv.hasPredVar,sv.hasRowVar,sv.rules);
         System.out.println("PreprocessorTest.test2(): # after preprocess: " + rules.size());
         HashSet<FormulaAST> result = pre.reparse(rules);
         if (result.size() < 100)
