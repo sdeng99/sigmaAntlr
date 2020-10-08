@@ -40,7 +40,8 @@ public class SortalTest {
         SuokifParser suokifParser = new SuokifParser(commonTokenStream);
         SuokifParser.FileContext fileContext = suokifParser.file();
         SuokifVisitor visitor = new SuokifVisitor();
-        HashMap<Integer,FormulaAST> hm = visitor.visitFile(fileContext);
+        visitor.visitFile(fileContext);
+        HashMap<Integer,FormulaAST> hm = visitor.result;
         VarTypes vt = new VarTypes(hm.values(),kb);
         vt.findTypes();
         StringBuilder sb = new StringBuilder();
@@ -181,7 +182,8 @@ public class SortalTest {
         SuokifParser suokifParser = new SuokifParser(commonTokenStream);
         SuokifParser.FileContext fileContext = suokifParser.file();
         SuokifVisitor visitor = new SuokifVisitor();
-        HashMap<Integer,FormulaAST> hm = visitor.visitFile(fileContext);
+        visitor.visitFile(fileContext);
+        HashMap<Integer,FormulaAST> hm = visitor.result;
         VarTypes vt = new VarTypes(hm.values(),kb);
         vt.findTypes();
         StringBuilder sb = new StringBuilder();
