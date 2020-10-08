@@ -168,7 +168,12 @@ public class RowVar {
                 StringBuilder sb = new StringBuilder();
                 for (int i = 1; i <= arity; i++)
                     sb.append("?" + varName + i + " ");
-                sb.deleteCharAt(sb.length() - 1);
+                if (sb.length() > 0)
+                    sb.deleteCharAt(sb.length() - 1);
+                else{
+                    System.out.println("expandRowVar(): null string for " + f);
+                    continue;
+                }
 
                 for (FormulaAST.RowStruct rs : f.rowVarStructs.get(var)) {
                     if (debug) System.out.println("expandRowVar(): variable row struct " + rs);
