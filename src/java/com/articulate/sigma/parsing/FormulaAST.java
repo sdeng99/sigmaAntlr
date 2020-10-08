@@ -34,6 +34,7 @@ public class FormulaAST extends Formula {
 
     public SuokifParser.SentenceContext parsedFormula = null;
 
+    public boolean isDoc = false; // a documentation statement that is excluded from theorem proving
     public boolean isRule = false;
     public boolean containsNumber = false;
 
@@ -109,6 +110,7 @@ public class FormulaAST extends Formula {
         }
 
         this.isRule = this.isRule || f.isRule;
+        this.isDoc = this.isDoc || f.isDoc;
         if (f.containsNumber)
             this.containsNumber = true;
         this.rowvarLiterals.addAll(f.rowvarLiterals);
@@ -179,6 +181,7 @@ public class FormulaAST extends Formula {
 
         this.eqList.addAll(f2.eqList);
         this.isRule = this.isRule || f2.isRule;
+        this.isDoc = this.isDoc || f2.isDoc;
         if (f2.containsNumber)
             this.containsNumber = true;
         this.rowvarLiterals.addAll(f2.rowvarLiterals);
@@ -251,6 +254,7 @@ public class FormulaAST extends Formula {
                 }
             }
             this.isRule = this.isRule || arf.isRule;
+            this.isDoc = this.isDoc || arf.isDoc;
             if (arf.containsNumber)
                 this.containsNumber = true;
             this.rowvarLiterals.addAll(arf.rowvarLiterals);
