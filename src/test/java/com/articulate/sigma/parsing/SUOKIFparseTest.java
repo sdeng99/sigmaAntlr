@@ -20,7 +20,8 @@ public class SUOKIFparseTest {
         SuokifParser suokifParser = new SuokifParser(commonTokenStream);
         SuokifParser.FileContext fileContext = suokifParser.file();
         SuokifVisitor visitor = new SuokifVisitor();
-        HashMap<Integer,FormulaAST> hm = visitor.visitFile(fileContext);
+        visitor.visitFile(fileContext);
+        HashMap<Integer,FormulaAST> hm = visitor.result;
         return hm;
     }
 
