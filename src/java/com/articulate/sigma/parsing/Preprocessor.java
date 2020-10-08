@@ -3,6 +3,9 @@ package com.articulate.sigma.parsing;
 import com.articulate.sigma.KB;
 import com.articulate.sigma.KBmanager;
 
+import java.text.Normalizer;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -30,11 +33,12 @@ public class Preprocessor {
 
     /** ***************************************************************
      */
-    public HashSet<FormulaAST> preprocess(HashSet<FormulaAST> rowvar,
-                                  HashSet<FormulaAST> predvar,
-                                  HashSet<FormulaAST> rules) { // includes rowvar and predvar
+    public Collection<FormulaAST> preprocess(HashSet<FormulaAST> rowvar,
+                                            HashSet<FormulaAST> predvar,
+                                            HashSet<FormulaAST> rules) { // includes rowvar and predvar
 
         System.out.println("Preprocessor.preprocess()");
+        long start = System.currentTimeMillis();
         if (debug) System.out.println("Preprocessor.preprocess() # rules: " + rules.size());
         HashSet<FormulaAST> mismatch = new HashSet<>();
         mismatch.addAll(predvar);
@@ -52,19 +56,35 @@ public class Preprocessor {
             if (debug)
                 System.out.println(mismatch);
         }
+        long end = (System.currentTimeMillis()-start)/1000;
+        System.out.println("# Preprocessor.preprocess(): # time for prelims: " + end);
+        start = System.currentTimeMillis();
         VarTypes vt = new VarTypes(rules,kb);
         vt.findTypes();
-        PredVarInst pvi = new PredVarInst(kb);
+        end = (System.currentTimeMillis()-start)/1000;
+        System.out.println("# Preprocessor.preprocess(): # time for to find var types: " + end);
+        start = System.currentTimeMillis();
+
         Sortals sortals = new Sortals(kb);
         for (FormulaAST f : rules)
             if (!f.higherOrder && !f.containsNumber)
                 sortals.elimSubsumedTypes(f);
-        long start = System.currentTimeMillis();
+        end = (System.currentTimeMillis()-start)/1000;
+        System.out.println("# Preprocessor.preprocess(): # time elim subsumed types: " + end);
+        start = System.currentTimeMillis();
+
+        PredVarInst pvi = new PredVarInst(kb);
         HashSet<FormulaAST> pviResults = pvi.processAll(predvar);
-        long end = (System.currentTimeMillis()-start)/1000;
-        System.out.println("preprocess(): pred var instantiation time: " + end);
+        end = (System.currentTimeMillis()-start)/1000;
+        System.out.println("# Preprocessor.preprocess(): # time to instantiate pred vars: " + end);
+        start = System.currentTimeMillis();
+
         RowVar rv = new RowVar(kb);
         HashSet<FormulaAST> rvResults = rv.expandRowVar(pviResults);
+        end = (System.currentTimeMillis()-start)/1000;
+        System.out.println("# Preprocessor.preprocess(): # time to expand row vars: " + end);
+        start = System.currentTimeMillis();
+
         if (debug) {
             for (FormulaAST r : rvResults) {
                 if (r.getFormula().contains("@"))
@@ -82,34 +102,61 @@ public class Preprocessor {
         }
         // newRules.addAll(pviResults); // now add the new rules expanded from pred vars <- should not be needed
         newRules.addAll(rvResults); // now add the new rules expanded from row vars
-        HashSet<FormulaAST> finalRuleSet = new HashSet<>();
+        ArrayList<FormulaAST> finalRuleSet = new ArrayList<>();
         if (debug)
             System.out.println("Preprocessor.preprocess(): before reparse");
         newRules = reparse(newRules);
+        end = (System.currentTimeMillis()-start)/1000;
+        System.out.println("# Preprocessor.preprocess(): # time to reparse: " + end);
+        start = System.currentTimeMillis();
+        long crossCheck = 0;
+        long sortalTimes = 0;
+        long reparseTimes = 0;
+        long addallTimes = 0;
         if (debug)
             System.out.println("Preprocessor.preprocess(): after reparse");
         for (FormulaAST r : newRules) {
             if (r.higherOrder || r.containsNumber) continue;
+            long crossStart = System.currentTimeMillis();
             if (debug) System.out.println("Preprocessor.preprocess(): add sortals to r: " + r);
+            long sortalStart = System.currentTimeMillis();
             sortals.addSortals(r);
-
+            sortalTimes = sortalTimes + (System.currentTimeMillis()-sortalStart);
             if (debug) System.out.println("Preprocessor.preprocess(): result adding sortals to r: " + r);
             if (r.getFormula().contains("@"))
                 System.out.println("Error in Preprocessor.preprocess(): before reparsing, contains rowvar: " + r);
             else {
+                long reparseStart = System.currentTimeMillis();
                 SuokifVisitor visitor = SuokifVisitor.parseFormula(r); // need to parse a third time after sortals are added
+                reparseTimes = reparseTimes + (System.currentTimeMillis()-reparseStart);
                 if (debug) System.out.println("Preprocessor.preprocess(): parsed r: " + visitor.result);
+                long addallStart = System.currentTimeMillis();
                 finalRuleSet.addAll(visitor.result.values());
+                addallTimes = addallTimes + (System.currentTimeMillis()-addallStart);
             }
+            crossCheck = crossCheck + (System.currentTimeMillis()-crossStart);
         }
-        return finalRuleSet;
+        end = (System.currentTimeMillis()-start)/1000;
+        System.out.println("# Preprocessor.preprocess(): # time to add sortals and reparse again: " + end);
+        System.out.println("# Preprocessor.preprocess(): # of which, " + sortals.disjointTime + " millis was checking type disjointness");
+        System.out.println("# Preprocessor.preprocess(): # of which, " + sortalTimes + " millis was adding sortals");
+        System.out.println("# Preprocessor.preprocess(): # of which, " + reparseTimes + " millis was reparsing");
+        System.out.println("# Preprocessor.preprocess(): # of which, " + addallTimes + " millis was addall");
+        System.out.println("# Preprocessor.preprocess(): # of which, " + crossCheck + " millis cross-check");
+        start = System.currentTimeMillis();
+        HashMap<String,FormulaAST> res = new HashMap<>();
+        for (FormulaAST f : finalRuleSet)
+            res.put(f.getFormula(),f);
+        end = (System.currentTimeMillis()-start)/1000;
+        System.out.println("# Preprocessor.preprocess(): time to remove duplicates: " + end);
+        return res.values();
     }
 
     /** ***************************************************************
      * After preprocessing, parse the new formula string in order to
      * set the caches correctly
      */
-    public HashSet<FormulaAST> reparse(HashSet<FormulaAST> rules) {
+    public HashSet<FormulaAST> reparse(Collection<FormulaAST> rules) {
 
         if (debug) System.out.println("Preprocessor.reparse()");
         HashSet<FormulaAST> result = new HashSet<>();
