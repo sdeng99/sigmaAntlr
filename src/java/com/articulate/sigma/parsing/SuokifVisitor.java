@@ -37,7 +37,7 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         CommonTokenStream commonTokenStream = new CommonTokenStream(suokifLexer);
         SuokifParser suokifParser = new SuokifParser(commonTokenStream);
         SuokifParser.FileContext fileContext = suokifParser.file();
-        result = visitFile(fileContext);
+        visitFile(fileContext);
     }
 
     /** ***************************************************************
@@ -54,7 +54,8 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         SuokifParser suokifParser = new SuokifParser(commonTokenStream);
         SuokifParser.FileContext fileContext = suokifParser.file();
         SuokifVisitor visitor = new SuokifVisitor();
-        HashMap<Integer,FormulaAST> hm = visitor.visitFile(fileContext);
+        visitor.visitFile(fileContext);
+        HashMap<Integer,FormulaAST> hm = visitor.result;
         result = hm;
         if (hm == null || hm.values().size() == 0)
             System.out.println("Error in SuokifVisitor.parseString(): no results for input: "  + input);
@@ -76,7 +77,8 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         SuokifParser suokifParser = new SuokifParser(commonTokenStream);
         SuokifParser.FileContext fileContext = suokifParser.file();
         SuokifVisitor visitor = new SuokifVisitor();
-        HashMap<Integer,FormulaAST> hm = visitor.visitFile(fileContext);
+        visitor.visitFile(fileContext);
+        HashMap<Integer,FormulaAST> hm = visitor.result;
         result = hm;
         if (hm == null || hm.values().size() == 0)
             System.out.println("Error in SuokifVisitor.parseString(): no results for input: "  + input);
@@ -136,21 +138,20 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
      * as the file.  Note that comments at the end of a SUO-KIF line that include
      * a statement are recorded as occurring on the next line
      */
-    public HashMap<Integer,FormulaAST> visitFile(SuokifParser.FileContext context) {
+    public void visitFile(SuokifParser.FileContext context) {
 
-        HashMap<Integer,FormulaAST> result = new HashMap<>();
         if (debug) System.out.println("visitFile() Visiting file: " + context.getText());
         if (debug) System.out.println("visitFile() # children: " + context.children.size());
         if (debug) System.out.println("visitFile() text: " + context.getText());
         int counter = 0;
         for (ParseTree c : context.children) {
             if (debug) System.out.println("visitFile() child: " + c.getClass().getName());
-            FormulaAST f = null;
             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$SentenceContext")) {
+                FormulaAST f = null;
                 f = visitSentence((SuokifParser.SentenceContext) c);
                 f.parsedFormula = (SuokifParser.SentenceContext) c;
                 f.startLine = ((SuokifParser.SentenceContext) c).start.getLine();
-                f.startLine = ((SuokifParser.SentenceContext) c).stop.getLine();
+                f.endLine = ((SuokifParser.SentenceContext) c).stop.getLine();
                 f.sourceFile = ((SuokifParser.SentenceContext) c).start.getTokenSource().getSourceName();
                 result.put(counter++,f);
                 if (f.predVarCache.size() > 0) {
@@ -175,6 +176,7 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
                     hasNumber.add(f);
             }
             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$CommentContext")) {
+                FormulaAST f = null;
                 f = visitComment((SuokifParser.CommentContext) c);
                 result.put(counter++,f);
             }
@@ -191,7 +193,7 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         if (debug) System.out.println();
         if (debug) System.out.println("multiple row var: " + multipleRowVar);
         if (debug) System.out.println();
-        return result;
+        return;
     }
     
     /** ***************************************************************
@@ -343,6 +345,8 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         if (context.IDENTIFIER() != null) {
             pred = context.IDENTIFIER().toString();
             sb.append(pred + " ");
+            if (Formula.DOC_PREDICATES.contains(pred))
+                result.isDoc = true;
             result.termCache.add(pred);
             result.relation = pred;
             argnum++;
