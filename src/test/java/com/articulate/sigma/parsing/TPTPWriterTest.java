@@ -8,6 +8,8 @@ import org.junit.Test;
 
 import java.io.File;
 import java.text.Normalizer;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 
 public class TPTPWriterTest {
@@ -36,7 +38,7 @@ public class TPTPWriterTest {
         pre.removeMultiplePredVar(sv); // remove explosive rules with multiple predicate variables
 
         System.out.println("TPTPWriterTest.test1(): sourceFile after parsing: " + sv.rules.iterator().next().sourceFile);
-        HashSet<FormulaAST> rules = pre.preprocess(sv.hasPredVar,sv.hasRowVar,sv.rules);
+        Collection<FormulaAST> rules = pre.preprocess(sv.hasPredVar,sv.hasRowVar,sv.rules);
         System.out.println("TPTPWriterTest.test1(): sourceFile after preprocessing:" + rules.iterator().next().sourceFile);
         // HashSet<FormulaAST> result = pre.reparse(rules); done already in preprocess
         if (rules.size() < 100)
@@ -77,7 +79,7 @@ public class TPTPWriterTest {
         sv.rules.removeAll(sv.multiplePredVar);
         sv.hasRowVar.removeAll(sv.multiplePredVar);
         System.out.println("TPTPWriterTest.test2(): sourceFile after parsing: " + sv.rules.iterator().next().sourceFile);
-        HashSet<FormulaAST> rules = pre.preprocess(sv.hasPredVar,sv.hasRowVar,sv.rules);
+        Collection<FormulaAST> rules = pre.preprocess(sv.hasPredVar,sv.hasRowVar,sv.rules);
         System.out.println("TPTPWriterTest.test2(): sourceFile after preprocessing:" + rules.iterator().next().sourceFile);
         // HashSet<FormulaAST> result = pre.reparse(rules); done already in preprocess
         if (rules.size() < 100)
