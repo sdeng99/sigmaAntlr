@@ -41,7 +41,8 @@ public class RowVarTest {
         SuokifParser suokifParser = new SuokifParser(commonTokenStream);
         SuokifParser.FileContext fileContext = suokifParser.file();
         SuokifVisitor visitor = new SuokifVisitor();
-        HashMap<Integer,FormulaAST> hm = visitor.visitFile(fileContext);
+        visitor.visitFile(fileContext);
+        HashMap<Integer,FormulaAST> hm = visitor.result;
         if (visitor.hasPredVar.size() > 0) {
             System.out.println("Error - can't have tests with pred vars in this routine.");
             return null;
