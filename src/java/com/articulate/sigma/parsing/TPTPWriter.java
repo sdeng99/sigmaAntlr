@@ -2,12 +2,14 @@ package com.articulate.sigma.parsing;
 
 import com.articulate.sigma.KB;
 import com.articulate.sigma.KBmanager;
+import com.articulate.sigma.StringUtil;
 import com.articulate.sigma.utils.FileUtil;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -506,27 +508,71 @@ public class TPTPWriter {
 
     /** ***************************************************************
      */
-    public static void main(String[] args) throws IOException {
+    public static void translate(String[] args) {
+
+        long start = System.currentTimeMillis();
+        SuokifVisitor sv = new SuokifVisitor();
+        sv.parseFile(System.getenv("SIGMA_HOME") + File.separator + "KBs" + File.separator + "Merge.kif");  // 1. Parsing
+        long end = (System.currentTimeMillis()-start)/1000;
+        System.out.println("# TPTPWriter.translate(): # time to parse: " + end);
+        start = System.currentTimeMillis();
+        Preprocessor pre = new Preprocessor(KBmanager.getMgr().getKB(KBmanager.getMgr().getPref("sumokbname")));
+        if (args[0].contains("r"))
+            pre.removeMultiplePredVar(sv); // remove explosive rules with multiple predicate variables
+        Collection<FormulaAST> rules = pre.preprocess(sv.hasPredVar, sv.hasRowVar, sv.rules);                  // 2. Pre-processing
+        end = (System.currentTimeMillis()-start)/1000;
+        System.out.println("# TPTPWriter.translate(): # time to preprocess: " + end);
+        start = System.currentTimeMillis();
+        TPTPWriter tptpW = new TPTPWriter();
+        int counter = 0;
+        HashSet<String> alreadyGen = new HashSet<>();
+        System.out.println("# TPTPWriter.translate(): # statements not in rules: " + sv.result.keySet().size());
+        for (Integer i : sv.result.keySet()) {
+            FormulaAST f = sv.result.get(i);
+            if (!sv.rules.contains(f) && !f.isDoc && !f.comment) {
+                if (f.parsedFormula == null)
+                    System.out.println("# Error in TPTPWriter.translate(): non rules - null formula " + f);
+                String id = "kb_" + FileUtil.noExt(FileUtil.noPath(f.sourceFile)) + "_" + f.startLine + "_" + counter++;
+                // TODO this may not fit with proof processing that uses suffix to find original formula
+                String tptp = tptpW.visitSentence(f.parsedFormula);
+                if (!StringUtil.emptyString(tptp))
+                    System.out.println("fof(" + id + ",axiom," + tptp + ").");                              // 3. Translate non-rules
+                else
+                    System.out.println("# Error in TPTPWriter.translate(): null translation for " + f.parsedFormula);
+            }
+        }
+        end = (System.currentTimeMillis()-start)/1000;
+        System.out.println("# TPTPWriter.translate(): # time to translate non-rules: " + end);
+        start = System.currentTimeMillis();
+        System.out.println("# TPTPWriter.translate(): # statements in rules after preprocess: " + rules.size());
+        for (FormulaAST f : rules) {
+            if (!f.isDoc && !f.comment) {
+                if (f.parsedFormula == null)
+                    System.out.println("# Error in TPTPWriter.translate(): rules - null formula " + f);
+                String id = "kb_" + FileUtil.noExt(FileUtil.noPath(f.sourceFile)) + "_" + f.startLine + "_" + counter++;
+                // TODO this may not fit with proof processing that uses suffix to find original formula
+                String tptp = tptpW.visitSentence(f.parsedFormula);
+                if (!StringUtil.emptyString(tptp))
+                    System.out.println("fof(" + id + ",axiom," + tptp + ").");                                  // 4. Translate rules
+                else
+                    System.out.println("# Error in TPTPWriter.translate(): null translation for " + f.parsedFormula);
+            }
+        }
+        end = (System.currentTimeMillis()-start)/1000;
+        System.out.println("TPTPWriter.translate(): # time to translate rules: " + end);
+    }
+
+    /** ***************************************************************
+     */
+    public static void main(String[] args) {
 
         System.out.println("INFO in TPTPWriter.main()");
         if (args != null && args.length > 0 && args[0].equals("-h"))
             showHelp();
         else {
             KBmanager.getMgr().initializeOnce();
-            String kbName = KBmanager.getMgr().getPref("sumokbname");
-            KB kb = KBmanager.getMgr().getKB(kbName);
             if (args != null && args.length > 0 && args[0].contains("t")) {
-                KBmanager.getMgr().initializeOnce();
-                SuokifVisitor sv = new SuokifVisitor();
-                sv.parseFile(System.getenv("SIGMA_HOME") + File.separator + "KBs" + File.separator + "Merge.kif");
-                Preprocessor pre = new Preprocessor(KBmanager.getMgr().getKB(KBmanager.getMgr().getPref("sumokbname")));
-                if (args[0].contains("r"))
-                    pre.removeMultiplePredVar(sv); // remove explosive rules with multiple predicate variables
-                HashSet<FormulaAST> rules = pre.preprocess(sv.hasPredVar, sv.hasRowVar, sv.rules);
-                TPTPWriter tptpW = new TPTPWriter();
-                for (FormulaAST f : rules) {
-                    System.out.println("fof(kb_" + FileUtil.noExt(FileUtil.noPath(f.sourceFile)) + "_" + f.startLine + ",axiom," + tptpW.visitSentence(f.parsedFormula) + ").");
-                }
+                translate(args);
             }
             else
                 showHelp();
