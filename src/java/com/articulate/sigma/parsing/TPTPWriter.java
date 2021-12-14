@@ -2,7 +2,7 @@ package com.articulate.sigma.parsing;
 
 import com.articulate.sigma.KB;
 import com.articulate.sigma.KBmanager;
-import com.articulate.sigma.StringUtil;
+import com.articulate.sigma.utils.StringUtil;
 import com.articulate.sigma.utils.FileUtil;
 import org.antlr.v4.runtime.tree.ParseTree;
 
@@ -570,7 +570,7 @@ public class TPTPWriter {
         if (args != null && args.length > 0 && args[0].equals("-h"))
             showHelp();
         else {
-            KBmanager.getMgr().initializeOnce();
+            //KBmanager.getMgr().initializeOnce();
             if (args != null && args.length > 0 && args[0].contains("t")) {
                 translate(args);
             }

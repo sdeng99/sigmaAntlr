@@ -3,6 +3,7 @@ package com.articulate.sigma.parsing;
 import com.articulate.sigma.Formula;
 import com.articulate.sigma.FormulaPreprocessor;
 import com.articulate.sigma.KB;
+import com.articulate.sigma.utils.MapUtils;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.util.ArrayList;
@@ -73,7 +74,7 @@ public class VarTypes {
             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$FuntermContext"))
                 type = findTypeOfFunterm((SuokifParser.FuntermContext) c);
             else if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$VariableContext"))
-                FormulaPreprocessor.addToMap(varTypeMap, c.getText(),sigType);
+                MapUtils.addToMap(varTypeMap, c.getText(),sigType);
             else if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$StringContext")) {
                 if (!sigType.equals("SymbolicString"))
                     System.out.println("error in findTypeOfTerm(): signature doesn't allow string " + c.getText());
@@ -145,7 +146,7 @@ public class VarTypes {
                 type = "Number";
 
             if (debug) System.out.println("findEquationType(): var&type: " + var + " : " + type);
-            FormulaPreprocessor.addToMap(f.varTypes,var, type);
+            MapUtils.addToMap(f.varTypes,var, type);
         }
     }
 
@@ -203,7 +204,7 @@ public class VarTypes {
                                     f.higherOrder = true;
                                 if (c2.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$VariableContext") &&
                                         ((SuokifParser.VariableContext) c2).REGVAR() != null) {
-                                    FormulaPreprocessor.addToMap(f.varTypes,c2.getText(), sigTypeAtIndex);
+                                    MapUtils.addToMap(f.varTypes,c2.getText(), sigTypeAtIndex);
                                 }
                             }
                         }
@@ -404,7 +405,7 @@ public class VarTypes {
                                         f.higherOrder = true;
                                     if (c2.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$VariableContext") &&
                                             ((SuokifParser.VariableContext) c2).REGVAR() != null) {
-                                        FormulaPreprocessor.addToMap(f.varTypes,c2.getText(), sigTypeAtIndex);
+                                        MapUtils.addToMap(f.varTypes,c2.getText(), sigTypeAtIndex);
                                     }
                                 }
                             }

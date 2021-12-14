@@ -1,7 +1,7 @@
 package com.articulate.sigma.parsing;
 
 import com.articulate.sigma.KB;
-import com.articulate.sigma.StringUtil;
+import com.articulate.sigma.utils.StringUtil;
 
 import java.util.HashMap;
 import java.util.HashSet;

@@ -1,5 +1,6 @@
 package com.articulate.sigma.parsing;
 
+import com.articulate.sigma.utils.MapUtils;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
 import com.articulate.sigma.*;
@@ -17,6 +18,7 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
     public HashSet<FormulaAST> multiplePredVar = new HashSet<>();
     public HashSet<FormulaAST> rules = new HashSet<>();
     public HashSet<FormulaAST> nonRulePredRow = new HashSet<>(); // the formulas that are not rules
+    public HashSet<FormulaAST> ground = new HashSet<>(); // formulas with no variables
     public static boolean debug = false;
     public static HashMap<Integer,FormulaAST> result = new HashMap<>();
     public static HashMap<String,HashSet<FormulaAST>> keys = new HashMap<>();
@@ -174,6 +176,8 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
                 }
                 if (f.containsNumber)
                     hasNumber.add(f);
+                if (f.isGround())
+                    ground.add(f);
             }
             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$CommentContext")) {
                 FormulaAST f = null;
@@ -400,12 +404,12 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         }
         if (pred.equals("instance") && argList.size() > 1 && Formula.isVariable(argList.get(0)) && Formula.isTerm(argList.get(1))) {
             if (debug) System.out.println("SuokifVisitor.visitRelsent(): found explicit instance: argList: " + argList);
-            FormulaPreprocessor.addToMap(result.varTypes, argList.get(0), argList.get(1));
-            FormulaPreprocessor.addToMap(result.explicitTypes,argList.get(0), argList.get(1));
+            MapUtils.addToMap(result.varTypes, argList.get(0), argList.get(1));
+            MapUtils.addToMap(result.explicitTypes,argList.get(0), argList.get(1));
         }
         if (pred.equals("subclass") && argList.size() > 1 && Formula.isVariable(argList.get(0)) && Formula.isTerm(argList.get(1))) {
-            FormulaPreprocessor.addToMap(result.varTypes, argList.get(0), argList.get(1) + "+");
-            FormulaPreprocessor.addToMap(result.explicitTypes,argList.get(0), argList.get(1) + "+");
+            MapUtils.addToMap(result.varTypes, argList.get(0), argList.get(1) + "+");
+            MapUtils.addToMap(result.explicitTypes,argList.get(0), argList.get(1) + "+");
         }
         result.argMap.put(pred,args);
         sb.deleteCharAt(sb.length()-1);  // delete trailing space
@@ -793,6 +797,7 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
             f.rowVarCache.add(row);
             if (debug) System.out.println("rowv: " + row);
         }
+        f.isGround = false;
         return f;
     }
 
