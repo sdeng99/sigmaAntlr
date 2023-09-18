@@ -5,8 +5,6 @@ import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
 import com.articulate.sigma.*;
 
-import javax.swing.*;
-import java.io.IOException;
 import java.util.*;
 
 public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
@@ -23,6 +21,13 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
     public static HashMap<Integer,FormulaAST> result = new HashMap<>();
     public static HashMap<String,HashSet<FormulaAST>> keys = new HashMap<>();
     //public HashSet<SigmaError> errors = new HashSet<>();
+
+    /** ***************************************************************
+     */
+    public SuokifVisitor() {
+        result = new HashMap<>();
+        keys = new HashMap<>();
+    }
 
     /** ***************************************************************
      */

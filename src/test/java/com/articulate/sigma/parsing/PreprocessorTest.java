@@ -1,6 +1,7 @@
 package com.articulate.sigma.parsing;
 
 import com.articulate.sigma.KBmanager;
+import com.articulate.sigma.UnitTestBase;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -10,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 
-public class PreprocessorTest {
+public class PreprocessorTest extends UnitTestBase {
 
     /** ***************************************************************
      */

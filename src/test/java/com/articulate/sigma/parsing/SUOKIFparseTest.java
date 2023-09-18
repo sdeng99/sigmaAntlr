@@ -1,6 +1,7 @@
 package com.articulate.sigma.parsing;
 
 import com.articulate.sigma.Formula;
+import com.articulate.sigma.UnitTestBase;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
 import org.junit.Test;
@@ -9,19 +10,27 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
 
-public class SUOKIFparseTest {
+public class SUOKIFparseTest  extends UnitTestBase {
 
     public static HashMap<Integer,FormulaAST> process(String input) {
 
-        System.out.println(input);
+        System.out.println("process(): input: " + input);
         CodePointCharStream inputStream = CharStreams.fromString(input);
+        //System.out.println("process(): inputStream: " + inputStream);
         SuokifLexer suokifLexer = new SuokifLexer(inputStream);
+        //System.out.println("process(): lexer: " + suokifLexer);
         CommonTokenStream commonTokenStream = new CommonTokenStream(suokifLexer);
+        //System.out.println("process(): commonTokenStream: " + commonTokenStream);
         SuokifParser suokifParser = new SuokifParser(commonTokenStream);
+        //System.out.println("process(): suokifParser: " + suokifParser);
         SuokifParser.FileContext fileContext = suokifParser.file();
+        //System.out.println("process(): fileContext: " + fileContext);
         SuokifVisitor visitor = new SuokifVisitor();
         visitor.visitFile(fileContext);
+        //System.out.println("process(): visitor: " + visitor);
+        //System.out.println("process(): visitor.result (before processing): " + visitor.result);
         HashMap<Integer,FormulaAST> hm = visitor.result;
+        System.out.println("process(): result: " + hm);
         return hm;
     }
 
@@ -80,7 +89,7 @@ public class SUOKIFparseTest {
         HashMap<Integer,FormulaAST> hm = process(input);
         StringBuilder sb = new StringBuilder();
         for (Formula f : hm.values()) {
-            f.printCaches();
+            //f.printCaches();
             sb.append(f.getFormula() + " ");
         }
         System.out.println("result: " + sb);

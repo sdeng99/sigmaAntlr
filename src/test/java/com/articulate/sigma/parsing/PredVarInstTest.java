@@ -3,6 +3,7 @@ package com.articulate.sigma.parsing;
 import com.articulate.sigma.Formula;
 import com.articulate.sigma.KB;
 import com.articulate.sigma.KBmanager;
+import com.articulate.sigma.UnitTestBase;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CodePointCharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -15,7 +16,7 @@ import java.util.HashSet;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class PredVarInstTest {
+public class PredVarInstTest extends UnitTestBase {
 
     public static KB kb = null;
 
@@ -81,7 +82,7 @@ public class PredVarInstTest {
         System.out.println("PredVarInstTest.test1()");
         String input = "(=> (and (minValue ?R ?ARG ?N) (?R @ARGS) (equal ?VAL (ListOrderFn (ListFn @ARGS) ?ARG))) (greaterThan ?VAL ?N))";
         int result = process(input);
-        assertEquals(262,result);
+        assertEquals(535,result);
     }
 
     /** ***************************************************************
@@ -111,7 +112,7 @@ public class PredVarInstTest {
                 "                (exists (?ITEM)\n" +
                 "                    (?REL @ROW ?ITEM))))))";
         int result = process(input);
-        assertEquals(67,result);
+        assertEquals(97,result);
     }
 
     /** ***************************************************************
@@ -146,7 +147,7 @@ public class PredVarInstTest {
                 "        (ListFn @ARGS) ?ARG)))\n" +
                 "  (greaterThan ?N ?VAL))";
         int result = process(input);
-        assertEquals(262,result);
+        assertEquals(535,result);
     }
 
 

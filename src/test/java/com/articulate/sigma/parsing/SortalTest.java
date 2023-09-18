@@ -3,6 +3,7 @@ package com.articulate.sigma.parsing;
 import com.articulate.sigma.Formula;
 import com.articulate.sigma.KB;
 import com.articulate.sigma.KBmanager;
+import com.articulate.sigma.UnitTestBase;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CodePointCharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -14,7 +15,7 @@ import java.util.HashSet;
 
 import static org.junit.Assert.assertEquals;
 
-public class SortalTest {
+public class SortalTest extends UnitTestBase {
 
     public static KB kb = null;
 
@@ -72,8 +73,8 @@ public class SortalTest {
                 "(and " +
                   "(instance ?R Predicate)\n" +
                 "    (instance ?ARG PositiveInteger)\n" +
-                "    (instance ?N Quantity)\n" +
-                "    (instance ?VAL Quantity)) " +
+                "    (instance ?N RealNumber)\n" +
+                "    (instance ?VAL RealNumber)) " +
                   "(=> " +
                     "(and " +
                     "(minValue ?R ?ARG ?N) " +

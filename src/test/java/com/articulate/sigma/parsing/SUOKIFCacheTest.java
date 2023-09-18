@@ -1,6 +1,7 @@
 package com.articulate.sigma.parsing;
 
 import com.articulate.sigma.Formula;
+import com.articulate.sigma.UnitTestBase;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CodePointCharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -11,7 +12,7 @@ import java.util.HashMap;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class SUOKIFCacheTest {
+public class SUOKIFCacheTest extends UnitTestBase {
 
     public static HashMap<Integer, FormulaAST> process(String input) {
 

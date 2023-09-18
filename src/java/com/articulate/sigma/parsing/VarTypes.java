@@ -6,10 +6,7 @@ import com.articulate.sigma.KB;
 import com.articulate.sigma.utils.MapUtils;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 
 // Determine the types of variables by their appearance in relations,
 // as well as whether onstants or functions are allowed given their types
@@ -159,7 +156,7 @@ public class VarTypes {
         if (var.startsWith("@"))
             return f;
         HashMap<Integer, HashSet<SuokifParser.ArgumentContext>> argsForIndex = f.argMap.get(var);
-        ArrayList<String> sig = kb.kbCache.getSignature(rel);
+        List<String> sig = kb.kbCache.getSignature(rel);
         if (sig == null || argsForIndex == null || argsForIndex.keySet().size() != sig.size()-1) { // signatures have a 0 element for function return type
             StringBuilder sb = new StringBuilder();
             for (Integer i : argsForIndex.keySet()) {
@@ -353,7 +350,7 @@ public class VarTypes {
                 System.out.println("VarTypes.findType(): ");
                 printContexts(argsForIndex);
             }
-            ArrayList<String> sig = kb.kbCache.getSignature(pred);
+            List<String> sig = kb.kbCache.getSignature(pred);
             if (sig == null) {
                 System.out.println("Error in VarTypes.findType(): null signature in formula " + f + " for pred: " + pred);
                 continue;
