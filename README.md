@@ -9,7 +9,7 @@ The parser folder is generated from antlr and examples of usage of this project 
 ## Installation
 ==========================
 
-Install homebrew (if not already and install wget from homebrew)
+If on a Mac, install homebrew (if wget not already installed from homebrew)
 ```
 brew install wget
 ```
