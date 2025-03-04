@@ -9,34 +9,26 @@ The parser folder is generated from antlr and examples of usage of this project 
 ## Installation
 ==========================
 
-If on a Mac, install homebrew (if wget not already installed from homebrew)
 ```
-brew install wget
-```
-
-First we need to get the antlr jar and we will do this by using wget. We will also be setting the alias for antlr.
-```
-wget http://www.antlr.org/download/antlr-4.7-complete.jar
-
-alias antlr='java -jar $PWD/antlr-4.7-complete.jar'
+alias antlr='java -jar $PWD/antlr4-4.9.3.jar'
 ```
 
 ## Suokif.g4 Quick Start
 ==========================
 
-We will be inputting a string and they will be parsed as tokens within antlr to be created an Abstract Syntax Tree
+We will be inputting a string and they will be parsed as tokens within antlr to create an Abstract Syntax Tree
 ```
 cd /home/user/workspace/sigmaAntlr/src/java/com/articulate/sigma/parsing
 
-java -Xmx500M -cp antlr-4.8-complete.jar:$CLASSPATH org.antlr.v4.Tool
+java -Xmx500M -cp lib/antlr4-4.9.3.jar org.antlr.v4.Tool
   -package com.articulate.sigma.parsing /home/user/workspace/sigmaAntlr/Suokif.g4
 ```
 
 If you want to compile the grammar manually rather than running ant
 ```
-javac -classpath ".:antlr-4.8-complete.jar" Suokif*.java
+javac -cp ".:lib/antlr4-4.9.3.jar" Suokif*.java
 
-java -classpath ".:antlr-4.8-complete.jar" org.antlr.v4.gui.TestRig Suokif file -tokens -gui
+java -cp ".:antlr4-4.9.3.jar" org.antlr.v4.gui.TestRig Suokif file -tokens -gui
 ```
 
 ## Tptp.g4 Quick Start
