@@ -1,13 +1,11 @@
 package com.articulate.sigma.parsing;
 
-import com.articulate.sigma.KB;
 import com.articulate.sigma.KBmanager;
 import com.articulate.sigma.utils.StringUtil;
 import com.articulate.sigma.utils.FileUtil;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
