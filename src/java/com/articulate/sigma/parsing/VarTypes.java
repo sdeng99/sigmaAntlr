@@ -1,7 +1,6 @@
 package com.articulate.sigma.parsing;
 
 import com.articulate.sigma.Formula;
-import com.articulate.sigma.FormulaPreprocessor;
 import com.articulate.sigma.KB;
 import com.articulate.sigma.utils.MapUtils;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -16,7 +15,7 @@ public class VarTypes {
     KB kb = null;
 
     // a map of variables and the set of types that constrain them
-    HashMap<String,HashSet<String>> varTypeMap = new HashMap<>();
+    Map<String,Set<String>> varTypeMap = new HashMap<>();
 
     public boolean debug = false;
 

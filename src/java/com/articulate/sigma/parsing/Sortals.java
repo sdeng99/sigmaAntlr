@@ -5,6 +5,8 @@ import com.articulate.sigma.utils.StringUtil;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 // Add type guards to formulas
 public class Sortals {
@@ -24,7 +26,7 @@ public class Sortals {
      * Add type guards to a formula by making it the consequent of a rule
      * and making type tests into a new antecedent
      */
-    public String addSortals(FormulaAST f, HashMap<String,HashSet<String>> types) {
+    public String addSortals(FormulaAST f, Map<String,Set<String>> types) {
 
         if (types.keySet().size() == 0) return f.getFormula();
         if (debug) System.out.println("Sortals.addSortals(): types: " + types);
@@ -34,7 +36,7 @@ public class Sortals {
         if (types.keySet().size() > 1)
             result.append("(and ");
         for (String k : types.keySet()) {
-            HashSet<String> v = types.get(k);
+            Set<String> v = types.get(k);
             for (String t : v) {
                 if (t.endsWith("+"))
                     result.append("(subclass " + k + " " + t.substring(0, t.length() - 1) + ") ");
@@ -89,13 +91,13 @@ public class Sortals {
      * instance or subclass statement, remove it from the type list so
      * that it won't be added as a type guard
      */
-    public HashMap<String, HashSet<String>> removeExplicitTypes(HashMap<String,HashSet<String>> typesMap,
-                                                       HashMap<String, HashSet<String>> explicit) {
+    public Map<String, Set<String>> removeExplicitTypes(Map<String,Set<String>> typesMap,
+                                                       Map<String, Set<String>> explicit) {
 
-        HashMap<String, HashSet<String>> result = new HashMap<>();
+        Map<String, Set<String>> result = new HashMap<>();
         for (String var : typesMap.keySet()) {
-            HashSet<String> expTypes = explicit.get(var);
-            HashSet<String> types = typesMap.get(var);
+            Set<String> expTypes = explicit.get(var);
+            Set<String> types = typesMap.get(var);
             HashSet<String> newtypes = new HashSet<>();
             if (expTypes == null)
                 newtypes.addAll(types);
@@ -118,7 +120,7 @@ public class Sortals {
     public void elimSubsumedTypes(FormulaAST f) {
 
         for (String var : f.varTypes.keySet()) {
-            HashSet<String> types = f.varTypes.get(var);
+            Set<String> types = f.varTypes.get(var);
             HashSet<String> remove = new HashSet<>();
             for (String type1 : types) {
                 for (String type2 : types) {
@@ -151,7 +153,7 @@ public class Sortals {
     public String addSortals(FormulaAST f) {
 
         if (debug) System.out.println("Sortals.addSortals():types: " + f.varTypes);
-        HashMap<String,HashSet<String>> types = removeExplicitTypes(f.varTypes,f.explicitTypes);
+        Map<String,Set<String>> types = removeExplicitTypes(f.varTypes,f.explicitTypes);
         if (debug) System.out.println("Sortals.addSortals():after removeExplicitTypes: " + f.varTypes);
         String result = addSortals(f,types);
         f.setFormula(result);

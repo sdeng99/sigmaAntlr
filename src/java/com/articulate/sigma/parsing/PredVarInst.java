@@ -4,6 +4,7 @@ import com.articulate.sigma.KB;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 
 // Instantiate predicate variables
 public class PredVarInst {
@@ -33,7 +34,7 @@ public class PredVarInst {
         result.add(new FormulaAST(f));
         for (String var : f.predVarCache) {
             if (debug) System.out.println("PredVarInst.processOne(): substituting for var: " + var);
-            HashSet<String> types = f.varTypes.get(var);
+            Set<String> types = f.varTypes.get(var);
             HashSet<String> relations = new HashSet<>();
             if (types != null) {
                 for (String type : types) {

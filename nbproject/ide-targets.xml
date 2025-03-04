@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir=".." name="SigmaAntlr-IDE">
+
+    <!--
+    ========
+    TASKDEFs
+    ========
+    -->
+
+    <property file="nbproject/private/private.properties"/>
+    <import   file="../build.xml"/>
+    <property file="nbproject/build.properties"/>
+
+    <path id="rcp">
+        <path path="${run.classpath}"/>
+    </path>
+    <path id="dcp">
+        <path path="${debug.classpath}"/>
+    </path>
+    <path id="tcp">
+        <path path="${run.test.classpath}"/>
+    </path>
+
+    <!--
+    ====
+    INIT
+    ====
+    -->
+
+    <target name="init" depends="init-ivy">
+        <echo message="Welcome to the ${product.Name} v${product.Version}"/>
+        <echo message="Specification Vendor:     ${spec.vendor}"/>
+        <echo message=""/>
+        <echo message="SIGMA_HOME    is set to:  ${sigma_home}"/>
+        <echo message="SIGMA_SRC     is set to:  ${sigma_src}"/>
+        <echo message="KBs_HOME      is set to:  ${kbs_home}"/>
+        <echo message="Git dir       is set to:  ${ontologyportal.git}"/>
+        <echo message="basedir       is set to:  ${basedir}"/>
+        <echo message="Java Version via Ant:     ${ant.java.version}"/>
+        <echo message="Java Version System Prop: ${java.version}"/>
+
+        <ant antfile="../sigmakee/nbproject/ide-targets.xml" inheritAll="false" target="all" />
+        <copy todir="${basedir}/lib" file="${sigma_src}/build/sigmakee.jar" />
+        <copy todir="${basedir}/lib" file="${sigma_src}/lib/sigmaUtils.jar" />
+        <copy todir="${basedir}/lib" file="${sigma_src}/lib/tptp.jar" />
+
+        <tstamp>
+            <format property="TODAY_US" pattern="EEE, d MMM yyyy HHmm Z" locale="en,US"/>
+        </tstamp>
+    </target>
+
+    <!--
+    =================
+    RUN TASKS FOR SRC
+    =================
+    -->
+
+<!--    <target name="run" depends="clean,compile" description="Runs a main class with ${run.class} with ${run.args} set in build.properties">
+        <java classname="${run.class}"
+              classpathref="rcp"
+              fork="true">
+            <jvmarg line="${run.jvmargs}"/>
+            <env key="SIGMA_HOME" value="${sigma_home}"/>
+            <env key="ONTOLOGYPORTAL_GIT" value="${ontologyportal.git}"/>
+            <env key="SIGMA_SRC" value="${basedir}"/>
+            <env key="CATALINA_HOME" value="${catalina.base}"/>
+            <arg line="${run.args}"/>
+        </java>
+    </target>-->
+
+    <!--
+    ===================
+    RUN TASKS FOR TESTS
+    ===================
+    -->
+
+    <target name="test" depends="test.unit"/>
+    <target name="test.unit" depends="clean,compile.test" description="Runs the UnitTestSuite">
+        <junit printsummary="yes"
+               showoutput="yes"
+               fork="yes">
+            <jvmarg line="${run.jvmargs}"/>
+            <env key="SIGMA_HOME" value="${sigma_home}"/>
+            <env key="ONTOLOGYPORTAL_GIT" value="${ontologyportal.git}"/>
+            <env key="SIGMA_SRC" value="${basedir}"/>
+            <env key="CATALINA_HOME" value="${catalina.base}"/>
+            <formatter type="plain" usefile="false"/>
+            <classpath>
+                <path refid="tcp"/>
+            </classpath>
+            <test name="${unit.test.suite}" haltonfailure="no" todir="${reports.dir}">
+                <formatter type="xml"/>
+            </test>
+        </junit>
+        <antcall target="junit.report"/>
+    </target>
+    <target name="run-selected-test-in-unit" depends="clean,compile.test">
+        <fail unless="test.class">Must set property 'test.class'</fail>
+        <junit printsummary="yes"
+               showoutput="yes"
+               fork="yes">
+            <jvmarg line="${run.jvmargs}"/>
+            <env key="SIGMA_HOME" value="${sigma_home}"/>
+            <env key="ONTOLOGYPORTAL_GIT" value="${ontologyportal.git}"/>
+            <env key="SIGMA_SRC" value="${basedir}"/>
+            <env key="CATALINA_HOME" value="${catalina.base}"/>
+            <formatter type="plain" usefile="false"/>
+            <classpath>
+                <path refid="tcp"/>
+            </classpath>
+            <test name="${test.class}" haltonfailure="no" todir="${reports.dir}">
+                <formatter type="xml"/>
+            </test>
+        </junit>
+    </target>
+    <target name="run-single-test-method-in-unit" depends="clean,compile.test">
+        <fail unless="test.class">Must set property 'test.class'</fail>
+        <junit printsummary="yes"
+               showoutput="yes"
+               fork="yes">
+            <jvmarg line="${run.jvmargs}"/>
+            <env key="SIGMA_HOME" value="${sigma_home}"/>
+            <env key="ONTOLOGYPORTAL_GIT" value="${ontologyportal.git}"/>
+            <env key="SIGMA_SRC" value="${basedir}"/>
+            <env key="CATALINA_HOME" value="${catalina.base}"/>
+            <formatter type="plain" usefile="false"/>
+            <classpath>
+                <path refid="tcp"/>
+            </classpath>
+            <test name="${test.class}" methods="${method}" haltonfailure="no" todir="${reports.dir}">
+                <formatter type="xml"/>
+            </test>
+        </junit>
+    </target>
+
+    <!--
+    ===================
+    DEBUG TASKS FOR SRC
+    ===================
+    -->
+
+    <target name="debug-nb" depends="clean,compile">
+        <nbjpdastart addressproperty="jpda.address" name="${impl.title}" transport="${debug.transport}">
+            <classpath refid="dcp"/>
+        </nbjpdastart>
+        <java classname="${run.class}"
+              classpathref="dcp"
+              fork="true">
+            <jvmarg value="-agentlib:jdwp=transport=${debug.transport},address=${jpda.address}"/>
+            <jvmarg line="${debug.jvmargs}"/>
+            <env key="SIGMA_HOME" value="${sigma_home}"/>
+            <env key="ONTOLOGYPORTAL_GIT" value="${ontologyportal.git}"/>
+            <env key="SIGMA_SRC" value="${basedir}"/>
+            <env key="CATALINA_HOME" value="${catalina.base}"/>
+            <arg line="${run.args}"/>
+        </java>
+    </target>
+    <target name="debug-selected-file-in-java" depends="clean,compile">
+        <fail unless="debug.class">Must set property 'debug.class'</fail>
+        <nbjpdastart addressproperty="jpda.address" name="${impl.title}" transport="${debug.transport}">
+            <classpath refid="dcp"/>
+        </nbjpdastart>
+        <java classname="${debug.class}"
+              classpathref="dcp"
+              fork="true">
+            <jvmarg value="-agentlib:jdwp=transport=${debug.transport},address=${jpda.address}"/>
+            <jvmarg line="${debug.jvmargs}"/>
+            <env key="SIGMA_HOME" value="${sigma_home}"/>
+            <env key="ONTOLOGYPORTAL_GIT" value="${ontologyportal.git}"/>
+            <env key="SIGMA_SRC" value="${basedir}"/>
+            <env key="CATALINA_HOME" value="${catalina.base}"/>
+            <arg line="${run.args}"/>
+        </java>
+    </target>
+
+    <!--
+    =====================
+    DEBUG TASKS FOR TESTS
+    =====================
+    -->
+
+    <target name="debug-selected-test-in-unit" depends="clean,compile.test">
+        <fail unless="test.class">Must set property 'test.class'</fail>
+        <nbjpdastart addressproperty="jpda.address" name="${impl.title}" transport="${debug.transport}">
+            <classpath refid="tcp"/>
+        </nbjpdastart>
+        <junit printsummary="yes"
+               showoutput="yes"
+               fork="yes">
+            <jvmarg value="-agentlib:jdwp=transport=${debug.transport},address=${jpda.address}"/>
+            <jvmarg line="${run.jvmargs}"/>
+            <env key="SIGMA_HOME" value="${sigma_home}"/>
+            <env key="ONTOLOGYPORTAL_GIT" value="${ontologyportal.git}"/>
+            <env key="SIGMA_SRC" value="${basedir}"/>
+            <env key="CATALINA_HOME" value="${catalina.base}"/>
+            <formatter type="plain" usefile="false"/>
+            <classpath refid="tcp"/>
+            <test name="${test.class}" haltonfailure="no" todir="${reports.dir}">
+                <formatter type="xml"/>
+            </test>
+        </junit>
+    </target>
+    <target name="debug-single-test-method-in-unit" depends="clean,compile.test">
+        <fail unless="test.class">Must set property 'test.class'</fail>
+        <nbjpdastart addressproperty="jpda.address" name="${impl.title}" transport="${debug.transport}">
+            <classpath refid="tcp"/>
+        </nbjpdastart>
+        <junit printsummary="yes"
+               showoutput="yes"
+               fork="yes">
+            <jvmarg value="-agentlib:jdwp=transport=${debug.transport},address=${jpda.address}"/>
+            <jvmarg line="${run.jvmargs}"/>
+            <env key="SIGMA_HOME" value="${sigma_home}"/>
+            <env key="ONTOLOGYPORTAL_GIT" value="${ontologyportal.git}"/>
+            <env key="SIGMA_SRC" value="${basedir}"/>
+            <env key="CATALINA_HOME" value="${catalina.base}"/>
+            <formatter type="plain" usefile="false"/>
+            <classpath>
+                <path refid="tcp"/>
+            </classpath>
+            <test name="${test.class}" methods="${method}" haltonfailure="no" todir="${reports.dir}">
+                <formatter type="xml"/>
+            </test>
+        </junit>
+    </target>
+
+    <!--
+    =====
+    ADMIN
+    =====
+    -->
+
+    <target name="dist" depends="clean,compile" description="Prepare and distribute the ${app.name}.war and ${web.app.name}.jar files and place in ${dist.dir}.">
+        <manifest file="${manifest.mf}">
+            <attribute name="Built-By" value="${my.name} ${my.email}"/>
+            <attribute name="Specification-Title"
+                       value="${product.Name}"/>
+            <attribute name="Specification-Version"
+                       value="${product.version.major}.${product.version.minor}"/>
+            <attribute name="Specification-Vendor"
+                       value="${spec.vendor}"/>
+            <attribute name="Implementation-Title"
+                       value="${impl.title}"/>
+            <attribute name="Implementation-Version"
+                       value="${product.Version} built on ${TODAY_US}"/>
+            <attribute name="Implementation-Vendor"
+                       value="${nps}, ${moves.institute}, ${savage.research.group}"/>
+            <attribute name="Implementation-URL"
+                       value="${sumo.url}"/>
+            <attribute name="Implementation-Vendor-Id"
+                       value="${impl.vendor.id}"/>
+            <attribute name="Main-Class"
+                       value="${main.class}"/>
+        </manifest>
+        <war destfile="${dist.dir}/${app.name}.war"
+             basedir="${build.home}"
+             webxml="${web.dir}/web.xml"
+             manifest="${manifest.mf}">
+            <metainf file="${project.license}"/>
+        </war>
+        <jar destfile="${dist.jar}"
+             basedir="${build.classes.dir}"
+             manifest="${manifest.mf}">
+            <metainf file="${project.license}"/>
+        </jar>
+        <copy todir="${build.home}" file="${dist.jar}"/> <!-- For SUMOjEdit -->
+    </target>
+
+    <target name="thorough.clean" depends="clean">
+        <antcall target="clean.kbs"/>
+        <delete includeemptydirs="true" failonerror="false">
+            <!-- Delete the old web code -->
+            <fileset dir="${deploy_home}"/>
+            <fileset dir="${catalina.base}/work/Catalina/localhost/${app.name}"/>
+            <!-- JUnit generated products -->
+            <fileset dir="${basedir}">
+                <include name="junit*.properties"/>
+                <include name="*.owl"/>
+                <include name="*.tab"/>
+            </fileset>
+            <fileset dir="${sigma_home}/KBs">
+                <include name="*.ser"/>
+            </fileset>
+            <fileset dir="${sigma_home}/KBs/WordNetMappings">
+                <include name="*.ser"/>
+            </fileset>
+        </delete>
+        <delete file="${dist_war}"/>
+        <antcall target="delete.catalina.logs"/>
+    </target>
+    <target name="all" depends="clean,dist">
+        <echo message="System date/time is: ${TODAY_US}"/>
+    </target>
+
+    <!--
+    =========
+    UTILITIES
+    =========
+    -->
+
+</project>

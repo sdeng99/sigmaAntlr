@@ -6,6 +6,8 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class FormulaAST extends Formula {
 
@@ -18,10 +20,10 @@ public class FormulaAST extends Formula {
     public ArrayList<ArrayList<SuokifParser.TermContext>> eqList = new ArrayList<>();
 
     // a map of all variables that have an explicit type declaration
-    public HashMap<String,HashSet<String>> explicitTypes = new HashMap<>();
+    public Map<String,Set<String>> explicitTypes = new HashMap<>();
 
     // a map of variables and all their inferred types
-    public HashMap<String,HashSet<String>> varTypes = new HashMap<>();
+    public Map<String,Set<String>> varTypes = new HashMap<>();
 
     public HashSet<ParserRuleContext> rowvarLiterals = new HashSet<>(); // this can have a RelsentContext, FuntermContext,
       // as well as ForallContext or ExistsContext for vars in a quantifier list
@@ -88,7 +90,7 @@ public class FormulaAST extends Formula {
         this.eqList.addAll(f.eqList);
 
         for (String var : f.explicitTypes.keySet()) {
-            HashSet<String> newtypes = f.explicitTypes.get(var);
+            Set<String> newtypes = f.explicitTypes.get(var);
             if (explicitTypes.containsKey(var))
                 explicitTypes.get(var).addAll(newtypes);
             else {
@@ -99,7 +101,7 @@ public class FormulaAST extends Formula {
         }
 
         for (String var : f.varTypes.keySet()) {
-            HashSet<String> newtypes = f.varTypes.get(var);
+            Set<String> newtypes = f.varTypes.get(var);
             if (varTypes.containsKey(var))
                 varTypes.get(var).addAll(newtypes);
             else {
@@ -158,7 +160,7 @@ public class FormulaAST extends Formula {
             this.argMap.put(pred,newargnummap);
         }
         for (String var : f2.explicitTypes.keySet()) {
-            HashSet<String> newtypes = f2.explicitTypes.get(var);
+            Set<String> newtypes = f2.explicitTypes.get(var);
             if (explicitTypes.containsKey(var))
                 explicitTypes.get(var).addAll(newtypes);
             else {
@@ -169,7 +171,7 @@ public class FormulaAST extends Formula {
         }
 
         for (String var : f2.varTypes.keySet()) {
-            HashSet<String> newtypes = f2.varTypes.get(var);
+            Set<String> newtypes = f2.varTypes.get(var);
             if (varTypes.containsKey(var))
                 varTypes.get(var).addAll(newtypes);
             else {
@@ -233,7 +235,7 @@ public class FormulaAST extends Formula {
 
             this.eqList.addAll(arf.eqList);
             for (String var : arf.explicitTypes.keySet()) {
-                HashSet<String> newtypes = arf.explicitTypes.get(var);
+                Set<String> newtypes = arf.explicitTypes.get(var);
                 if (explicitTypes.containsKey(var))
                     explicitTypes.get(var).addAll(newtypes);
                 else {
@@ -244,7 +246,7 @@ public class FormulaAST extends Formula {
             }
 
             for (String var : arf.varTypes.keySet()) {
-                HashSet<String> newtypes = arf.varTypes.get(var);
+                Set<String> newtypes = arf.varTypes.get(var);
                 if (varTypes.containsKey(var))
                     varTypes.get(var).addAll(newtypes);
                 else {
