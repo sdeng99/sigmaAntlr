@@ -97,7 +97,7 @@ auxiliary.show.customizer.message=<message>
                     <target>run-selected-test-in-unit</target>
                     <context>
                         <property>test.class</property>
-                        <folder>test/unit/java</folder>
+                        <folder>src/test/java</folder>
                         <pattern>\.java$</pattern>
                         <format>java-name</format>
                         <arity>
@@ -110,7 +110,7 @@ auxiliary.show.customizer.message=<message>
                     <target>run-single-test-method-in-unit</target>
                     <context>
                         <property>test.class</property>
-                        <folder>test/unit/java</folder>
+                        <folder>src/test/java</folder>
                         <pattern>\.java$</pattern>
                         <format>java-name</format>
                         <arity>
@@ -123,7 +123,7 @@ auxiliary.show.customizer.message=<message>
                     <target>debug-selected-test-in-unit</target>
                     <context>
                         <property>test.class</property>
-                        <folder>test/unit/java</folder>
+                        <folder>src/test/java</folder>
                         <pattern>\.java$</pattern>
                         <format>java-name</format>
                         <arity>
@@ -136,7 +136,7 @@ auxiliary.show.customizer.message=<message>
                     <target>debug-single-test-method-in-unit</target>
                     <context>
                         <property>test.class</property>
-                        <folder>test/unit/java</folder>
+                        <folder>src/test/java</folder>
                         <pattern>\.java$</pattern>
                         <format>java-name</format>
                         <arity>
@@ -193,7 +193,7 @@ auxiliary.show.customizer.message=<message>
             <compilation-unit>
                 <package-root>src/test/java</package-root>
                 <unit-tests/>
-                <classpath mode="compile">lib/hamcrest-core-1.3.jar:lib/junit-4.13.2.jar</classpath>
+                <classpath mode="compile">build/classes:lib/hamcrest-core-1.3.jar:lib/junit-4.13.2.jar:lib/antlr4-runtime-4.9.3.jar:lib/guava-19.0.jar:lib/sigmakee.jar:lib/sigmaUtils.jar</classpath>
                 <built-to>build/test/classes</built-to>
                 <source-level>11</source-level>
             </compilation-unit>
