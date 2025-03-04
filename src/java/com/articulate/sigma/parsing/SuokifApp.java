@@ -1,7 +1,6 @@
 package com.articulate.sigma.parsing;
 
 import org.antlr.v4.runtime.*;
-import org.antlr.v4.runtime.tree.*;
 
 public class SuokifApp {
 
@@ -10,9 +9,9 @@ public class SuokifApp {
         SuokifLexer suokifLexer = new SuokifLexer(inputStream);
         CommonTokenStream commonTokenStream = new CommonTokenStream(suokifLexer);
         SuokifParser suokifParser = new SuokifParser(commonTokenStream);
-        SuokifParser.FileContext fileContext = suokifParser.file();                
-        SuokifVisitor visitor = new SuokifVisitor();                
-        visitor.visitFile(fileContext);   
+        SuokifParser.FileContext fileContext = suokifParser.file();
+        SuokifVisitor visitor = new SuokifVisitor();
+        visitor.visitFile(fileContext);
     }
 
     public static void main( String[] args) {

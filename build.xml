@@ -81,9 +81,8 @@
     <property name="javac.release" value="11"/>
 
     <path id="sourcepath">
-        <dirset dir="${basedir}">
-            <include name="src/java/com/articulate/sigma"/>
-        </dirset>
+        <pathelement path="src/java"/>
+        <pathelement path="src/java/com/articulate/sigma/parsing"/>
     </path>
 
     <path id="test.sourcepath">

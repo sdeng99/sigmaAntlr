@@ -55,7 +55,7 @@
     =================
     -->
 
-<!--    <target name="run" depends="clean,compile" description="Runs a main class with ${run.class} with ${run.args} set in build.properties">
+    <target name="run" depends="clean,compile" description="Runs a main class with ${run.class} with ${run.args} set in build.properties">
         <java classname="${run.class}"
               classpathref="rcp"
               fork="true">
@@ -66,7 +66,20 @@
             <env key="CATALINA_HOME" value="${catalina.base}"/>
             <arg line="${run.args}"/>
         </java>
-    </target>-->
+    </target>
+    <target name="run-selected-file-in-java" depends="clean,compile">
+        <fail unless="run.class">Must set property 'run.class'</fail>
+        <java classname="${run.class}"
+              classpathref="rcp"
+              fork="true">
+            <jvmarg line="${run.jvmargs}"/>
+            <env key="SIGMA_HOME" value="${sigma_home}"/>
+            <env key="ONTOLOGYPORTAL_GIT" value="${ontologyportal.git}"/>
+            <env key="SIGMA_SRC" value="${sigma_src}"/>
+            <env key="CATALINA_HOME" value="${catalina.base}"/>
+            <arg line="${run.args}"/>
+        </java>
+    </target>
 
     <!--
     ===================
@@ -230,7 +243,7 @@
     =====
     -->
 
-    <target name="dist" depends="clean,compile" description="Prepare and distribute the ${app.name}.war and ${web.app.name}.jar files and place in ${dist.dir}.">
+    <target name="dist" depends="clean,compile" description="Prepare and distribute the ${app.name}.war and ${app.name}.jar files and place in ${dist.dir}.">
         <manifest file="${manifest.mf}">
             <attribute name="Built-By" value="${my.name} ${my.email}"/>
             <attribute name="Specification-Title"
@@ -252,41 +265,20 @@
             <attribute name="Main-Class"
                        value="${main.class}"/>
         </manifest>
-        <war destfile="${dist.dir}/${app.name}.war"
-             basedir="${build.home}"
-             webxml="${web.dir}/web.xml"
-             manifest="${manifest.mf}">
-            <metainf file="${project.license}"/>
-        </war>
         <jar destfile="${dist.jar}"
-             basedir="${build.classes.dir}"
+             basedir="${build.classes}"
              manifest="${manifest.mf}">
             <metainf file="${project.license}"/>
         </jar>
-        <copy todir="${build.home}" file="${dist.jar}"/> <!-- For SUMOjEdit -->
     </target>
 
     <target name="thorough.clean" depends="clean">
-        <antcall target="clean.kbs"/>
         <delete includeemptydirs="true" failonerror="false">
-            <!-- Delete the old web code -->
-            <fileset dir="${deploy_home}"/>
-            <fileset dir="${catalina.base}/work/Catalina/localhost/${app.name}"/>
             <!-- JUnit generated products -->
             <fileset dir="${basedir}">
                 <include name="junit*.properties"/>
-                <include name="*.owl"/>
-                <include name="*.tab"/>
-            </fileset>
-            <fileset dir="${sigma_home}/KBs">
-                <include name="*.ser"/>
-            </fileset>
-            <fileset dir="${sigma_home}/KBs/WordNetMappings">
-                <include name="*.ser"/>
             </fileset>
         </delete>
-        <delete file="${dist_war}"/>
-        <antcall target="delete.catalina.logs"/>
     </target>
     <target name="all" depends="clean,dist">
         <echo message="System date/time is: ${TODAY_US}"/>
@@ -297,5 +289,26 @@
     UTILITIES
     =========
     -->
+
+    <!-- When generating the grammar, set the name from tptp_v7_0_0_0 to tptp so that class naming
+         will be uniform to current grammar files
+    -->
+    <target name="gen.tptp.grammar" description="Generates the TPTP grammar based on the ${grammar.file}">
+        <!-- can also use antlr task -->
+        <java classname="org.antlr.v4.Tool"
+              fork="true">
+            <classpath>
+                <pathelement location="lib/antlr4-4.9.3.jar"/>
+                <pathelement location="lib/antlr4-runtime-4.9.3.jar"/>
+                <pathelement location="lib/antlr-runtime-3.5.2.jar"/>
+                <pathelement location="lib/ST4-4.3.1.jar"/>
+            </classpath>
+            <arg line="${antlr.args}"/>
+        </java>
+        <copy todir="${src.dir}/tptp_parser">
+            <fileset dir="${copy.from.dir}" includes="*.java"/>
+        </copy>
+        <delete dir="src/java/test"/>
+    </target>
 
 </project>

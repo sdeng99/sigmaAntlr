@@ -45,12 +45,118 @@ auxiliary.show.customizer.message=<message>
                     <script>${ant.script}</script>
                     <target>clean</target>
                 </action>
+                <action name="javadoc">
+                    <script>${ant.script}</script>
+                    <target>api_doc</target>
+                </action>
                 <action name="rebuild">
                     <script>${ant.script}</script>
                     <target>clean</target>
-                    <target>compile</target>
+                    <target>dist</target>
+                </action>
+                <action name="run">
+                    <script>${ant.script}</script>
+                    <target>run</target>
+                </action>
+                <action name="test">
+                    <script>${ant.script}</script>
+                    <target>test</target>
+                </action>
+                <action name="debug">
+                    <script>${ant.script}</script>
+                    <target>debug-nb</target>
+                </action>
+                <action name="run.single">
+                    <script>${ant.script}</script>
+                    <target>run-selected-file-in-java</target>
+                    <context>
+                        <property>run.class</property>
+                        <folder>src/java</folder>
+                        <pattern>\.java$</pattern>
+                        <format>java-name</format>
+                        <arity>
+                            <one-file-only/>
+                        </arity>
+                    </context>
+                </action>
+                <action name="debug.single">
+                    <script>${ant.script}</script>
+                    <target>debug-selected-file-in-java</target>
+                    <context>
+                        <property>debug.class</property>
+                        <folder>src/java</folder>
+                        <pattern>\.java$</pattern>
+                        <format>java-name</format>
+                        <arity>
+                            <one-file-only/>
+                        </arity>
+                    </context>
+                </action>
+                <action name="test.single">
+                    <script>${ant.script}</script>
+                    <target>run-selected-test-in-unit</target>
+                    <context>
+                        <property>test.class</property>
+                        <folder>test/unit/java</folder>
+                        <pattern>\.java$</pattern>
+                        <format>java-name</format>
+                        <arity>
+                            <one-file-only/>
+                        </arity>
+                    </context>
+                </action>
+                <action name="run.single.method">
+                    <script>${ant.script}</script>
+                    <target>run-single-test-method-in-unit</target>
+                    <context>
+                        <property>test.class</property>
+                        <folder>test/unit/java</folder>
+                        <pattern>\.java$</pattern>
+                        <format>java-name</format>
+                        <arity>
+                            <one-file-only/>
+                        </arity>
+                    </context>
+                </action>
+                <action name="debug.test.single">
+                    <script>${ant.script}</script>
+                    <target>debug-selected-test-in-unit</target>
+                    <context>
+                        <property>test.class</property>
+                        <folder>test/unit/java</folder>
+                        <pattern>\.java$</pattern>
+                        <format>java-name</format>
+                        <arity>
+                            <one-file-only/>
+                        </arity>
+                    </context>
+                </action>
+                <action name="debug.single.method">
+                    <script>${ant.script}</script>
+                    <target>debug-single-test-method-in-unit</target>
+                    <context>
+                        <property>test.class</property>
+                        <folder>test/unit/java</folder>
+                        <pattern>\.java$</pattern>
+                        <format>java-name</format>
+                        <arity>
+                            <one-file-only/>
+                        </arity>
+                    </context>
                 </action>
             </ide-actions>
+            <export>
+                <type>folder</type>
+                <location>build/classes</location>
+                <script>${ant.script}</script>
+                <build-target>compile</build-target>
+            </export>
+            <export>
+                <type>folder</type>
+                <location>build/test/classes</location>
+                <script>${ant.script}</script>
+                <build-target>compile</build-target>
+            </export>
             <view>
                 <items>
                     <source-folder style="packages">
@@ -69,13 +175,18 @@ auxiliary.show.customizer.message=<message>
                     <ide-action name="build"/>
                     <ide-action name="rebuild"/>
                     <ide-action name="clean"/>
+                    <ide-action name="test"/>
+                    <ide-action name="debug"/>
+                    <ide-action name="javadoc"/>
+                    <ide-action name="run"/>
                 </context-menu>
             </view>
+            <subprojects/>
         </general-data>
         <java-data xmlns="http://www.netbeans.org/ns/freeform-project-java/5">
             <compilation-unit>
                 <package-root>src/java</package-root>
-                <classpath mode="compile">lib/antlr4-4.9.3.jar:lib/antlr4-runtime-4.9.3.jar:lib/sigmakee.jar:lib/sigmaUtils.jar</classpath>
+                <classpath mode="compile">lib/antlr4-4.9.3.jar:lib/antlr4-runtime-4.9.3.jar:lib/guava-19.0.jar:lib/sigmakee.jar:lib/sigmaUtils.jar</classpath>
                 <built-to>build/classes</built-to>
                 <source-level>11</source-level>
             </compilation-unit>
