@@ -204,7 +204,7 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         if (debug) System.out.println();
         return;
     }
-    
+
     /** ***************************************************************
      * sentence : (relsent | logsent | quantsent | variable) ;
      */
@@ -962,8 +962,8 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
             if (args != null && args.length > 1 && args[0].equals("-f")) {
                 SuokifVisitor sv = new SuokifVisitor();
                 sv.parseFile(args[1]);
-                HashMap<Integer,FormulaAST> hm = SuokifVisitor.result;
-                TreeSet<Integer> keys = new TreeSet<>();
+                Map<Integer,FormulaAST> hm = SuokifVisitor.result;
+                Set<Integer> keys = new TreeSet<>();
                 for (Integer i : hm.keySet())
                     keys.add(i);
                 for (Integer i : keys)

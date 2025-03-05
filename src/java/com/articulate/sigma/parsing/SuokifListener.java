@@ -1,4 +1,4 @@
-// Generated from /home/apease/workspace/sigmaAntlr/Suokif.g4 by ANTLR 4.8
+// Generated from Suokif.g4 by ANTLR 4.9.3
 package com.articulate.sigma.parsing;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
