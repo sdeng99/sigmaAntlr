@@ -1,28 +1,14 @@
 package com.articulate.sigma.parsing;
 
+import com.articulate.sigma.IntegrationTestBase;
 import com.articulate.sigma.KBmanager;
-import com.articulate.sigma.UnitTestBase;
-import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 
-public class PreprocessorTest extends UnitTestBase {
-
-    /** ***************************************************************
-     */
-    @Before
-    public void init() {
-
-        long start = System.currentTimeMillis();
-        KBmanager.getMgr().initializeOnce();
-        long end = (System.currentTimeMillis()-start)/1000;
-        System.out.println("PreprocessorTest.init(): total init time: " + end + " seconds");
-    }
+public class PreprocessorTest extends IntegrationTestBase {
 
     /** ***************************************************************
      */

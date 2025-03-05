@@ -1,13 +1,9 @@
 package com.articulate.sigma.parsing;
 
-import com.articulate.sigma.Formula;
-import com.articulate.sigma.KB;
-import com.articulate.sigma.KBmanager;
-import com.articulate.sigma.UnitTestBase;
+import com.articulate.sigma.IntegrationTestBase;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CodePointCharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -16,20 +12,7 @@ import java.util.HashSet;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class RowVarTest extends UnitTestBase {
-
-    public static KB kb = null;
-
-    /***************************************************************
-     * */
-    @BeforeClass
-    public static void setup()  {
-
-        KBmanager.getMgr().initializeOnce();
-        kb = KBmanager.getMgr().getKB(KBmanager.getMgr().getPref("sumokbname"));
-        long startTime = System.currentTimeMillis();
-        long endTime = System.currentTimeMillis();
-    }
+public class RowVarTest extends IntegrationTestBase {
 
     /***************************************************************
      * */

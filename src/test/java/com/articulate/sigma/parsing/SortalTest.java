@@ -1,34 +1,19 @@
 package com.articulate.sigma.parsing;
 
 import com.articulate.sigma.Formula;
-import com.articulate.sigma.KB;
-import com.articulate.sigma.KBmanager;
-import com.articulate.sigma.UnitTestBase;
+import com.articulate.sigma.IntegrationTestBase;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CodePointCharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 
-public class SortalTest extends UnitTestBase {
-
-    public static KB kb = null;
-
-    /***************************************************************
-     * */
-    @BeforeClass
-    public static void setup()  {
-
-        KBmanager.getMgr().initializeOnce();
-        kb = KBmanager.getMgr().getKB(KBmanager.getMgr().getPref("sumokbname"));
-        long startTime = System.currentTimeMillis();
-        long endTime = System.currentTimeMillis();
-    }
+public class SortalTest extends IntegrationTestBase {
 
     /***************************************************************
      * */
@@ -42,10 +27,9 @@ public class SortalTest extends UnitTestBase {
         SuokifParser.FileContext fileContext = suokifParser.file();
         SuokifVisitor visitor = new SuokifVisitor();
         visitor.visitFile(fileContext);
-        HashMap<Integer,FormulaAST> hm = visitor.result;
+        HashMap<Integer,FormulaAST> hm = SuokifVisitor.result;
         VarTypes vt = new VarTypes(hm.values(),kb);
         vt.findTypes();
-        StringBuilder sb = new StringBuilder();
         FormulaAST f = hm.values().iterator().next();
         f.printCaches();
         Sortals s = new Sortals(kb);
@@ -184,10 +168,9 @@ public class SortalTest extends UnitTestBase {
         SuokifParser.FileContext fileContext = suokifParser.file();
         SuokifVisitor visitor = new SuokifVisitor();
         visitor.visitFile(fileContext);
-        HashMap<Integer,FormulaAST> hm = visitor.result;
+        HashMap<Integer,FormulaAST> hm = SuokifVisitor.result;
         VarTypes vt = new VarTypes(hm.values(),kb);
         vt.findTypes();
-        StringBuilder sb = new StringBuilder();
         FormulaAST f = hm.values().iterator().next();
         f.printCaches();
         Sortals s = new Sortals(kb);
@@ -195,7 +178,7 @@ public class SortalTest extends UnitTestBase {
         HashSet<String> expected = new HashSet<>();
         expected.add("TotalValuedRelation");
         expected.add("Predicate");
-        HashSet<String> actual = f.varTypes.get("?REL");
+        Set<String> actual = f.varTypes.get("?REL");
         System.out.println("SortalTest.elimTypes(): expected: " + expected);
         System.out.println("SortalTest.elimTypes(): actual: " + actual);
         if (expected.equals(actual))

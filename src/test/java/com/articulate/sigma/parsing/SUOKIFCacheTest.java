@@ -10,7 +10,6 @@ import org.junit.Test;
 import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class SUOKIFCacheTest extends UnitTestBase {
 
@@ -24,7 +23,7 @@ public class SUOKIFCacheTest extends UnitTestBase {
         SuokifParser.FileContext fileContext = suokifParser.file();
         SuokifVisitor visitor = new SuokifVisitor();
         visitor.visitFile(fileContext);
-        HashMap<Integer,FormulaAST> hm = visitor.result;
+        HashMap<Integer,FormulaAST> hm = SuokifVisitor.result;
         return hm;
     }
 

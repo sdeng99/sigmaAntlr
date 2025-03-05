@@ -1,12 +1,12 @@
-package com.articulate.sigma.parsing;
+package com.articulate.sigma;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-        IntegrationTests.class,
-        UnitTests.class,
+    IntegrationTestSuite.class,
+    UnitTestSuite.class,
 })
 public class AllTests {
 }

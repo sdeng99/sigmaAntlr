@@ -3,14 +3,13 @@ package com.articulate.sigma.parsing;
 import com.articulate.sigma.Formula;
 import com.articulate.sigma.UnitTestBase;
 import org.antlr.v4.runtime.*;
-import org.antlr.v4.runtime.tree.*;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
 
-public class SUOKIFparseTest  extends UnitTestBase {
+public class SUOKIFparseTest extends UnitTestBase {
 
     public static HashMap<Integer,FormulaAST> process(String input) {
 
@@ -29,7 +28,7 @@ public class SUOKIFparseTest  extends UnitTestBase {
         visitor.visitFile(fileContext);
         //System.out.println("process(): visitor: " + visitor);
         //System.out.println("process(): visitor.result (before processing): " + visitor.result);
-        HashMap<Integer,FormulaAST> hm = visitor.result;
+        HashMap<Integer,FormulaAST> hm = SuokifVisitor.result;
         System.out.println("process(): result: " + hm);
         return hm;
     }

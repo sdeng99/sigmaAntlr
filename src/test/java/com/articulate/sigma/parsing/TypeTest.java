@@ -1,32 +1,16 @@
 package com.articulate.sigma.parsing;
 
-import com.articulate.sigma.KB;
-import com.articulate.sigma.KBmanager;
-import com.articulate.sigma.UnitTestBase;
+import com.articulate.sigma.IntegrationTestBase;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CodePointCharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
 
-public class TypeTest  extends UnitTestBase {
-
-    public static KB kb = null;
-
-    /***************************************************************
-     * */
-    @BeforeClass
-    public static void setup()  {
-
-        KBmanager.getMgr().initializeOnce();
-        kb = KBmanager.getMgr().getKB(KBmanager.getMgr().getPref("sumokbname"));
-        long startTime = System.currentTimeMillis();
-        long endTime = System.currentTimeMillis();
-    }
+public class TypeTest extends IntegrationTestBase {
 
     /***************************************************************
      * */

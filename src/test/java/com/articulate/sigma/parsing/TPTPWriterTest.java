@@ -1,30 +1,14 @@
 package com.articulate.sigma.parsing;
 
+import com.articulate.sigma.IntegrationTestBase;
 import com.articulate.sigma.KBmanager;
-import com.articulate.sigma.UnitTestBase;
 import com.articulate.sigma.utils.FileUtil;
-import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
-import java.text.Normalizer;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 
-public class TPTPWriterTest  extends UnitTestBase {
-
-    /** ***************************************************************
-     */
-    @Before
-    public void init() {
-
-        long start = System.currentTimeMillis();
-        KBmanager.getMgr().initializeOnce();
-        long end = (System.currentTimeMillis()-start)/1000;
-        System.out.println("TPTPWriterTest.init(): total init time: " + end + " seconds");
-    }
+public class TPTPWriterTest  extends IntegrationTestBase {
 
     /** ***************************************************************
      */
