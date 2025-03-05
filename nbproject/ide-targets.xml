@@ -87,7 +87,7 @@
     ===================
     -->
 
-    <target name="test" depends="test.unit"/>
+    <target name="test" depends="test.unit,test.integration"/>
     <target name="test.unit" depends="clean,compile.test" description="Runs the UnitTestSuite">
         <junit printsummary="yes"
                showoutput="yes"
@@ -95,7 +95,7 @@
             <jvmarg line="${run.jvmargs}"/>
             <env key="SIGMA_HOME" value="${sigma_home}"/>
             <env key="ONTOLOGYPORTAL_GIT" value="${ontologyportal.git}"/>
-            <env key="SIGMA_SRC" value="${basedir}"/>
+            <env key="SIGMA_SRC" value="${sigma_src}"/>
             <env key="CATALINA_HOME" value="${catalina.base}"/>
             <formatter type="plain" usefile="false"/>
             <classpath>
@@ -107,6 +107,26 @@
         </junit>
         <antcall target="junit.report"/>
     </target>
+    <target name="test.integration" depends="clean,compile.test" description="Runs the IntegrationTestSuite">
+        <junit printsummary="yes"
+               showoutput="yes"
+               fork="yes">
+            <jvmarg line="${run.jvmargs}"/>
+            <env key="SIGMA_HOME" value="${sigma_home}"/>
+            <env key="ONTOLOGYPORTAL_GIT" value="${ontologyportal.git}"/>
+            <env key="SIGMA_SRC" value="${sigma_src}"/>
+            <env key="CATALINA_HOME" value="${catalina.base}"/>
+            <formatter type="plain" usefile="false"/>
+            <classpath>
+                <path refid="tcp"/>
+            </classpath>
+            <test name="${integration.test.suite}" haltonfailure="no" todir="${reports.dir}">
+                <formatter type="xml"/>
+            </test>
+        </junit>
+        <antcall target="junit.report"/>
+        <echo message="Now, manually run thorough.clean to purge KBs and restore the main config"/>
+    </target>
     <target name="run-selected-test-in-unit" depends="clean,compile.test">
         <fail unless="test.class">Must set property 'test.class'</fail>
         <junit printsummary="yes"
@@ -115,7 +135,7 @@
             <jvmarg line="${run.jvmargs}"/>
             <env key="SIGMA_HOME" value="${sigma_home}"/>
             <env key="ONTOLOGYPORTAL_GIT" value="${ontologyportal.git}"/>
-            <env key="SIGMA_SRC" value="${basedir}"/>
+            <env key="SIGMA_SRC" value="${sigma_src}"/>
             <env key="CATALINA_HOME" value="${catalina.base}"/>
             <formatter type="plain" usefile="false"/>
             <classpath>
@@ -134,7 +154,7 @@
             <jvmarg line="${run.jvmargs}"/>
             <env key="SIGMA_HOME" value="${sigma_home}"/>
             <env key="ONTOLOGYPORTAL_GIT" value="${ontologyportal.git}"/>
-            <env key="SIGMA_SRC" value="${basedir}"/>
+            <env key="SIGMA_SRC" value="${sigma_src}"/>
             <env key="CATALINA_HOME" value="${catalina.base}"/>
             <formatter type="plain" usefile="false"/>
             <classpath>
@@ -204,7 +224,7 @@
             <jvmarg line="${run.jvmargs}"/>
             <env key="SIGMA_HOME" value="${sigma_home}"/>
             <env key="ONTOLOGYPORTAL_GIT" value="${ontologyportal.git}"/>
-            <env key="SIGMA_SRC" value="${basedir}"/>
+            <env key="SIGMA_SRC" value="${sigma_src}"/>
             <env key="CATALINA_HOME" value="${catalina.base}"/>
             <formatter type="plain" usefile="false"/>
             <classpath refid="tcp"/>
@@ -225,7 +245,7 @@
             <jvmarg line="${run.jvmargs}"/>
             <env key="SIGMA_HOME" value="${sigma_home}"/>
             <env key="ONTOLOGYPORTAL_GIT" value="${ontologyportal.git}"/>
-            <env key="SIGMA_SRC" value="${basedir}"/>
+            <env key="SIGMA_SRC" value="${sigma_src}"/>
             <env key="CATALINA_HOME" value="${catalina.base}"/>
             <formatter type="plain" usefile="false"/>
             <classpath>
@@ -290,11 +310,7 @@
     =========
     -->
 
-    <!-- When generating the grammar, set the name from tptp_v7_0_0_0 to tptp so that class naming
-         will be uniform to current grammar files
-    -->
-    <target name="gen.tptp.grammar" description="Generates the TPTP grammar based on the ${grammar.file}">
-        <!-- can also use antlr task -->
+    <target name="gen.suokif.grammar" description="Generates the Suokif grammar based on the ${grammar.file}">
         <java classname="org.antlr.v4.Tool"
               fork="true">
             <classpath>
@@ -305,10 +321,12 @@
             </classpath>
             <arg line="${antlr.args}"/>
         </java>
-        <copy todir="${src.dir}/tptp_parser">
-            <fileset dir="${copy.from.dir}" includes="*.java"/>
-        </copy>
-        <delete dir="src/java/test"/>
+        <delete>
+            <fileset dir="${src.dir}/com/articulate/sigma/parsing">
+                <include name="*.interp"/>
+                <include name="*.tokens"/>
+            </fileset>
+        </delete>
     </target>
 
 </project>
