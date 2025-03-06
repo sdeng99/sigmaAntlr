@@ -125,7 +125,6 @@
             </test>
         </junit>
         <antcall target="junit.report"/>
-        <echo message="Now, manually run thorough.clean to purge KBs and restore the main config"/>
     </target>
     <target name="run-selected-test-in-unit" depends="clean,compile.test">
         <fail unless="test.class">Must set property 'test.class'</fail>
