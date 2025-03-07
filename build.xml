@@ -160,6 +160,13 @@
     =====
     -->
 
+    <target name="dist" depends="compile" description="Create the *.jar file">
+        <jar destfile="${basedir}/${app.name}.jar">
+            <metainf file="LICENSE.txt"/>
+            <fileset dir="${build.classes}"/>
+        </jar>
+    </target>
+
     <!-- target name="all" depends="dist, api_doc" -->
     <target name="all" depends="compile.test">
         <tstamp>
