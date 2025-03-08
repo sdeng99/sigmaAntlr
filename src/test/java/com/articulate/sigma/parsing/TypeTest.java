@@ -34,8 +34,6 @@ public class TypeTest extends IntegrationTestBase {
         System.out.println("Input: " + input);
         CodePointCharStream inputStream = CharStreams.fromString(input);
         SuokifLexer suokifLexer = new SuokifLexer(inputStream);
-        suokifLexer.removeErrorListeners(); // remove the default ANTLR error listener
-        suokifLexer.addErrorListener(new SuokifParserErrorListener());
         CommonTokenStream commonTokenStream = new CommonTokenStream(suokifLexer);
         SuokifParser suokifParser = new SuokifParser(commonTokenStream);
         suokifParser.removeErrorListeners(); // remove the default ANTLR error listener
