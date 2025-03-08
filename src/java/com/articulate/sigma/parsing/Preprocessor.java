@@ -172,7 +172,7 @@ public class Preprocessor {
             }
             if (debug) System.out.println("Preprocessor.reparse(): " + f);
             visitor = SuokifVisitor.parseFormula(f);
-            if (debug) System.out.println("Preprocessor.reparse(): result" + SuokifVisitor.result);
+            if (debug) System.out.println("Preprocessor.reparse(): result " + SuokifVisitor.result);
             if (SuokifVisitor.result != null && !SuokifVisitor.result.values().isEmpty())
                 result.add(SuokifVisitor.result.values().iterator().next());
         }
