@@ -211,6 +211,9 @@
         </junit>
         <antcall target="junit.report"/>
     </target>
+    <!-- Make sure the ~/.sigmakee/KBs/config.xml only has top and mid loaded
+         before running integration tests.
+    -->
     <target name="test.integration" depends="compile.test" description="Runs the IntegrationTestSuite">
         <junit printsummary="yes"
                showoutput="yes"
