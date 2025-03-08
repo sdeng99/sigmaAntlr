@@ -1,13 +1,14 @@
 package com.articulate.sigma.parsing;
 
 import com.articulate.sigma.KB;
-import com.articulate.sigma.KBmanager;
 
-import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 // call the functions needed to make SUMO syntactically first order
 // and ready for conversion to TPTP
@@ -33,17 +34,17 @@ public class Preprocessor {
 
     /** ***************************************************************
      */
-    public Collection<FormulaAST> preprocess(HashSet<FormulaAST> rowvar,
-                                            HashSet<FormulaAST> predvar,
-                                            HashSet<FormulaAST> rules) { // includes rowvar and predvar
+    public Collection<FormulaAST> preprocess(Set<FormulaAST> rowvar,
+                                            Set<FormulaAST> predvar,
+                                            Set<FormulaAST> rules) { // includes rowvar and predvar
 
         System.out.println("Preprocessor.preprocess()");
         long start = System.currentTimeMillis();
         if (debug) System.out.println("Preprocessor.preprocess() # rules: " + rules.size());
-        HashSet<FormulaAST> mismatch = new HashSet<>();
+        Set<FormulaAST> mismatch = new HashSet<>();
         mismatch.addAll(predvar);
         mismatch.removeAll(rowvar);
-        if (mismatch.size() > 0) {
+        if (!mismatch.isEmpty()) {
             System.out.println("Preprocessor.preprocess() rowvar statements without predvar: " + mismatch.size());
             if (debug)
                 System.out.println(mismatch);
@@ -51,7 +52,7 @@ public class Preprocessor {
         mismatch = new HashSet<>();
         mismatch.addAll(rowvar);
         mismatch.removeAll(predvar);
-        if (mismatch.size() > 0) {
+        if (!mismatch.isEmpty()) {
             System.out.println("Preprocessor.preprocess() predvar statements without rowvar: " + mismatch.size());
             if (debug)
                 System.out.println(mismatch);
@@ -74,13 +75,13 @@ public class Preprocessor {
         start = System.currentTimeMillis();
 
         PredVarInst pvi = new PredVarInst(kb);
-        HashSet<FormulaAST> pviResults = pvi.processAll(predvar);
+        Set<FormulaAST> pviResults = pvi.processAll(predvar);
         end = (System.currentTimeMillis()-start)/1000;
         System.out.println("# Preprocessor.preprocess(): # time to instantiate pred vars: " + end);
         start = System.currentTimeMillis();
 
         RowVar rv = new RowVar(kb);
-        HashSet<FormulaAST> rvResults = rv.expandRowVar(pviResults);
+        Set<FormulaAST> rvResults = rv.expandRowVar(pviResults);
         end = (System.currentTimeMillis()-start)/1000;
         System.out.println("# Preprocessor.preprocess(): # time to expand row vars: " + end);
         start = System.currentTimeMillis();
@@ -88,21 +89,21 @@ public class Preprocessor {
         if (debug) {
             for (FormulaAST r : rvResults) {
                 if (r.getFormula().contains("@"))
-                    System.out.println("Error in Preprocessor.preprocess(): rvresults contains rowvar: " + r);
+                    System.err.println("Error in Preprocessor.preprocess(): rvresults contains rowvar: " + r);
             }
         }
-        HashSet<FormulaAST> newRules = new HashSet<>();
+        Set<FormulaAST> newRules = new HashSet<>();
         for (FormulaAST r : rules) {
             if (!rowvar.contains(r) && !predvar.contains(r) && !r.higherOrder && !r.containsNumber) { // only add rules without pred and row vars
                 if (r.getFormula().contains("@"))
-                    System.out.println("Error in Preprocessor.preprocess(): contains rowvar: " + r);
+                    System.err.println("Error in Preprocessor.preprocess(): contains rowvar: " + r);
                 else
                     newRules.add(r);
             }
         }
         // newRules.addAll(pviResults); // now add the new rules expanded from pred vars <- should not be needed
         newRules.addAll(rvResults); // now add the new rules expanded from row vars
-        ArrayList<FormulaAST> finalRuleSet = new ArrayList<>();
+        List<FormulaAST> finalRuleSet = new ArrayList<>();
         if (debug)
             System.out.println("Preprocessor.preprocess(): before reparse");
         newRules = reparse(newRules);
@@ -115,23 +116,25 @@ public class Preprocessor {
         long addallTimes = 0;
         if (debug)
             System.out.println("Preprocessor.preprocess(): after reparse");
+        long crossStart, sortalStart, reparseStart, addallStart;
+        SuokifVisitor visitor;
         for (FormulaAST r : newRules) {
             if (r.higherOrder || r.containsNumber) continue;
-            long crossStart = System.currentTimeMillis();
+            crossStart = System.currentTimeMillis();
             if (debug) System.out.println("Preprocessor.preprocess(): add sortals to r: " + r);
-            long sortalStart = System.currentTimeMillis();
+            sortalStart = System.currentTimeMillis();
             sortals.addSortals(r);
             sortalTimes = sortalTimes + (System.currentTimeMillis()-sortalStart);
             if (debug) System.out.println("Preprocessor.preprocess(): result adding sortals to r: " + r);
             if (r.getFormula().contains("@"))
-                System.out.println("Error in Preprocessor.preprocess(): before reparsing, contains rowvar: " + r);
+                System.err.println("Error in Preprocessor.preprocess(): before reparsing, contains rowvar: " + r);
             else {
-                long reparseStart = System.currentTimeMillis();
-                SuokifVisitor visitor = SuokifVisitor.parseFormula(r); // need to parse a third time after sortals are added
+                reparseStart = System.currentTimeMillis();
+                visitor = SuokifVisitor.parseFormula(r); // need to parse a third time after sortals are added
                 reparseTimes = reparseTimes + (System.currentTimeMillis()-reparseStart);
-                if (debug) System.out.println("Preprocessor.preprocess(): parsed r: " + visitor.result);
-                long addallStart = System.currentTimeMillis();
-                finalRuleSet.addAll(visitor.result.values());
+                if (debug) System.out.println("Preprocessor.preprocess(): parsed r: " + SuokifVisitor.result);
+                addallStart = System.currentTimeMillis();
+                finalRuleSet.addAll(SuokifVisitor.result.values());
                 addallTimes = addallTimes + (System.currentTimeMillis()-addallStart);
             }
             crossCheck = crossCheck + (System.currentTimeMillis()-crossStart);
@@ -144,7 +147,7 @@ public class Preprocessor {
         System.out.println("# Preprocessor.preprocess(): # of which, " + addallTimes + " millis was addall");
         System.out.println("# Preprocessor.preprocess(): # of which, " + crossCheck + " millis cross-check");
         start = System.currentTimeMillis();
-        HashMap<String,FormulaAST> res = new HashMap<>();
+        Map<String,FormulaAST> res = new HashMap<>();
         for (FormulaAST f : finalRuleSet)
             res.put(f.getFormula(),f);
         end = (System.currentTimeMillis()-start)/1000;
@@ -156,21 +159,22 @@ public class Preprocessor {
      * After preprocessing, parse the new formula string in order to
      * set the caches correctly
      */
-    public HashSet<FormulaAST> reparse(Collection<FormulaAST> rules) {
+    public Set<FormulaAST> reparse(Collection<FormulaAST> rules) {
 
         if (debug) System.out.println("Preprocessor.reparse()");
-        HashSet<FormulaAST> result = new HashSet<>();
+        Set<FormulaAST> result = new HashSet<>();
+        SuokifVisitor visitor;
         for (FormulaAST f : rules) {
             if (f.higherOrder) continue;
             if (f.getFormula().contains("@")) {
-                System.out.println("Error in Preprocessor.reparse(): Shouldn't have row variable after preprocessing: " + f);
+                System.err.println("Error in Preprocessor.reparse(): Shouldn't have row variable after preprocessing: " + f);
                 continue;
             }
             if (debug) System.out.println("Preprocessor.reparse(): " + f);
-            SuokifVisitor visitor = SuokifVisitor.parseFormula(f);
-            if (debug) System.out.println("Preprocessor.reparse(): result" + visitor.result);
-            if (visitor.result != null && visitor.result.values().size() > 0)
-                result.add(visitor.result.values().iterator().next());
+            visitor = SuokifVisitor.parseFormula(f);
+            if (debug) System.out.println("Preprocessor.reparse(): result" + SuokifVisitor.result);
+            if (SuokifVisitor.result != null && !SuokifVisitor.result.values().isEmpty())
+                result.add(SuokifVisitor.result.values().iterator().next());
         }
         return result;
     }

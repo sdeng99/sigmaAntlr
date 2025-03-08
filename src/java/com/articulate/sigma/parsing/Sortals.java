@@ -28,10 +28,10 @@ public class Sortals {
      */
     public String addSortals(FormulaAST f, Map<String,Set<String>> types) {
 
-        if (types.keySet().size() == 0) return f.getFormula();
+        if (types.keySet().isEmpty()) return f.getFormula();
         if (debug) System.out.println("Sortals.addSortals(): types: " + types);
         StringBuilder result = new StringBuilder();
-        if (types.keySet().size() > 0)
+        if (!types.keySet().isEmpty())
             result.append("(=> ");
         if (types.keySet().size() > 1)
             result.append("(and ");
@@ -39,12 +39,12 @@ public class Sortals {
             Set<String> v = types.get(k);
             for (String t : v) {
                 if (t.endsWith("+"))
-                    result.append("(subclass " + k + " " + t.substring(0, t.length() - 1) + ") ");
+                    result.append("(subclass ").append(k).append(" ").append(t.substring(0, t.length() - 1)).append(") ");
                 else
-                    result.append("(instance " + k + " " + t + ") ");
+                    result.append("(instance ").append(k).append(" ").append(t).append(") ");
             }
         }
-        if (types.keySet().size() > 0)
+        if (!types.keySet().isEmpty())
             result.deleteCharAt(result.length()-1);
         if (types.keySet().size() > 1)
             result.append(") ");
@@ -58,13 +58,13 @@ public class Sortals {
      * Find the most specific type in a list of types.  This assumes that
      * the list has already been tested for disjointness
      */
-    public String mostSpecificType(HashSet<String> types) {
+    public String mostSpecificType(Set<String> types) {
 
         if (types.size() == 1)
             return types.iterator().next();
         long start = System.currentTimeMillis();
         if (kb.kbCache.checkDisjoint(kb,types)) {
-            System.out.println("Error in Sortals.mostSpecificType(): disjoint type spec: " + types);
+            System.err.println("Error in Sortals.mostSpecificType(): disjoint type spec: " + types);
             return "";
         }
         long end = (System.currentTimeMillis()-start);
@@ -95,10 +95,11 @@ public class Sortals {
                                                        Map<String, Set<String>> explicit) {
 
         Map<String, Set<String>> result = new HashMap<>();
+        Set<String> expTypes, types, newtypes;
         for (String var : typesMap.keySet()) {
-            Set<String> expTypes = explicit.get(var);
-            Set<String> types = typesMap.get(var);
-            HashSet<String> newtypes = new HashSet<>();
+            expTypes = explicit.get(var);
+            types = typesMap.get(var);
+            newtypes = new HashSet<>();
             if (expTypes == null)
                 newtypes.addAll(types);
             else {
@@ -107,7 +108,7 @@ public class Sortals {
                         newtypes.add(t);
                 }
             }
-            if (newtypes.size() > 0)
+            if (!newtypes.isEmpty())
                 result.put(var, newtypes);
         }
         return result;
@@ -119,9 +120,10 @@ public class Sortals {
      */
     public void elimSubsumedTypes(FormulaAST f) {
 
+        Set<String> types, remove;
         for (String var : f.varTypes.keySet()) {
-            Set<String> types = f.varTypes.get(var);
-            HashSet<String> remove = new HashSet<>();
+            types = f.varTypes.get(var);
+            remove = new HashSet<>();
             for (String type1 : types) {
                 for (String type2 : types) {
                     if (!StringUtil.emptyString(type1) && !StringUtil.emptyString(type2) && !type1.equals(type2)) {

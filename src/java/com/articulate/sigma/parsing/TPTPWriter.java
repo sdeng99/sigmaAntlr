@@ -1,19 +1,19 @@
 package com.articulate.sigma.parsing;
 
+import org.antlr.v4.runtime.tree.ParseTree;
+
 import com.articulate.sigma.KBmanager;
 import com.articulate.sigma.utils.StringUtil;
 import com.articulate.sigma.utils.FileUtil;
-import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Set;
 
 public class TPTPWriter {
 
-    public HashSet<FormulaAST> formulas = null;
+    public Set<FormulaAST> formulas = null;
 
     public static boolean debug = false;
 
@@ -27,15 +27,15 @@ public class TPTPWriter {
         if (debug) System.out.println("visitFile() Visiting file: " + context.getText());
         if (debug) System.out.println("visitFile() # children: " + context.children.size());
         if (debug) System.out.println("visitFile() text: " + context.getText());
-        int counter = 0;
+//        int counter = 0;
+//        FormulaAST f = null;
         for (ParseTree c : context.children) {
             if (debug) System.out.println("visitFile() child: " + c.getClass().getName());
-            FormulaAST f = null;
             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$SentenceContext")) {
                 sb.append(visitSentence((SuokifParser.SentenceContext) c));
             }
             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$CommentContext")) {
-                sb.append("# " + visitComment((SuokifParser.CommentContext) c));
+                sb.append("# ").append(visitComment((SuokifParser.CommentContext) c));
             }
         }
         return sb.toString();
@@ -52,14 +52,18 @@ public class TPTPWriter {
         if (debug) System.out.println("visitSentence() text: " + context.getText());
         for (ParseTree c : context.children) {
             if (debug)  System.out.println("child of sentence: " + c.getClass().getName());
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$RelsentContext"))
-                return visitRelsent((SuokifParser.RelsentContext) c);
-            else if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$LogsentContext"))
-                return visitLogsent((SuokifParser.LogsentContext) c);
-            else if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$QuantsentContext"))
-                return visitQuantsent((SuokifParser.QuantsentContext) c);
-            else if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$VariableContext"))
-                return visitVariable((SuokifParser.VariableContext) c);
+            switch (c.getClass().getName()) {
+                case "com.articulate.sigma.parsing.SuokifParser$RelsentContext":
+                    return visitRelsent((SuokifParser.RelsentContext) c);
+                case "com.articulate.sigma.parsing.SuokifParser$LogsentContext":
+                    return visitLogsent((SuokifParser.LogsentContext) c);
+                case "com.articulate.sigma.parsing.SuokifParser$QuantsentContext":
+                    return visitQuantsent((SuokifParser.QuantsentContext) c);
+                case "com.articulate.sigma.parsing.SuokifParser$VariableContext":
+                    return visitVariable((SuokifParser.VariableContext) c);
+                default:
+                    break;
+            }
         }
         return null;
     }
@@ -86,32 +90,33 @@ public class TPTPWriter {
 
         StringBuilder sb = new StringBuilder();
         FormulaAST result = new FormulaAST();
-        HashSet<FormulaAST.RowStruct> newRowVarStructs = new HashSet<>();
+//        Set<FormulaAST.RowStruct> newRowVarStructs = new HashSet<>();
         result.predVarCache = new HashSet<>();
         if (debug) System.out.println("Visiting relsent: " + context.getText());
         if (debug) System.out.println("# children: " + context.children.size());
         if (debug) System.out.println("text: " + context.getText());
-        String pred = null;
-        int argnum = 0;
-        ArrayList<String> argList = new ArrayList<>();
-        HashSet<FormulaAST.ArgStruct> constantTerms = new HashSet<>(); // tracks if a constant is an argument
-        HashMap<Integer,HashSet<SuokifParser.ArgumentContext>> args = new HashMap<>();
+        String pred;
+//        int argnum;
+//        List<String> argList = new ArrayList<>();
+//        Set<FormulaAST.ArgStruct> constantTerms = new HashSet<>(); // tracks if a constant is an argument
+//        Map<Integer,Set<SuokifParser.ArgumentContext>> args = new HashMap<>();
         if (context.IDENTIFIER() != null) {
             pred = context.IDENTIFIER().toString();
-            sb.append("s__" + pred + "(");
+            sb.append("s__").append(pred).append("(");
         }
+//        FormulaAST f = null;
+        SuokifParser.ArgumentContext ac;
         for (ParseTree c : context.children) {
             if (debug) System.out.println("child of relsent: " + c.getClass().getName());
-            FormulaAST f = null;
             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$VariableContext")) {
-                sb.append(visitVariable((SuokifParser.VariableContext) c) + ",");
+                sb.append(visitVariable((SuokifParser.VariableContext) c)).append(",");
             }
             else if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$ArgumentContext")) {
-                SuokifParser.ArgumentContext ac = (SuokifParser.ArgumentContext) c;
+                ac = (SuokifParser.ArgumentContext) c;
                 if (Preprocessor.kb.kbCache.relations.contains(ac.getText()))
-                    sb.append(visitArgument(ac) + "__m,");
+                    sb.append(visitArgument(ac)).append("__m,");
                 else
-                    sb.append(visitArgument(ac) + ",");
+                    sb.append(visitArgument(ac)).append(",");
                 if (debug) System.out.println("ac: " + ac.getText());
             }
         }
@@ -153,18 +158,22 @@ public class TPTPWriter {
         if (debug) System.out.println("text: " + context.getText());
         for (ParseTree c : context.children) {
             if (debug) System.out.println("visitLogsent() child: " + c.getClass().getName());
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$NotsentContext"))
-                return visitNotsent((SuokifParser.NotsentContext) c);
-            else if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$AndsentContext"))
-                return visitAndsent((SuokifParser.AndsentContext) c);
-            else if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$OrsentContext"))
-                return visitOrsent((SuokifParser.OrsentContext) c);
-            else if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$ImpliesContext"))
-                return visitImplies((SuokifParser.ImpliesContext) c);
-            else if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$IffContext"))
-                return visitIff((SuokifParser.IffContext) c);
-            else if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$EqsentContext"))
-                return visitEqsent((SuokifParser.EqsentContext) c);
+            switch (c.getClass().getName()) {
+                case "com.articulate.sigma.parsing.SuokifParser$NotsentContext":
+                    return visitNotsent((SuokifParser.NotsentContext) c);
+                case "com.articulate.sigma.parsing.SuokifParser$AndsentContext":
+                    return visitAndsent((SuokifParser.AndsentContext) c);
+                case "com.articulate.sigma.parsing.SuokifParser$OrsentContext":
+                    return visitOrsent((SuokifParser.OrsentContext) c);
+                case "com.articulate.sigma.parsing.SuokifParser$ImpliesContext":
+                    return visitImplies((SuokifParser.ImpliesContext) c);
+                case "com.articulate.sigma.parsing.SuokifParser$IffContext":
+                    return visitIff((SuokifParser.IffContext) c);
+                case "com.articulate.sigma.parsing.SuokifParser$EqsentContext":
+                    return visitEqsent((SuokifParser.EqsentContext) c);
+                default:
+                    break;
+            }
         }
         return null;
     }
@@ -195,12 +204,12 @@ public class TPTPWriter {
         if (debug) System.out.println("Visiting Andsent: " + context.getText());
         if (debug) System.out.println("# children: " + context.children.size());
         if (debug) System.out.println("text: " + context.getText());
-        ArrayList<FormulaAST> ar = new ArrayList<>();
+//        List<FormulaAST> ar = new ArrayList<>();
         sb.append("( ");
         for (ParseTree c : context.children) {
             if (debug) System.out.println("child of andsent: " + c.getClass().getName());
             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$SentenceContext")) {
-                sb.append(visitSentence((SuokifParser.SentenceContext) c) + " & ");
+                sb.append(visitSentence((SuokifParser.SentenceContext) c)).append(" & ");
             }
         }
         sb.delete(sb.length()-2,sb.length());
@@ -221,7 +230,7 @@ public class TPTPWriter {
         for (ParseTree c : context.children) {
             if (debug) System.out.println("visitOrsent() child: " + c.getClass().getName());
             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$SentenceContext")) {
-                sb.append(visitSentence((SuokifParser.SentenceContext) c) + " | ");
+                sb.append(visitSentence((SuokifParser.SentenceContext) c)).append(" | ");
             }
         }
         sb.delete(sb.length()-2,sb.length());
@@ -234,7 +243,7 @@ public class TPTPWriter {
      */
     public String visitImplies(SuokifParser.ImpliesContext context) {
 
-        StringBuilder sb = new StringBuilder();
+//        StringBuilder sb = new StringBuilder();
         if (debug) System.out.println("Visiting Implies: " + context.getText());
         if (debug) System.out.println("# children: " + context.children.size());
         if (debug) System.out.println("text: " + context.getText());
@@ -312,7 +321,7 @@ public class TPTPWriter {
         if (debug) System.out.println("Visiting quantsent: " + context.getText());
         if (debug) System.out.println("# children: " + context.children.size());
         if (debug) System.out.println("text: " + context.getText());
-        FormulaAST f = null;
+//        FormulaAST f = null;
         for (ParseTree c : context.children) {
             if (debug) System.out.println("visitQuantsent() child: " + c.getClass().getName());
             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$ForallContext"))
@@ -331,14 +340,14 @@ public class TPTPWriter {
         if (debug) System.out.println("Visiting Forall: " + context.getText());
         if (debug) System.out.println("# children: " + context.children.size());
         StringBuilder varlist = new StringBuilder();
-        FormulaAST f = null;
-        String body = null;
+//        FormulaAST f = null;
+        String body = null, farg;
         if (debug) System.out.println("text: " + context.getText());
         for (ParseTree c : context.children) {
             if (debug) System.out.println("visitForall() child: " + c.getClass().getName());
             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$VariableContext")) {
-                String farg = visitVariable((SuokifParser.VariableContext) c);
-                varlist.append(farg + ", ");
+                farg = visitVariable((SuokifParser.VariableContext) c);
+                varlist.append(farg).append(", ");
             }
             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$SentenceContext")) {
                 body = visitSentence((SuokifParser.SentenceContext) c);
@@ -358,13 +367,13 @@ public class TPTPWriter {
         if (debug) System.out.println("# children: " + context.children.size());
         if (debug) System.out.println("text: " + context.getText());
         StringBuilder varlist = new StringBuilder();
-        String body = null;
+        String body = null, farg;
         if (debug) System.out.println("text: " + context.getText());
         for (ParseTree c : context.children) {
             if (debug) System.out.println("visitExists() child: " + c.getClass().getName());
             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$VariableContext")) {
-                String farg = visitVariable((SuokifParser.VariableContext) c);
-                varlist.append(farg + ", ");
+                farg = visitVariable((SuokifParser.VariableContext) c);
+                varlist.append(farg).append(", ");
             }
             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$SentenceContext")) {
                 body = visitSentence((SuokifParser.SentenceContext) c);
@@ -415,16 +424,18 @@ public class TPTPWriter {
         }
         for (ParseTree c : context.children) { // there should be only one child
             if (debug) System.out.println("visitTerm() child: " + c.getClass().getName());
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$FuntermContext"))
-                return visitFunterm((SuokifParser.FuntermContext) c);
-            else if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$VariableContext")) {
-                return visitVariable((SuokifParser.VariableContext) c);
-            }
-            else if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$StringContext"))
-                return visitString((SuokifParser.StringContext) c);
-            else if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$NumberContext")) {
-                if (debug) System.out.println("visitTerm() found a number: " + c.getText());
-                return visitNumber((SuokifParser.NumberContext) c);
+            switch (c.getClass().getName()) {
+                case "com.articulate.sigma.parsing.SuokifParser$FuntermContext":
+                    return visitFunterm((SuokifParser.FuntermContext) c);
+                case "com.articulate.sigma.parsing.SuokifParser$VariableContext":
+                    return visitVariable((SuokifParser.VariableContext) c);
+                case "com.articulate.sigma.parsing.SuokifParser$StringContext":
+                    return visitString((SuokifParser.StringContext) c);
+                case "com.articulate.sigma.parsing.SuokifParser$NumberContext":
+                    if (debug) System.out.println("visitTerm() found a number: " + c.getText());
+                    return visitNumber((SuokifParser.NumberContext) c);
+                default:
+                    break;
             }
         }
         return null;
@@ -439,25 +450,26 @@ public class TPTPWriter {
         if (debug) System.out.println("Visiting funterm: " + context.getText());
         if (debug) System.out.println("# children: " + context.children.size());
         if (debug) System.out.println("text: " + context.getText());
-        HashSet<FormulaAST.RowStruct> newRowVarStructs = new HashSet<>();
-        String funword = null;
+//        Set<FormulaAST.RowStruct> newRowVarStructs = new HashSet<>();
+        String funword;
         if (context.FUNWORD() != null) {
             funword = context.FUNWORD().toString();
             if (debug) System.out.println("funword: " + funword);
-            sb.append("s__" + funword + "(");
+            sb.append("s__").append(funword).append("(");
         }
-        int argnum = 1;
-        HashMap<Integer,HashSet<SuokifParser.ArgumentContext>> args = new HashMap<>();
-        ArrayList<FormulaAST> arf = new ArrayList<>();
+//        int argnum = 1;
+//        Map<Integer,Set<SuokifParser.ArgumentContext>> args = new HashMap<>();
+//        List<FormulaAST> arf = new ArrayList<>();
+//        FormulaAST farg = null;
+        SuokifParser.ArgumentContext ac;
         for (ParseTree c : context.children) {
             if (debug) System.out.println("visitFunterm() child: " + c.getClass().getName());
-            FormulaAST farg = null;
             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$ArgumentContext")) {
-                SuokifParser.ArgumentContext ac = (SuokifParser.ArgumentContext) c;
+                ac = (SuokifParser.ArgumentContext) c;
                 if (Preprocessor.kb.kbCache.relations.contains(ac.getText()))
-                    sb.append(visitArgument(ac) + "__m,");
+                    sb.append(visitArgument(ac)).append("__m,");
                 else
-                    sb.append(visitArgument(ac) + ",");
+                    sb.append(visitArgument(ac)).append(",");
             }
         }
         sb.delete(sb.length()-1,sb.length());
@@ -516,23 +528,25 @@ public class TPTPWriter {
         start = System.currentTimeMillis();
         Preprocessor pre = new Preprocessor(KBmanager.getMgr().getKB(KBmanager.getMgr().getPref("sumokbname")));
         if (args[0].contains("r"))
-            pre.removeMultiplePredVar(sv); // remove explosive rules with multiple predicate variables
+            Preprocessor.removeMultiplePredVar(sv); // remove explosive rules with multiple predicate variables
         Collection<FormulaAST> rules = pre.preprocess(sv.hasPredVar, sv.hasRowVar, sv.rules);                  // 2. Pre-processing
         end = (System.currentTimeMillis()-start)/1000;
         System.out.println("# TPTPWriter.translate(): # time to preprocess: " + end);
         start = System.currentTimeMillis();
         TPTPWriter tptpW = new TPTPWriter();
         int counter = 0;
-        HashSet<String> alreadyGen = new HashSet<>();
-        System.out.println("# TPTPWriter.translate(): # statements not in rules: " + sv.result.keySet().size());
-        for (Integer i : sv.result.keySet()) {
-            FormulaAST f = sv.result.get(i);
+//        Set<String> alreadyGen = new HashSet<>();
+        System.out.println("# TPTPWriter.translate(): # statements not in rules: " + SuokifVisitor.result.keySet().size());
+        FormulaAST f;
+        String id, tptp;
+        for (Integer i : SuokifVisitor.result.keySet()) {
+            f = SuokifVisitor.result.get(i);
             if (!sv.rules.contains(f) && !f.isDoc && !f.comment) {
                 if (f.parsedFormula == null)
                     System.out.println("# Error in TPTPWriter.translate(): non rules - null formula " + f);
-                String id = "kb_" + FileUtil.noExt(FileUtil.noPath(f.sourceFile)) + "_" + f.startLine + "_" + counter++;
+                id = "kb_" + FileUtil.noExt(FileUtil.noPath(f.sourceFile)) + "_" + f.startLine + "_" + counter++;
                 // TODO this may not fit with proof processing that uses suffix to find original formula
-                String tptp = tptpW.visitSentence(f.parsedFormula);
+                tptp = tptpW.visitSentence(f.parsedFormula);
                 if (!StringUtil.emptyString(tptp))
                     System.out.println("fof(" + id + ",axiom," + tptp + ").");                              // 3. Translate non-rules
                 else
@@ -543,17 +557,17 @@ public class TPTPWriter {
         System.out.println("# TPTPWriter.translate(): # time to translate non-rules: " + end);
         start = System.currentTimeMillis();
         System.out.println("# TPTPWriter.translate(): # statements in rules after preprocess: " + rules.size());
-        for (FormulaAST f : rules) {
-            if (!f.isDoc && !f.comment) {
-                if (f.parsedFormula == null)
-                    System.out.println("# Error in TPTPWriter.translate(): rules - null formula " + f);
-                String id = "kb_" + FileUtil.noExt(FileUtil.noPath(f.sourceFile)) + "_" + f.startLine + "_" + counter++;
+        for (FormulaAST fast : rules) {
+            if (!fast.isDoc && !fast.comment) {
+                if (fast.parsedFormula == null)
+                    System.out.println("# Error in TPTPWriter.translate(): rules - null formula " + fast);
+                id = "kb_" + FileUtil.noExt(FileUtil.noPath(fast.sourceFile)) + "_" + fast.startLine + "_" + counter++;
                 // TODO this may not fit with proof processing that uses suffix to find original formula
-                String tptp = tptpW.visitSentence(f.parsedFormula);
+                tptp = tptpW.visitSentence(fast.parsedFormula);
                 if (!StringUtil.emptyString(tptp))
                     System.out.println("fof(" + id + ",axiom," + tptp + ").");                                  // 4. Translate rules
                 else
-                    System.out.println("# Error in TPTPWriter.translate(): null translation for " + f.parsedFormula);
+                    System.out.println("# Error in TPTPWriter.translate(): null translation for " + fast.parsedFormula);
             }
         }
         end = (System.currentTimeMillis()-start)/1000;
