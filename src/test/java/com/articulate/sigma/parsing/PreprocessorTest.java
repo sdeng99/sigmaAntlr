@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.Set;
 
 public class PreprocessorTest extends IntegrationTestBase {
 
@@ -15,6 +15,7 @@ public class PreprocessorTest extends IntegrationTestBase {
     @Test
     public void test1() {
 
+        System.out.println("===================== PreprocessorTest.test1() =====================");
         long start = System.currentTimeMillis();
         SuokifVisitor sv = new SuokifVisitor();
         sv.parseFile(System.getenv("SIGMA_HOME") + File.separator + "KBs" + File.separator + "Merge.kif");
@@ -25,7 +26,7 @@ public class PreprocessorTest extends IntegrationTestBase {
         sv.hasRowVar.removeAll(sv.multiplePredVar);
 
         Collection<FormulaAST> rules = pre.preprocess(sv.hasPredVar,sv.hasRowVar,sv.rules);
-        HashSet<FormulaAST> result = pre.reparse(rules);
+        Set<FormulaAST> result = pre.reparse(rules);
         if (result.size() < 100)
             System.out.println("PreprocessorTest.test1(): " + result);
         else
@@ -39,6 +40,7 @@ public class PreprocessorTest extends IntegrationTestBase {
     @Test
     public void test2() {
 
+        System.out.println("===================== PreprocessorTest.test2() =====================");
         String input = "(=>\n" +
                 "  (and\n" +
                 "    (maxValue ?REL ?ARG ?N)\n" +
@@ -53,7 +55,7 @@ public class PreprocessorTest extends IntegrationTestBase {
         System.out.println("PreprocessorTest.test2(): # before preprocess: " + sv.rules.size());
         Collection<FormulaAST> rules = pre.preprocess(sv.hasPredVar,sv.hasRowVar,sv.rules);
         System.out.println("PreprocessorTest.test2(): # after preprocess: " + rules.size());
-        HashSet<FormulaAST> result = pre.reparse(rules);
+        Set<FormulaAST> result = pre.reparse(rules);
         if (result.size() < 100)
             System.out.println("PreprocessorTest.test2(): " + result);
         else

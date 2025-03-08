@@ -15,12 +15,13 @@ public class TPTPWriterTest  extends IntegrationTestBase {
     @Test
     public void test1() {
 
+        System.out.println("===================== TPTPWriterTest.test1() =====================");
         long start = System.currentTimeMillis();
         SuokifVisitor sv = new SuokifVisitor();
         sv.parseFile(System.getenv("SIGMA_HOME") + File.separator + "KBs" + File.separator + "Merge.kif");
         Preprocessor pre = new Preprocessor(KBmanager.getMgr().getKB(KBmanager.getMgr().getPref("sumokbname")));
 
-        pre.removeMultiplePredVar(sv); // remove explosive rules with multiple predicate variables
+        Preprocessor.removeMultiplePredVar(sv); // remove explosive rules with multiple predicate variables
 
         System.out.println("TPTPWriterTest.test1(): sourceFile after parsing: " + sv.rules.iterator().next().sourceFile);
         Collection<FormulaAST> rules = pre.preprocess(sv.hasPredVar,sv.hasRowVar,sv.rules);
@@ -45,6 +46,7 @@ public class TPTPWriterTest  extends IntegrationTestBase {
     @Test
     public void test2() {
 
+        System.out.println("===================== TPTPWriterTest.test2() =====================");
         String s = "(=>\n" +
                 "    (equal\n" +
                 "        (MinFn ?NUMBER1 ?NUMBER2) ?NUMBER)\n" +

@@ -7,8 +7,8 @@ import org.antlr.v4.runtime.CodePointCharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.junit.Test;
 
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -27,7 +27,7 @@ public class SortalTest extends IntegrationTestBase {
         SuokifParser.FileContext fileContext = suokifParser.file();
         SuokifVisitor visitor = new SuokifVisitor();
         visitor.visitFile(fileContext);
-        HashMap<Integer,FormulaAST> hm = SuokifVisitor.result;
+        Map<Integer,FormulaAST> hm = SuokifVisitor.result;
         VarTypes vt = new VarTypes(hm.values(),kb);
         vt.findTypes();
         FormulaAST f = hm.values().iterator().next();
@@ -42,7 +42,7 @@ public class SortalTest extends IntegrationTestBase {
         if (resultf.equals(expectedf))
             System.out.println("Success");
         else
-            System.out.println("FAIL");
+            System.err.println("FAIL");
         return result;
     }
 
@@ -51,7 +51,7 @@ public class SortalTest extends IntegrationTestBase {
     @Test
     public void test1() {
 
-        System.out.println("test1()");
+        System.out.println("===================== SortalTest.test1() =====================");
         String input = "(=> (and (minValue ?R ?ARG ?N) (?R @ARGS) (equal ?VAL (ListOrderFn (ListFn @ARGS) ?ARG))) (greaterThan ?VAL ?N))";
         String expected = "(=> " +
                 "(and " +
@@ -74,7 +74,7 @@ public class SortalTest extends IntegrationTestBase {
     @Test
     public void test2() {
 
-        System.out.println("test2()");
+        System.out.println("===================== SortalTest.test2() =====================");
         String input = "(<=>\n" +
                 "  (instance ?OBJ SelfConnectedObject)\n" +
                 "  (forall (?PART1 ?PART2)\n" +
@@ -101,7 +101,7 @@ public class SortalTest extends IntegrationTestBase {
     @Test
     public void test3() {
 
-        System.out.println("test2()");
+        System.out.println("===================== SortalTest.test3() =====================");
         String input = "(=>\n" +
                 "  (and\n" +
                 "    (valence identityElement ?NUMBER)\n" +
@@ -137,7 +137,7 @@ public class SortalTest extends IntegrationTestBase {
     @Test
     public void elimTypes() {
 
-        System.out.println("elimTypes()");
+        System.out.println("===================== SortalTest.elimTypes() =====================");
         String input = "\n" +
                 "(<=>\n" +
                 "    (and\n" +
@@ -168,14 +168,14 @@ public class SortalTest extends IntegrationTestBase {
         SuokifParser.FileContext fileContext = suokifParser.file();
         SuokifVisitor visitor = new SuokifVisitor();
         visitor.visitFile(fileContext);
-        HashMap<Integer,FormulaAST> hm = SuokifVisitor.result;
+        Map<Integer,FormulaAST> hm = SuokifVisitor.result;
         VarTypes vt = new VarTypes(hm.values(),kb);
         vt.findTypes();
         FormulaAST f = hm.values().iterator().next();
         f.printCaches();
         Sortals s = new Sortals(kb);
         s.elimSubsumedTypes(f);
-        HashSet<String> expected = new HashSet<>();
+        Set<String> expected = new HashSet<>();
         expected.add("TotalValuedRelation");
         expected.add("Predicate");
         Set<String> actual = f.varTypes.get("?REL");
@@ -184,7 +184,7 @@ public class SortalTest extends IntegrationTestBase {
         if (expected.equals(actual))
             System.out.println("SortalTest.elimTypes(): success");
         else
-            System.out.println("SortalTest.elimTypes(): fail");
+            System.err.println("SortalTest.elimTypes(): fail");
         assertEquals(expected,actual);
     }
 }
