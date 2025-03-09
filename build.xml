@@ -119,6 +119,8 @@
 
         <ant antfile="../sigmakee/build.xml" inheritAll="false" target="all" />
         <copy todir="${basedir}/lib" file="${sigmakee.home}/build/sigmakee.jar" />
+        <copy todir="${basedir}/lib" file="${sigmakee.home}/lib/sigmaUtils.jar" />
+        <copy todir="${basedir}/lib" file="${sigmakee.home}/lib/tptp.jar" />
     </target>
 
     <!--
