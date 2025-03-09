@@ -196,6 +196,7 @@
     ==========
     -->
 
+    <target name="test" depends="test.unit,test.integration"/>
     <target name="test.unit" depends="compile.test" description="Runs the UnitTestSuite">
         <junit printsummary="yes"
                showoutput="yes"
