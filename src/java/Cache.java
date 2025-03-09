@@ -30,7 +30,7 @@ public class Cache implements Serializable {
     public HashSet<String> predicates = new HashSet<>();
 
     // all the transitive relations in the kb
-    public HashSet<String> transRels = new HashSet<String>();
+    public Set<String> transRels = new HashSet<String>();
 
     // all the transitive relations between instances in the kb that must have the same type
     public HashSet<String> instRels = new HashSet<String>();
@@ -77,8 +77,8 @@ public class Cache implements Serializable {
      * relationships.  The interior HashMap is the set of terms and
      * their transitive closure of children.
      */
-    public HashMap<String, HashMap<String, HashSet<String>>> children =
-            new HashMap<String, HashMap<String, HashSet<String>>>();
+    public Map<String, Map<String, Set<String>>> children =
+            new HashMap<String, Map<String, Set<String>>>();
 
     /** Relation name keys and argument types with 0th arg always ""
      * except in the case of Functions where the 0th arg will be the
@@ -166,7 +166,7 @@ public class Cache implements Serializable {
             for (Map.Entry<String, Map<String, Set<String>>> outerEntry : kbCacheIn.children.entrySet()) {
                 String outerKey = outerEntry.getKey();
 
-                HashMap<String, HashSet<String>> newInnerMap = Maps.newHashMap();
+                Map<String, Set<String>> newInnerMap = Maps.newHashMap();
                 Map<String, Set<String>> oldInnerMap = outerEntry.getValue();
                 for (Map.Entry<String, Set<String>> innerEntry : oldInnerMap.entrySet()) {
                     String innerKey = innerEntry.getKey();
@@ -239,10 +239,10 @@ public class Cache implements Serializable {
         if (parent.equals(child)) {
             return false;
         }
-        HashMap<String,HashSet<String>> childMap = children.get(rel);
+        Map<String,Set<String>> childMap = children.get(rel);
         if (childMap == null)
             return false;
-        HashSet<String> childSet = childMap.get(parent);
+        Set<String> childSet = childMap.get(parent);
         if (debug) System.out.println("INFO in KBcache.childOfP(): children of " + parent + " : " + childSet);
         if (childSet == null) {
             if (debug) System.out.println("INFO in KBcache.childOfP(): null childset for relation, parent, child: "
@@ -409,7 +409,7 @@ public class Cache implements Serializable {
      */
     public void buildDirectInstances() {
 
-        ArrayList<Formula> forms = kb.ask("arg", 0, "instance");
+        List<Formula> forms = kb.ask("arg", 0, "instance");
         for (int i = 0; i < forms.size(); i++) {
             Formula f = forms.get(i);
             String child = f.getStringArgument(1);
@@ -449,11 +449,11 @@ public class Cache implements Serializable {
             String arg1 = f.getStringArgument(1);
             String arg2 = f.getStringArgument(2);
             pairs.add(arg1 + "\t" + arg2);
-            HashSet<String> children1 = getChildRelations(arg1);
+            Set<String> children1 = getChildRelations(arg1);
             if (children1 == null)
                 children1 = new HashSet<>();
             children1.add(arg1);
-            HashSet<String> children2 = getChildRelations(arg2);
+            Set<String> children2 = getChildRelations(arg2);
             if (children2 == null)
                 children2 = new HashSet<>();
             children2.add(arg2);
@@ -480,7 +480,7 @@ public class Cache implements Serializable {
         explicitDisjointFormulae.addAll(kb.ask("arg", 0, "disjointDecomposition"));
         for (Formula f : explicitDisjointFormulae) {
             if (debug) System.out.println("buildExplicitDisjointMap(): check formula: " + f.getFormula());
-            ArrayList<String> arguments = null;
+            List<String> arguments = null;
             if (f.car().equals("disjoint"))
                 arguments = f.argumentsToArrayListString(1);
             else
@@ -512,12 +512,12 @@ public class Cache implements Serializable {
         long t1 = System.currentTimeMillis();
         for (String p1 : explicitDisjoint.keySet()) {
             HashSet<String> vals = explicitDisjoint.get(p1);
-            HashSet<String> children1 = getChildClasses(p1);
+            Set<String> children1 = getChildClasses(p1);
             if (children1 == null)
                 children1 = new HashSet<>();
             children1.add(p1);
             for (String p2 : vals) {
-                HashSet<String> children2 = getChildClasses(p2);
+                Set<String> children2 = getChildClasses(p2);
                 if (children2 == null)
                     children2 = new HashSet<>();
                 children2.add(p2);
@@ -612,7 +612,7 @@ public class Cache implements Serializable {
         //System.out.println("buildTransInstOf(): contains Anger: " + insts.contains("Anger"));
         // Iterate through the temporary list of instances built during creation of the @see children map
         for (String child : insts) {
-            ArrayList<Formula> forms = kb.ask("arg",1,child);
+            List<Formula> forms = kb.ask("arg",1,child);
             if (debug) System.out.println("buildTransInstOf(): forms: " + forms);
             for (Formula f : forms) {
                 String rel = f.getStringArgument(0);
@@ -629,7 +629,7 @@ public class Cache implements Serializable {
                         if (debug) System.out.println("buildTransInstOf(): prents: " + prents);
                         if (prents != null) {
                             for (String p : prents) {
-                                ArrayList<Formula> forms2 = kb.askWithRestriction(0,"instance",1,p);
+                                List<Formula> forms2 = kb.askWithRestriction(0,"instance",1,p);
                                 if (debug) System.out.println("buildTransInstOf(): forms2: " + forms2);
                                 for (Formula f2 : forms2) {
                                     String cl = f2.getStringArgument(2);
@@ -685,12 +685,12 @@ public class Cache implements Serializable {
      */
     public String mostSpecificParent(HashSet<String> p1) {
 
-        HashMap<String,HashSet<String>> subclasses = children.get("subclass");
+        Map<String,Set<String>> subclasses = children.get("subclass");
         TreeSet<AVPair> countIndex = new TreeSet<AVPair>();
         Iterator<String> it = p1.iterator();
         while (it.hasNext()) {
             String cl = it.next();
-            HashSet<String> classes = subclasses.get(cl);
+            Set<String> classes = subclasses.get(cl);
             if (classes == null)
                 System.out.println("Error in KBcache.mostSpecificParent(): no subclasses for : " + cl);
             else {
@@ -772,9 +772,9 @@ public class Cache implements Serializable {
     /** ***************************************************************
      * return child relations for the given rel from subrelation expressions.
      */
-    public HashSet<String> getChildRelations(String rel) {
+    public Set<String> getChildRelations(String rel) {
 
-        HashMap<String,HashSet<String>> ps = children.get("subrelation");
+        Map<String,Set<String>> ps = children.get("subrelation");
         if (ps != null)
             return ps.get(rel);
         else
@@ -784,9 +784,9 @@ public class Cache implements Serializable {
     /** ***************************************************************
      * return child classes for the given cl from subclass expressions.
      */
-    public HashSet<String> getChildClasses(String cl) {
+    public Set<String> getChildClasses(String cl) {
 
-        HashMap<String,HashSet<String>> ps = children.get("subclass");
+        Map<String,Set<String>> ps = children.get("subclass");
         if (ps != null)
             return ps.get(cl);
         else
@@ -796,9 +796,9 @@ public class Cache implements Serializable {
     /** ***************************************************************
      * return child term for the given cl from rel expressions.
      */
-    public HashSet<String> getChildTerms(String cl, String rel) {
+    public Set<String> getChildTerms(String cl, String rel) {
 
-        HashMap<String,HashSet<String>> ps = children.get(rel);
+        Map<String,Set<String>> ps = children.get(rel);
         if (ps != null)
             return ps.get(cl);
         else
@@ -811,7 +811,7 @@ public class Cache implements Serializable {
     public HashSet<String> getChildInstances(String cl) {
 
         HashSet<String> result = new HashSet<>();
-        HashMap<String,HashSet<String>> ps = children.get("subclass");
+        Map<String,Set<String>> ps = children.get("subclass");
         if (ps != null && ps.values() != null) {
             for (String cc : ps.get(cl)) {
                 HashSet<String> insts = getInstancesForType(cc);
@@ -855,9 +855,9 @@ public class Cache implements Serializable {
     public HashSet<String> getInstancesForType(String cl) {
 
         if (debug) System.out.println("getInstancesForType(): " + cl);
-        HashSet<String> instancesForType = new HashSet<>();
-        HashMap<String,HashSet<String>> ps = children.get("subclass");
-        HashSet<String> classes = new HashSet<>();
+        Set<String> instancesForType = new HashSet<>();
+        Map<String,Set<String>> ps = children.get("subclass");
+        Set<String> classes = new HashSet<>();
         if (ps != null)
             classes = ps.get(cl);
         if (debug) System.out.println("getInstancesForType(): subclasses of " + cl + " : " + classes);
@@ -872,10 +872,10 @@ public class Cache implements Serializable {
         }
         if (debug) System.out.println("getInstancesForType(): " + instancesForType);
         HashSet<String> instancesForType2 = new HashSet<>();
-        HashMap<String,HashSet<String>> attr = children.get("subAttribute");
-        HashMap<String,HashSet<String>> arel = children.get("subrelation");
+        Map<String,Set<String>> attr = children.get("subAttribute");
+        Map<String,Set<String>> arel = children.get("subrelation");
         for (String i : instancesForType) {
-            HashSet<String> temp = null;
+            Set<String> temp = null;
             if (attr != null) {
                 temp = attr.get(i);
                 if (temp != null)
@@ -916,9 +916,9 @@ public class Cache implements Serializable {
     /** ***************************************************************
      * Get the HashSet of the given arguments from an ArrayList of Formulas.
      */
-    public static HashSet<String> collectArgFromFormulas(int arg, ArrayList<Formula> forms) {
+    public static Set<String> collectArgFromFormulas(int arg, List<Formula> forms) {
 
-        HashSet<String> subs = new HashSet<String>();
+        Set<String> subs = new HashSet<String>();
         for (Formula f : forms) {
             String sub = f.getStringArgument(arg);
             //System.out.println("collectArgFromFormulas(): " + f + "\n" + arg + "\n" + sub);
@@ -940,10 +940,10 @@ public class Cache implements Serializable {
         HashSet<String> rels = new HashSet<String>();
         rels.add("TransitiveRelation");
         while (!rels.isEmpty()) {
-            HashSet<String> relSubs = new HashSet<>();
+            Set<String> relSubs = new HashSet<>();
             for (String rel : rels) {
                 relSubs = new HashSet<>();
-                ArrayList<Formula> forms = kb.askWithRestriction(0, "subclass", 2, rel);
+                List<Formula> forms = kb.askWithRestriction(0, "subclass", 2, rel);
                 if (forms != null && forms.size() != 0) {
                     if (debug) System.out.println("INFO in KBcache.buildTransitiveRelationsSet(): subclasses: " + forms);
                     relSubs.addAll(collectArgFromFormulas(1,forms));
@@ -979,7 +979,7 @@ public class Cache implements Serializable {
             while (it.hasNext()) {
                 String rel = it.next();
                 //System.out.println("INFO in KBcache.buildRelationsSet(): rel: " + rel);
-                ArrayList<Formula> forms = kb.askWithRestriction(0,"subclass",2,rel);
+                List<Formula> forms = kb.askWithRestriction(0,"subclass",2,rel);
                 //System.out.println("INFO in KBcache.buildRelationsSet(): forms1: " + forms);
                 if (forms != null)
                     relSubs.addAll(collectArgFromFormulas(1,forms));
@@ -1020,9 +1020,9 @@ public class Cache implements Serializable {
     private HashSet<String> findRoots(String rel) {
 
         HashSet<String> result = new HashSet<String>();
-        ArrayList<Formula> forms = kb.ask("arg",0,rel);
-        HashSet<String> arg1s = collectArgFromFormulas(1,forms);
-        HashSet<String> arg2s = collectArgFromFormulas(2,forms);
+        List<Formula> forms = kb.ask("arg",0,rel);
+        Set<String> arg1s = collectArgFromFormulas(1,forms);
+        Set<String> arg2s = collectArgFromFormulas(2,forms);
         arg2s.removeAll(arg1s);
         result.addAll(arg2s);
         //System.out.println("findRoots(): rel, roots: " + rel + ":" + result);
@@ -1036,9 +1036,9 @@ public class Cache implements Serializable {
     private HashSet<String> findLeaves(String rel) {
 
         HashSet<String> result = new HashSet<String>();
-        ArrayList<Formula> forms = kb.ask("arg",0,rel);
-        HashSet<String> arg1s = collectArgFromFormulas(1,forms);
-        HashSet<String> arg2s = collectArgFromFormulas(2,forms);
+        List<Formula> forms = kb.ask("arg",0,rel);
+        Set<String> arg1s = collectArgFromFormulas(1,forms);
+        Set<String> arg2s = collectArgFromFormulas(2,forms);
         arg1s.removeAll(arg2s);
         result.addAll(arg1s);
         return result;
@@ -1061,17 +1061,17 @@ public class Cache implements Serializable {
         while (!Q.isEmpty()) {
             String t = Q.remove();
             //System.out.println("visiting " + t);
-            ArrayList<Formula> forms = kb.askWithRestriction(0,rel,2,t);
+            List<Formula> forms = kb.askWithRestriction(0,rel,2,t);
             if (forms != null) {
-                HashSet<String> relSubs = collectArgFromFormulas(1,forms);
+                Set<String> relSubs = collectArgFromFormulas(1,forms);
 
                 Iterator<String> it = relSubs.iterator();
                 while (it.hasNext()) {
                     String newTerm = it.next();
-                    HashSet<String> newParents = new HashSet<String>();
+                    HashSet<String> newParents = new HashSet<>();
                     HashSet<String> oldParents = relParents.get(t);
                     if (oldParents == null) {
-                        oldParents = new HashSet<String>();
+                        oldParents = new HashSet<>();
                         relParents.put(t, oldParents);
                     }
                     newParents.addAll(oldParents);
@@ -1100,37 +1100,37 @@ public class Cache implements Serializable {
      */
     private void breadthFirstBuildChildren(String leaf, String rel) {
 
-        HashMap<String,HashSet<String>> relChildren = children.get(rel);
+        Map<String,Set<String>> relChildren = children.get(rel);
         if (relChildren == null) {
             System.out.println("Error in KBcache.breadthFirstBuildChildren(): no relation " + rel);
             return;
         }
         //if (debug) System.out.println("INFO in KBcache.breadthFirstBuildChildren(): trying relation " + rel);
-        ArrayDeque<String> Q = new ArrayDeque<String>();
-        HashSet<String> V = new HashSet<String>();
+        ArrayDeque<String> Q = new ArrayDeque<>();
+        HashSet<String> V = new HashSet<>();
         Q.add(leaf);
         V.add(leaf);
         while (!Q.isEmpty()) {
             String child = Q.remove();
             //if (debug) System.out.println("visiting " + child);
-            ArrayList<Formula> forms = kb.askWithRestriction(0,rel,1,child);
+            List<Formula> forms = kb.askWithRestriction(0,rel,1,child);
             if (debug) System.out.println("forms " + forms);
             if (forms != null) {
-                HashSet<String> relParents = collectArgFromFormulas(2,forms);
+                Set<String> relParents = collectArgFromFormulas(2,forms);
                 //if (debug) System.out.println("visiting direct parents of " + child +  ": " + relParents);
                 for (String newTerm : relParents) {
                     //if (debug && newTerm.indexOf("RealNumber") > -1)
                     //    System.out.println("visiting parent  " + newTerm);
-                    HashSet<String> newChildren = new HashSet<String>();
-                    HashSet<String> oldChildren = relChildren.get(child);
+                    Set<String> newChildren = new HashSet<>();
+                    Set<String> oldChildren = relChildren.get(child);
                     //if (debug) System.out.println("existing children of " + child +  ": " + oldChildren);
                     if (oldChildren == null) {
-                        oldChildren = new HashSet<String>();
+                        oldChildren = new HashSet<>();
                         relChildren.put(child, oldChildren);
                     }
                     newChildren.addAll(oldChildren);
                     newChildren.add(child);
-                    HashSet<String> newTermChildren = relChildren.get(newTerm);
+                    Set<String> newTermChildren = relChildren.get(newTerm);
                     if (newTermChildren != null)
                         newChildren.addAll(newTermChildren);
                     relChildren.put(newTerm, newChildren);
@@ -1153,29 +1153,29 @@ public class Cache implements Serializable {
     /** ***************************************************************
      * Build "children" relations recursively from the root
      */
-    private HashSet<String> buildChildrenNew(String term, String rel) {
+    private Set<String> buildChildrenNew(String term, String rel) {
 
         if (debug) System.out.println("buildChildrenNew(): looking at " + term + " with relation " + rel);
         if (children.get(rel) == null)
             children.put(rel,new HashMap<>());
-        HashMap<String,HashSet<String>> allChildren = children.get(rel);
+        Map<String,Set<String>> allChildren = children.get(rel);
         if (visited.contains(term))
             return allChildren.get(term);
         visited.add(term);
         if (debug) System.out.println("buildChildrenNew(): " + kb.ask("arg",0,"subrelation"));
-        ArrayList<Formula> forms = kb.askWithRestriction(0,rel,2,term); // argument 2 is the "parent" in any binary relation
+        List<Formula> forms = kb.askWithRestriction(0,rel,2,term); // argument 2 is the "parent" in any binary relation
         if (debug) System.out.println("buildChildrenNew(): forms  " + forms);
         if (forms == null || forms.size() == 0) {
             return new HashSet<>();
         }
-        HashSet<String> collectedChildren = new HashSet<>();
+        Set<String> collectedChildren = new HashSet<>();
         for (Formula f : forms) {
             if (f.isCached() || StringUtil.emptyString(f.sourceFile))
                 continue;
             //System.out.println(f.sourceFile);
             String newTerm = f.getStringArgument(1);// argument 1 is the "child" in any binary relation
             if (debug) System.out.println("buildChildrenNew(): new term " + newTerm);
-            HashSet<String> children = buildChildrenNew(newTerm, rel);
+            Set<String> children = buildChildrenNew(newTerm, rel);
             if (debug) System.out.println("buildChildrenNew(): children of " + newTerm + " are " + children);
             if (allChildren.containsKey(newTerm) && allChildren.get(newTerm) != null)
                 children.addAll(allChildren.get(newTerm));
@@ -1201,7 +1201,7 @@ public class Cache implements Serializable {
         rels.add("subField");
         for (String r : rels) {
             //System.out.println("buildInsts(): rel:  " + r);
-            ArrayList<Formula> forms = kb.ask("arg",0,r);
+            List<Formula> forms = kb.ask("arg",0,r);
             for (Formula f : forms) {
                 //System.out.println("buildInsts(): form:  " + f);
                 String arg = f.getStringArgument(1);
@@ -1244,13 +1244,13 @@ public class Cache implements Serializable {
         if (debug) System.out.println("INFO in KBcache.buildChildren()");
         for (String rel : transRels) {
             if (debug) System.out.println("INFO in KBcache.buildChildren(): rel: " + rel);
-            HashMap<String,HashSet<String>> value = new HashMap<String,HashSet<String>>();
+            Map<String,Set<String>> value = new HashMap<>();
             HashSet<String> roots = findRoots(rel);
             if (debug) System.out.println("INFO in KBcache.buildChildren(): roots: " + roots);
             children.put(rel, value);
             for (String root : roots) {
                 visited = new HashSet<>(); // reset the visited list for each new root and relation
-                HashSet<String> c = buildChildrenNew(root, rel);
+                Set<String> c = buildChildrenNew(root, rel);
                 if (c != null)
                     value.put(root,c);
                 insts.add(root);// TODO: shouldn't need this
@@ -1300,7 +1300,7 @@ public class Cache implements Serializable {
             String[] domainArray = new String[Formula.MAX_PREDICATE_ARITY];
             int maxIndex = 0;
             domainArray[0] = "";
-            ArrayList<Formula> forms = kb.askWithRestriction(0,"domain",1,rel);
+            List<Formula> forms = kb.askWithRestriction(0,"domain",1,rel);
             if (forms != null) {
                 for (int i = 0; i < forms.size(); i++) {
                     Formula form = forms.get(i);
@@ -1310,7 +1310,7 @@ public class Cache implements Serializable {
                         System.out.println("Error in KBcache.collectDomains(): arg2 not a number in:  " + form);
                         continue;
                     }
-                    int arg = Integer.valueOf(form.getStringArgument(2));
+                    int arg = Integer.parseInt(form.getStringArgument(2));
                     String type = form.getStringArgument(3);
                     domainArray[arg] = type;
                     if (arg > maxIndex)
@@ -1322,7 +1322,7 @@ public class Cache implements Serializable {
             if (forms != null) {
                 for (int i = 0; i < forms.size(); i++) {
                     Formula form = forms.get(i);
-                    int arg = Integer.valueOf(form.getStringArgument(2));
+                    int arg = Integer.parseInt(form.getStringArgument(2));
                     String type = form.getStringArgument(3);
                     domainArray[arg] = type + "+";
                     if (arg > maxIndex)
@@ -1376,16 +1376,16 @@ public class Cache implements Serializable {
             System.out.println("Error in KBcache.breadthFirstInheritDomains(): no relation subrelation");
             return;
         }
-        ArrayDeque<String> Q = new ArrayDeque<String>();
-        HashSet<String> V = new HashSet<String>();
+        ArrayDeque<String> Q = new ArrayDeque<>();
+        HashSet<String> V = new HashSet<>();
         Q.add(root);
         V.add(root);
         while (!Q.isEmpty()) {
             String t = Q.remove();
             ArrayList<String> tdomains = signatures.get(t);
-            ArrayList<Formula> forms = kb.askWithRestriction(0,rel,2,t);
+            List<Formula> forms = kb.askWithRestriction(0,rel,2,t);
             if (forms != null) {
-                HashSet<String> relSubs = collectArgFromFormulas(1,forms);
+                Set<String> relSubs = collectArgFromFormulas(1,forms);
                 Iterator<String> it = relSubs.iterator();
                 while (it.hasNext()) {
                     String newTerm = it.next();
@@ -1660,7 +1660,7 @@ public class Cache implements Serializable {
         while (it.hasNext()) {
             String rel = it.next();
             System.out.println("Relation: " + rel);
-            HashMap<String,HashSet<String>> relmap = this.children.get(rel);
+            Map<String,Set<String>> relmap = this.children.get(rel);
             Iterator<String> it2 = relmap.keySet().iterator();
             while (it2.hasNext()) {
                 String term = it2.next();

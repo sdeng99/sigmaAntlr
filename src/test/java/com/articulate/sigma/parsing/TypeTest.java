@@ -1,58 +1,48 @@
 package com.articulate.sigma.parsing;
 
-import com.articulate.sigma.KB;
-import com.articulate.sigma.KBmanager;
-import com.articulate.sigma.UnitTestBase;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CodePointCharStream;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import com.articulate.sigma.IntegrationTestBase;
 
-import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 
-public class TypeTest  extends UnitTestBase {
+import org.junit.After;
+import org.junit.Test;
 
-    public static KB kb = null;
+public class TypeTest extends IntegrationTestBase {
 
-    /***************************************************************
-     * */
-    @BeforeClass
-    public static void setup()  {
+    static FormulaAST f;
+    static SuokifVisitor visitor;
 
-        KBmanager.getMgr().initializeOnce();
-        kb = KBmanager.getMgr().getKB(KBmanager.getMgr().getPref("sumokbname"));
-        long startTime = System.currentTimeMillis();
-        long endTime = System.currentTimeMillis();
+    @After
+    public void afterTest() {
+        f = null;
+        visitor = null;
     }
 
     /***************************************************************
      * */
     public static String process(String input, String expected) {
 
+        String result = null;
         System.out.println("Input: " + input);
-        CodePointCharStream inputStream = CharStreams.fromString(input);
-        SuokifLexer suokifLexer = new SuokifLexer(inputStream);
-        CommonTokenStream commonTokenStream = new CommonTokenStream(suokifLexer);
-        SuokifParser suokifParser = new SuokifParser(commonTokenStream);
-        SuokifParser.FileContext fileContext = suokifParser.file();
-        SuokifVisitor visitor = new SuokifVisitor();
-        visitor.visitFile(fileContext);
-        HashMap<Integer,FormulaAST> hm = visitor.result;
-        VarTypes vt = new VarTypes(hm.values(),kb);
-        vt.findTypes();
-        StringBuilder sb = new StringBuilder();
-        FormulaAST f = hm.values().iterator().next();
-        f.printCaches();
-        String result = f.varTypes.toString().trim();
-        System.out.println("Result: " + result);
-        System.out.println("expected: " + expected);
-        if (result.equals(expected))
-            System.out.println("Success");
-        else
-            System.out.println("FAIL");
+        visitor = SuokifVisitor.parseString(input);
+        if (visitor.errors.isEmpty()) {
+            Map<Integer,FormulaAST> hm = SuokifVisitor.result;
+            VarTypes vt = new VarTypes(hm.values(),kb);
+            vt.findTypes();
+            f = hm.values().iterator().next();
+            f.printCaches();
+            result = f.varTypes.toString().trim();
+            System.out.println("Result: " + result);
+            System.out.println("expected: " + expected);
+            if (result.equals(expected))
+                System.out.println("Success");
+            else
+                System.err.println("FAIL");
+        }
         return result;
     }
 
@@ -61,7 +51,7 @@ public class TypeTest  extends UnitTestBase {
     @Test
     public void test1() {
 
-        System.out.println("test1()");
+        System.out.println("===================== TypeTest.test1() =====================");
         String input = "(=> (and (minValue ?R ?ARG ?N) (?R @ARGS) (equal ?VAL (ListOrderFn (ListFn @ARGS) ?ARG))) (greaterThan ?VAL ?N))";
         String expected = "{?R=[Predicate], ?ARG=[Integer, PositiveInteger], ?N=[RealNumber, Quantity], ?VAL=[RealNumber, Entity]}";
         String result = process(input,expected);
@@ -73,7 +63,7 @@ public class TypeTest  extends UnitTestBase {
     @Test
     public void test2() {
 
-        System.out.println("test2()");
+        System.out.println("===================== TypeTest.test2() =====================");
         String input = "(<=>\n" +
                 "  (instance ?OBJ SelfConnectedObject)\n" +
                 "  (forall (?PART1 ?PART2)\n" +
@@ -90,7 +80,7 @@ public class TypeTest  extends UnitTestBase {
     @Test
     public void test3() {
 
-        System.out.println("test2()");
+        System.out.println("===================== TypeTest.test3() =====================");
         String input = "(=>\n" +
                 "  (and\n" +
                 "    (maxValue ?REL ?ARG ?N)\n" +
@@ -102,5 +92,50 @@ public class TypeTest  extends UnitTestBase {
         String expected = "{?REL=[Predicate], ?ARG=[Integer, PositiveInteger], ?N=[RealNumber, Quantity], ?VAL=[RealNumber, Entity]}";
         String result = process(input,expected);
         assertEquals(expected,result);
+    }
+
+    /** ***************************************************************
+     * Syntax violation
+     */
+    @Test
+    public void syntaxViolation() {
+
+        System.out.println("===================== TypeTest.syntaxViolation() =====================");
+        String input = "(=>\n" +
+                "  (and\n" +
+                "    (maxValue ?REL ?ARG ?N)\n" +
+                "    (?REL @ARGS)\n" +
+                "    (equal ?VAL\n" +
+                "      (ListOrderFn\n" +
+                "        (ListFn (@ARGS)) ?ARG)))\n" + // arg in parens
+                "  (greaterThan ?N ?VAL))\n";
+        String expected = "{?REL=[Predicate], ?ARG=[Integer, PositiveInteger], ?N=[RealNumber, Quantity], ?VAL=[RealNumber, Entity]}";
+        String result = process(input,expected);
+        assertNull(result);
+        assertFalse(visitor.errors.isEmpty());
+    }
+
+    /** ***************************************************************
+     * Syntax violation
+     */
+    @Test
+    public void syntaxViolation2() {
+
+        System.out.println("===================== TypeTest.syntaxViolation2() =====================");
+        String input = "(=>\n" +
+                       "  (and\n" +
+                       "    (instance ?STH2 Physical)\n" +
+                       "    (instance ?FW Following)\n" +
+                       "    (patient ?FW ?STH2))\n" +
+                       "  (exists (?STH1 ?T1 ?T2)\n" +
+                       "    (and\n" +
+                       "      (instance ?STH1 Physical)\n" +
+                       "      (holdsDuring ?T1 WhenFn (?STH1))\n" + // arg in parens
+                       "      (holdsDuring ?T2 WhenFn (?STH2))\n" + // arg in parens
+                       "      (earlier ?T1 ?T2))))\n";
+        String expected = "{?FW=[Following], ?STH2=[Physical], ?STH1=[Physical, Entity]}";
+        String result = process(input,expected);
+        assertNull(result);
+        assertFalse(visitor.errors.isEmpty());
     }
 }

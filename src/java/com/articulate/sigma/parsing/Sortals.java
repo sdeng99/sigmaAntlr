@@ -5,6 +5,8 @@ import com.articulate.sigma.utils.StringUtil;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 // Add type guards to formulas
 public class Sortals {
@@ -24,25 +26,25 @@ public class Sortals {
      * Add type guards to a formula by making it the consequent of a rule
      * and making type tests into a new antecedent
      */
-    public String addSortals(FormulaAST f, HashMap<String,HashSet<String>> types) {
+    public String addSortals(FormulaAST f, Map<String,Set<String>> types) {
 
-        if (types.keySet().size() == 0) return f.getFormula();
+        if (types.keySet().isEmpty()) return f.getFormula();
         if (debug) System.out.println("Sortals.addSortals(): types: " + types);
         StringBuilder result = new StringBuilder();
-        if (types.keySet().size() > 0)
+        if (!types.keySet().isEmpty())
             result.append("(=> ");
         if (types.keySet().size() > 1)
             result.append("(and ");
         for (String k : types.keySet()) {
-            HashSet<String> v = types.get(k);
+            Set<String> v = types.get(k);
             for (String t : v) {
                 if (t.endsWith("+"))
-                    result.append("(subclass " + k + " " + t.substring(0, t.length() - 1) + ") ");
+                    result.append("(subclass ").append(k).append(" ").append(t.substring(0, t.length() - 1)).append(") ");
                 else
-                    result.append("(instance " + k + " " + t + ") ");
+                    result.append("(instance ").append(k).append(" ").append(t).append(") ");
             }
         }
-        if (types.keySet().size() > 0)
+        if (!types.keySet().isEmpty())
             result.deleteCharAt(result.length()-1);
         if (types.keySet().size() > 1)
             result.append(") ");
@@ -56,13 +58,13 @@ public class Sortals {
      * Find the most specific type in a list of types.  This assumes that
      * the list has already been tested for disjointness
      */
-    public String mostSpecificType(HashSet<String> types) {
+    public String mostSpecificType(Set<String> types) {
 
         if (types.size() == 1)
             return types.iterator().next();
         long start = System.currentTimeMillis();
         if (kb.kbCache.checkDisjoint(kb,types)) {
-            System.out.println("Error in Sortals.mostSpecificType(): disjoint type spec: " + types);
+            System.err.println("Error in Sortals.mostSpecificType(): disjoint type spec: " + types);
             return "";
         }
         long end = (System.currentTimeMillis()-start);
@@ -89,14 +91,15 @@ public class Sortals {
      * instance or subclass statement, remove it from the type list so
      * that it won't be added as a type guard
      */
-    public HashMap<String, HashSet<String>> removeExplicitTypes(HashMap<String,HashSet<String>> typesMap,
-                                                       HashMap<String, HashSet<String>> explicit) {
+    public Map<String, Set<String>> removeExplicitTypes(Map<String,Set<String>> typesMap,
+                                                       Map<String, Set<String>> explicit) {
 
-        HashMap<String, HashSet<String>> result = new HashMap<>();
+        Map<String, Set<String>> result = new HashMap<>();
+        Set<String> expTypes, types, newtypes;
         for (String var : typesMap.keySet()) {
-            HashSet<String> expTypes = explicit.get(var);
-            HashSet<String> types = typesMap.get(var);
-            HashSet<String> newtypes = new HashSet<>();
+            expTypes = explicit.get(var);
+            types = typesMap.get(var);
+            newtypes = new HashSet<>();
             if (expTypes == null)
                 newtypes.addAll(types);
             else {
@@ -105,7 +108,7 @@ public class Sortals {
                         newtypes.add(t);
                 }
             }
-            if (newtypes.size() > 0)
+            if (!newtypes.isEmpty())
                 result.put(var, newtypes);
         }
         return result;
@@ -117,9 +120,10 @@ public class Sortals {
      */
     public void elimSubsumedTypes(FormulaAST f) {
 
+        Set<String> types, remove;
         for (String var : f.varTypes.keySet()) {
-            HashSet<String> types = f.varTypes.get(var);
-            HashSet<String> remove = new HashSet<>();
+            types = f.varTypes.get(var);
+            remove = new HashSet<>();
             for (String type1 : types) {
                 for (String type2 : types) {
                     if (!StringUtil.emptyString(type1) && !StringUtil.emptyString(type2) && !type1.equals(type2)) {
@@ -151,7 +155,7 @@ public class Sortals {
     public String addSortals(FormulaAST f) {
 
         if (debug) System.out.println("Sortals.addSortals():types: " + f.varTypes);
-        HashMap<String,HashSet<String>> types = removeExplicitTypes(f.varTypes,f.explicitTypes);
+        Map<String,Set<String>> types = removeExplicitTypes(f.varTypes,f.explicitTypes);
         if (debug) System.out.println("Sortals.addSortals():after removeExplicitTypes: " + f.varTypes);
         String result = addSortals(f,types);
         f.setFormula(result);

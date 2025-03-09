@@ -1,63 +1,258 @@
-<project name="SigmaAntlr" default="all" basedir=".">
-  <property name="app.name" value="sigmaAntlr"/>
-  <property name="build.home" value="build"/>
-  <property name="build.classes" value="${build.home}/classes"/>
-  <property name="build.lib" value="${build.home}/lib"/>
-  <property environment="env"/>
-  <property name="tomcat.home" value="${env.CATALINA_HOME}"/>
+<project xmlns:ivy="antlib:org.apache.ivy.ant"
+         name="SigmaAntlr" default="all" basedir=".">
+
+    <!--
+    ===
+    IVY
+    ===
+    -->
+
+    <property name="ivy.install.version" value="2.5.1"/>
+    <property name="ivy.home" value="${basedir}/.ivy"/>
+    <property name="ivy.jar.dir" value="${ivy.home}/lib"/>
+    <property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar"/>
+
+    <target name="check.for.ivy.jar">
+        <available file="${ivy.jar.file}" property="ivy.present"/>
+    </target>
+
+    <target name="download-ivy" depends="check.for.ivy.jar" unless="ivy.present">
+        <mkdir dir="${ivy.jar.dir}"/>
+        <!-- download Ivy from web site so that it can be used even without any special installation -->
+        <get src="https://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar"
+             dest="${ivy.jar.file}" usetimestamp="true"/>
+    </target>
+
+    <target name="init-ivy" depends="download-ivy">
+        <!-- try to load Ivy here from Ivy home, in case the user has not already dropped
+             it into Ant's lib dir (note that the latter copy will always take precedence).
+             We will not fail as long as local lib dir exists (it may be empty) and
+             Ivy is in at least one of Ant's lib dir or the local lib dir. -->
+        <path id="ivy.lib.path">
+            <fileset dir="${ivy.jar.dir}" includes="*.jar"/>
+        </path>
+        <taskdef resource="org/apache/ivy/ant/antlib.xml"
+                 uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
+        <ivy:retrieve/>
+
+        <path id="compile.classpath">
+            <fileset dir="${basedir}/lib">
+                <include name="*.jar"/>
+                <exclude name="junit*"/>
+                <exclude name="hamcrest*"/>
+            </fileset>
+        </path>
+        <path id="runtime.classpath">
+            <path refid="compile.classpath"/>
+        </path>
+        <path id="compile.test.classpath">
+            <path refid="compile.classpath"/>
+            <pathelement location="${build.classes}"/>
+            <pathelement path="lib/hamcrest-core-1.3.jar:lib/junit-4.13.2.jar"/>
+        </path>
+        <path id="run.test.classpath">
+            <path refid="compile.test.classpath"/>
+            <pathelement location="${build.test.classes}"/>
+        </path>
+    </target>
+
+    <!--
+    ====
+    INIT
+    ====
+    -->
+
+    <property name="app.name" value="sigmaAntlr"/>
+    <property name="build.home" value="build"/>
+    <property name="build.classes" value="${build.home}/classes"/>
+    <property name="build.test.classes" value="${build.home}/test/classes"/>
+    <property environment="env"/>
+    <property name="tomcat.home" value="${env.CATALINA_HOME}"/>
     <property name="sigmakee.home" value="${env.SIGMA_SRC}" />
-  <property name="dist.home" value="${tomcat.home}/webapps"/>
-  <property name="deploy.home" value="${tomcat.home}/webapps/${app.name}"/>
-  <property name="deploy.classes" value="${deploy.home}/WEB-INF/classes"/>
-  <property name="deploy.lib" value="${deploy.home}/WEB-INF/lib"/>
-  <property name="dist.war" value="sigmaAntlr.war"/>
-  <property name="javadoc.home" value="doc/api"/>
-  <property name="build.javadoc" value="${build.home}/${javadoc.home}"/>
+    <property name="dist.home" value="${tomcat.home}/webapps"/>
+    <property name="deploy.home" value="${tomcat.home}/webapps/${app.name}"/>
+    <property name="deploy.classes" value="${deploy.home}/WEB-INF/classes"/>
+    <property name="deploy.lib" value="${deploy.home}/WEB-INF/lib"/>
+    <property name="dist.war" value="sigmaAntlr.war"/>
+    <property name="javadoc.home" value="doc/api"/>
+    <property name="build.javadoc" value="${build.home}/${javadoc.home}"/>
+    <property name="reports.dir" value="${build.home}/test/results"/>
+    <property name="report.html" value="file:${basedir}/${reports.dir}/html/index.html"/>
+    <property name="unit.test.suite" value="com.articulate.sigma.UnitTestSuite"/>
+    <property name="integration.test.suite" value="com.articulate.sigma.IntegrationTestSuite"/>
+    <property name="test.unit.dir" value="src/test/java"/>
+
+    <property name="javac.release" value="11"/>
+    <property name="run.jvmargs" value="-Xmx10g -Xss1m"/>
 
     <path id="sourcepath">
-        <dirset dir="${basedir}">
-        <include name="src/java/com/articulate/sigma"/>
-        <include name="src/test/java/com/articulate/sigma"/>
-        </dirset>
+        <pathelement path="src/java"/>
+        <pathelement path="src/java/com/articulate/sigma"/>
     </path>
 
-    <path id="compile.classpath">
-        <fileset dir="${basedir}/lib">
-            <include name="*.jar"/>
-        </fileset>
+    <path id="test.sourcepath">
+        <pathelement path="${test.unit.dir}/com/articulate/sigma"/>
     </path>
 
-    <echo message="CATALINA_HOME is set to = ${env.CATALINA_HOME}"/>
-    <echo message="SIGMA_HOME is set to = ${env.SIGMA_HOME}"/>
-    <echo message="SIGMA_SRC is set to = ${env.SIGMA_SRC}"/>
-    <echo message="KBs_HOME is set to = ${kbs.home}" />
-    <echo>Java Version via Ant: ${ant.java.version}</echo>
-    <echo>Java Version System Prop: ${java.version}</echo>
-    <pathconvert property="classpathInName" refid="compile.classpath" />
-    <echo>Classpath is ${classpathInName}</echo>
+    <target name="init" depends="init-ivy">
+        <condition property="jdk21+">
+            <javaversion atleast="21"/>
+        </condition>
+        <fail message="Unsupported JDK version: ${ant.java.version}. Please use a Java Development Kit (JDK) version 21 or greater."
+              unless="jdk21+">
+        </fail>
+        <condition property="nojdk">
+            <contains string="${java.home}" substring="jdk"/>
+        </condition>
+        <fail message="Please install a Java Development Kit (JDK) version 21 or greater."
+              unless="nojdk">
+        </fail>
 
-<target name="init">
-    <ant antfile="../sigmakee/build.xml" inheritAll="false" target="all" />
-    <copy todir="${basedir}/lib" file="${sigmakee.home}/build/sigmakee.jar" />
-</target>
+        <echo message="CATALINA_HOME is set to = ${env.CATALINA_HOME}"/>
+        <echo message="SIGMA_HOME is set to = ${env.SIGMA_HOME}"/>
+        <echo message="SIGMA_SRC is set to = ${env.SIGMA_SRC}"/>
+        <echo message="KBs_HOME is set to = ${kbs.home}" />
+        <echo>Java Version via Ant: ${ant.java.version}</echo>
+        <echo>Java Version System Prop: ${java.version}</echo>
+        <pathconvert property="classpathInName" refid="compile.classpath" />
+        <echo>Classpath is ${classpathInName}</echo>
 
-<target name="compile" depends="init" description="Compile the project and place in ${build.classes}.">
-    <mkdir dir="${build.classes}"/>
-    <javac destdir="${build.classes}" debug="on" optimize="on" deprecation="on" includeantruntime="false" classpathref="compile.classpath">
-        <src refid="sourcepath"/>
-    </javac>
-    <copy todir="${build.lib}">
-        <fileset dir="${basedir}/lib" />
-    </copy>
-</target>
+        <ant antfile="../sigmakee/build.xml" inheritAll="false" target="all" />
+        <copy todir="${basedir}/lib" file="${sigmakee.home}/build/sigmakee.jar" />
+        <copy todir="${basedir}/lib" file="${sigmakee.home}/lib/sigmaUtils.jar" />
+        <copy todir="${basedir}/lib" file="${sigmakee.home}/lib/tptp.jar" />
+    </target>
 
-<!-- target name="all" depends="dist, api_doc" -->
-<target name="all" depends="compile">
-    <tstamp>
-        <format property="TODAY_US" pattern="yyyy-MM-dd HH:mm:ss:sss zzz" locale="en,US"/>
-    </tstamp>
-    <echo>the system date/time is ${TODAY_US}</echo>
-</target>
+    <!--
+    ============
+    BUILD / DIST
+    ============
+    -->
+
+    <target name="compile" depends="init" description="Compile the project and place in ${build.classes}.">
+        <mkdir dir="${build.classes}"/>
+        <javac destdir="${build.classes}"
+               debug="on"
+               optimize="on"
+               deprecation="on"
+               includeantruntime="false"
+               classpathref="compile.classpath"
+               release="${javac.release}">
+            <src refid="sourcepath"/>
+        </javac>
+    </target>
+
+    <target name="compile.test" depends="compile" description="Compile the project's test classes.">
+        <mkdir dir="${build.test.classes}"/>
+        <javac destdir="${build.test.classes}"
+               debug="on"
+               optimize="on"
+               deprecation="on"
+               includeantruntime="false"
+               classpathref="compile.test.classpath"
+               release="${javac.release}">
+            <src refid="test.sourcepath"/>
+        </javac>
+        <mkdir dir="${reports.dir}"/>
+    </target>
+
+    <!--
+    =====
+    ADMIN
+    =====
+    -->
+
+    <target name="dist" depends="compile" description="Create the *.jar file">
+        <jar destfile="${basedir}/${app.name}.jar">
+            <metainf file="LICENSE.txt"/>
+            <fileset dir="${build.classes}"/>
+        </jar>
+    </target>
+
+    <!-- target name="all" depends="dist, api_doc" -->
+    <target name="all" depends="compile.test">
+        <tstamp>
+            <format property="TODAY_US" pattern="yyyy-MM-dd HH:mm:ss:sss zzz" locale="en,US"/>
+        </tstamp>
+        <echo>the system date/time is ${TODAY_US}</echo>
+    </target>
+
+    <!-- Works only from the CLI -->
+    <target name="clean" description="Delete old build, lib, dist and deployed web aritifacts">
+        <delete includeemptydirs="true" failonerror="false">
+            <fileset dir="${build.home}"/> <!-- avoid problems with package name changes by deleting everything -->
+            <!-- Delete the old web code -->
+            <fileset dir="${deploy.home}"/>
+            <fileset dir="${tomcat.home}/work/Catalina/localhost/${app.name}"/>
+            <!-- Prune out of date dependencies -->
+            <fileset dir="${basedir}/lib">  <!-- keep ./lib -->
+                <include name="*.jar"/>
+            </fileset>
+        </delete>
+        <delete file="${dist.war}"/>
+    </target>
+
+    <!--
+    ==========
+    UNIT TESTS
+    ==========
+    -->
+
+    <target name="test" depends="test.unit,test.integration"/>
+    <target name="test.unit" depends="compile.test" description="Runs the UnitTestSuite">
+        <junit printsummary="yes"
+               showoutput="yes"
+               fork="yes">
+            <jvmarg line="${run.jvmargs}"/>
+            <formatter type="plain" usefile="false"/>
+            <classpath>
+                <path refid="run.test.classpath"/>
+            </classpath>
+            <test name="${unit.test.suite}" haltonfailure="no" todir="${reports.dir}">
+                <formatter type="xml"/>
+            </test>
+        </junit>
+        <antcall target="junit.report"/>
+    </target>
+    <!-- Make sure the ~/.sigmakee/KBs/config.xml only has top and mid loaded
+         before running integration tests.
+    -->
+    <target name="test.integration" depends="compile.test" description="Runs the IntegrationTestSuite">
+        <junit printsummary="yes"
+               showoutput="yes"
+               fork="yes">
+            <jvmarg line="${run.jvmargs}"/>
+            <formatter type="plain" usefile="false"/>
+            <classpath>
+                <path refid="run.test.classpath"/>
+            </classpath>
+            <test name="${integration.test.suite}" haltonfailure="no" todir="${reports.dir}">
+                <formatter type="xml"/>
+            </test>
+        </junit>
+        <antcall target="junit.report"/>
+    </target>
+    <target name="junit.report" >
+        <junitreport todir="${reports.dir}">
+            <fileset dir="${reports.dir}">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report format="frames" todir="${reports.dir}/html"/>
+        </junitreport>
+        <antcall target="open.junit.report"/>
+    </target>
+    <target name="open.junit.report" depends="report.mac,report.unix"/>
+    <target name="report.mac">
+        <exec executable="sh" osfamily="mac">
+            <arg value="-c"/>
+            <arg value="open -u ${report.html}"/>
+        </exec>
+    </target>
+    <target name="report.unix" if="isUnixNotMac">
+        <exec executable="sh" osfamily="unix">
+            <arg value="xdg-open ${report.html}"/>
+        </exec>
+    </target>
 
 </project>
- 
+

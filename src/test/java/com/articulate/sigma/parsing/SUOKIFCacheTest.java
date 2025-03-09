@@ -2,29 +2,19 @@ package com.articulate.sigma.parsing;
 
 import com.articulate.sigma.Formula;
 import com.articulate.sigma.UnitTestBase;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CodePointCharStream;
-import org.antlr.v4.runtime.CommonTokenStream;
 import org.junit.Test;
 
-import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class SUOKIFCacheTest extends UnitTestBase {
 
-    public static HashMap<Integer, FormulaAST> process(String input) {
+    public static Map<Integer, FormulaAST> process(String input) {
 
         System.out.println(input);
-        CodePointCharStream inputStream = CharStreams.fromString(input);
-        SuokifLexer suokifLexer = new SuokifLexer(inputStream);
-        CommonTokenStream commonTokenStream = new CommonTokenStream(suokifLexer);
-        SuokifParser suokifParser = new SuokifParser(commonTokenStream);
-        SuokifParser.FileContext fileContext = suokifParser.file();
-        SuokifVisitor visitor = new SuokifVisitor();
-        visitor.visitFile(fileContext);
-        HashMap<Integer,FormulaAST> hm = visitor.result;
+        SuokifVisitor.parseString(input);
+        Map<Integer,FormulaAST> hm = SuokifVisitor.result;
         return hm;
     }
 
@@ -33,9 +23,9 @@ public class SUOKIFCacheTest extends UnitTestBase {
     @Test
     public void test1() {
 
+        System.out.println("===================== SUOKIFCacheTest.test1() =====================");
         String input = "(likes John Mary)";
-
-        HashMap<Integer,FormulaAST> hm = process(input);
+        Map<Integer,FormulaAST> hm = process(input);
         Formula f = hm.values().iterator().next();
         f.printCaches();
         System.out.println("termCache: " + f.termCache);
@@ -49,9 +39,9 @@ public class SUOKIFCacheTest extends UnitTestBase {
     @Test
     public void test2() {
 
-        System.out.println("SUOKIFCacheText.test2():");
+        System.out.println("===================== SUOKIFCacheTest.test2() =====================");
         String input = "(=> (and (minValue ?R ?ARG ?N) (?R @ARGS) (equal ?VAL (ListOrderFn (ListFn @ARGS) ?ARG))) (greaterThan ?VAL ?N))";
-        HashMap<Integer,FormulaAST> hm = process(input);
+        Map<Integer,FormulaAST> hm = process(input);
         FormulaAST f = hm.values().iterator().next();
         f.printCaches();
         String expected = "[minValue, ListOrderFn, ListFn, greaterThan]";
@@ -63,13 +53,13 @@ public class SUOKIFCacheTest extends UnitTestBase {
         System.out.println("SUOKIFCacheText.test2(): actual row var cache: " + f.rowVarCache.toString());
         assertEquals(expected,f.rowVarCache.toString());
         expected = "\tListOrderFn\t1: (ListFn@ARGS), 2: ?ARG, \n";
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         String pred = "ListOrderFn";
-        sb.append("\t" + pred + "\t");
+        sb.append("\t").append(pred).append("\t");
         for (Integer i : f.argMap.get(pred).keySet()) {
-            sb.append(i + ": ");
+            sb.append(i).append(": ");
             for (SuokifParser.ArgumentContext c : f.argMap.get(pred).get(i)) {
-                sb.append(c.getText() + ", ");
+                sb.append(c.getText()).append(", ");
             }
         }
         sb.append("\n");
@@ -82,6 +72,7 @@ public class SUOKIFCacheTest extends UnitTestBase {
     @Test
     public void test3() {
 
+        System.out.println("===================== SUOKIFCacheTest.test3() =====================");
         String input = "(=>\n" +
                 "    (and\n" +
                 "        (attribute ?SYLLABLE Stressed)\n" +
@@ -95,8 +86,7 @@ public class SUOKIFCacheTest extends UnitTestBase {
                 "                (attribute ?SYLLABLE2 Stressed)\n" +
                 "                (not\n" +
                 "                    (equal ?SYLLABLE2 ?SYLLABLE))))))";
-        HashMap<Integer,FormulaAST> hm = process(input);
-        StringBuilder sb = new StringBuilder();
+        Map<Integer,FormulaAST> hm = process(input);
         Formula f = hm.values().iterator().next();
         f.printCaches();
         String expected = "[?SYLLABLE2]";

@@ -1,33 +1,23 @@
 package com.articulate.sigma.parsing;
 
 import com.articulate.sigma.Formula;
-import com.articulate.sigma.KB;
-import com.articulate.sigma.KBmanager;
-import com.articulate.sigma.UnitTestBase;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CodePointCharStream;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.junit.BeforeClass;
+import com.articulate.sigma.IntegrationTestBase;
 import org.junit.Test;
 
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import org.junit.After;
 
 import static org.junit.Assert.assertEquals;
 
-public class SortalTest extends UnitTestBase {
+public class SortalTest extends IntegrationTestBase {
 
-    public static KB kb = null;
+    static Sortals s;
 
-    /***************************************************************
-     * */
-    @BeforeClass
-    public static void setup()  {
-
-        KBmanager.getMgr().initializeOnce();
-        kb = KBmanager.getMgr().getKB(KBmanager.getMgr().getPref("sumokbname"));
-        long startTime = System.currentTimeMillis();
-        long endTime = System.currentTimeMillis();
+    @After
+    public void afterClass() {
+        s = null;
     }
 
     /***************************************************************
@@ -35,20 +25,13 @@ public class SortalTest extends UnitTestBase {
     public static String process(String input, String expected) {
 
         System.out.println("Input: " + input);
-        CodePointCharStream inputStream = CharStreams.fromString(input);
-        SuokifLexer suokifLexer = new SuokifLexer(inputStream);
-        CommonTokenStream commonTokenStream = new CommonTokenStream(suokifLexer);
-        SuokifParser suokifParser = new SuokifParser(commonTokenStream);
-        SuokifParser.FileContext fileContext = suokifParser.file();
-        SuokifVisitor visitor = new SuokifVisitor();
-        visitor.visitFile(fileContext);
-        HashMap<Integer,FormulaAST> hm = visitor.result;
+        SuokifVisitor.parseString(input);
+        Map<Integer,FormulaAST> hm = SuokifVisitor.result;
         VarTypes vt = new VarTypes(hm.values(),kb);
         vt.findTypes();
-        StringBuilder sb = new StringBuilder();
         FormulaAST f = hm.values().iterator().next();
         f.printCaches();
-        Sortals s = new Sortals(kb);
+        s = new Sortals(kb);
         s.winnowAllTypes(f);
         String result = s.addSortals(f);
         Formula resultf = new Formula(result);
@@ -58,7 +41,7 @@ public class SortalTest extends UnitTestBase {
         if (resultf.equals(expectedf))
             System.out.println("Success");
         else
-            System.out.println("FAIL");
+            System.err.println("FAIL");
         return result;
     }
 
@@ -67,7 +50,7 @@ public class SortalTest extends UnitTestBase {
     @Test
     public void test1() {
 
-        System.out.println("test1()");
+        System.out.println("===================== SortalTest.test1() =====================");
         String input = "(=> (and (minValue ?R ?ARG ?N) (?R @ARGS) (equal ?VAL (ListOrderFn (ListFn @ARGS) ?ARG))) (greaterThan ?VAL ?N))";
         String expected = "(=> " +
                 "(and " +
@@ -90,7 +73,7 @@ public class SortalTest extends UnitTestBase {
     @Test
     public void test2() {
 
-        System.out.println("test2()");
+        System.out.println("===================== SortalTest.test2() =====================");
         String input = "(<=>\n" +
                 "  (instance ?OBJ SelfConnectedObject)\n" +
                 "  (forall (?PART1 ?PART2)\n" +
@@ -117,7 +100,7 @@ public class SortalTest extends UnitTestBase {
     @Test
     public void test3() {
 
-        System.out.println("test2()");
+        System.out.println("===================== SortalTest.test3() =====================");
         String input = "(=>\n" +
                 "  (and\n" +
                 "    (valence identityElement ?NUMBER)\n" +
@@ -153,7 +136,7 @@ public class SortalTest extends UnitTestBase {
     @Test
     public void elimTypes() {
 
-        System.out.println("elimTypes()");
+        System.out.println("===================== SortalTest.elimTypes() =====================");
         String input = "\n" +
                 "(<=>\n" +
                 "    (and\n" +
@@ -177,31 +160,24 @@ public class SortalTest extends UnitTestBase {
                 "                    (?REL @ROW ?ITEM))))))";
 
         System.out.println("Input: " + input);
-        CodePointCharStream inputStream = CharStreams.fromString(input);
-        SuokifLexer suokifLexer = new SuokifLexer(inputStream);
-        CommonTokenStream commonTokenStream = new CommonTokenStream(suokifLexer);
-        SuokifParser suokifParser = new SuokifParser(commonTokenStream);
-        SuokifParser.FileContext fileContext = suokifParser.file();
-        SuokifVisitor visitor = new SuokifVisitor();
-        visitor.visitFile(fileContext);
-        HashMap<Integer,FormulaAST> hm = visitor.result;
+        SuokifVisitor.parseString(input);
+        Map<Integer,FormulaAST> hm = SuokifVisitor.result;
         VarTypes vt = new VarTypes(hm.values(),kb);
         vt.findTypes();
-        StringBuilder sb = new StringBuilder();
         FormulaAST f = hm.values().iterator().next();
         f.printCaches();
-        Sortals s = new Sortals(kb);
+        s = new Sortals(kb);
         s.elimSubsumedTypes(f);
-        HashSet<String> expected = new HashSet<>();
+        Set<String> expected = new HashSet<>();
         expected.add("TotalValuedRelation");
         expected.add("Predicate");
-        HashSet<String> actual = f.varTypes.get("?REL");
+        Set<String> actual = f.varTypes.get("?REL");
         System.out.println("SortalTest.elimTypes(): expected: " + expected);
         System.out.println("SortalTest.elimTypes(): actual: " + actual);
         if (expected.equals(actual))
             System.out.println("SortalTest.elimTypes(): success");
         else
-            System.out.println("SortalTest.elimTypes(): fail");
+            System.err.println("SortalTest.elimTypes(): fail");
         assertEquals(expected,actual);
     }
 }
