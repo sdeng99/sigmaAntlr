@@ -87,8 +87,8 @@
     ===================
     -->
 
-    <target name="test" depends="test.unit,test.integration"/>
     <target name="test.unit" depends="clean,compile.test" description="Runs the UnitTestSuite">
+        <ant antfile="${sigma_src}/nbproject/ide-targets.xml" target="prep.unit.config" useNativeBasedir="true" inheritAll="false"/>
         <junit printsummary="yes"
                showoutput="yes"
                fork="yes">
