@@ -7,6 +7,8 @@ import com.articulate.sigma.utils.StringUtil;
 import com.articulate.sigma.utils.FileUtil;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -133,7 +135,7 @@ public class TPTPWriter {
         if (debug) System.out.println("Visiting argument: " + context.getText());
         if (debug) System.out.println("# children: " + context.children.size());
         if (context.children.size() != 1)
-            System.out.println("error in visitArgument() wrong # children: " + context.children.size());
+            System.err.println("Error in visitArgument() wrong # children: " + context.children.size());
         if (debug) System.out.println("text: " + context.getText());
         for (ParseTree c : context.children) {
             if (debug) System.out.println("child of argument: " + c.getClass().getName());
@@ -154,7 +156,7 @@ public class TPTPWriter {
         if (debug) System.out.println("Visiting logsent: " + context.getText());
         if (debug) System.out.println("# children: " + context.children.size());
         if (context.children.size() != 1)
-            System.out.println("error in visitLogsent() wrong # children: " + context.children.size());
+            System.err.println("Error in visitLogsent() wrong # children: " + context.children.size());
         if (debug) System.out.println("text: " + context.getText());
         for (ParseTree c : context.children) {
             if (debug) System.out.println("visitLogsent() child: " + c.getClass().getName());
@@ -410,7 +412,7 @@ public class TPTPWriter {
         if (debug) System.out.println("visitTerm() Visiting Term: " + context.getText());
         if (debug) System.out.println("visitTerm() # children: " + context.children.size());
         if (context.children.size() != 1)
-            System.out.println("error in visitTerm() wrong # children: " + context.children.size());
+            System.err.println("Error in visitTerm() wrong # children: " + context.children.size());
         if (debug) System.out.println("visitTerm() text: " + context.getText());
         if (context.IDENTIFIER() != null) {
             String ident = context.IDENTIFIER().toString();
@@ -522,7 +524,8 @@ public class TPTPWriter {
 
         long start = System.currentTimeMillis();
         SuokifVisitor sv = new SuokifVisitor();
-        sv.parseFile(System.getenv("SIGMA_HOME") + File.separator + "KBs" + File.separator + "Merge.kif");  // 1. Parsing
+        Path path = Paths.get(System.getenv("SIGMA_HOME") + File.separator + "KBs" + File.separator + "Merge.kif");
+        sv.parseFile(path.toFile());  // 1. Parsing
         long end = (System.currentTimeMillis()-start)/1000;
         System.out.println("# TPTPWriter.translate(): # time to parse: " + end);
         start = System.currentTimeMillis();
