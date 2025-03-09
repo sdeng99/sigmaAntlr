@@ -2,11 +2,13 @@ package com.articulate.sigma.parsing;
 
 import com.articulate.sigma.*;
 import com.articulate.sigma.utils.MapUtils;
+import java.io.File;
 
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
@@ -23,52 +25,53 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
     public Set<FormulaAST> rules = new HashSet<>();
     public Set<FormulaAST> nonRulePredRow = new HashSet<>(); // the formulas that are not rules
     public Set<FormulaAST> ground = new HashSet<>(); // formulas with no variables
-    //public Set<SigmaError> errors = new HashSet<>();
+    public Set<String> errors;
 
     /** ***************************************************************
      */
     public SuokifVisitor() {
         result = new HashMap<>();
         keys = new HashMap<>();
+
+        errors = new TreeSet<>();
     }
 
     /** ***************************************************************
+     * Parse SUO-KIF from a file
+     * @param fname the path to a file contianing SUO-KIF
      */
-    public void parseFile(String fname) {
+    public void parseFile(File fname) {
 
-        CharStream inputStream = null;
+        CharStream inputStream;
         try {
-            inputStream = CharStreams.fromFileName(fname);
+            inputStream = CharStreams.fromFileName(fname.getAbsolutePath());
+            parse_common(inputStream);
         }
-        catch (IOException e) {
-            e.printStackTrace();
+        catch (IOException ex) {
+            System.err.println(ex.getMessage());
+            errors.add(ex.getMessage());
         }
-        SuokifLexer suokifLexer = new SuokifLexer(inputStream);
-        CommonTokenStream commonTokenStream = new CommonTokenStream(suokifLexer);
-        SuokifParser suokifParser = new SuokifParser(commonTokenStream);
-        SuokifParser.FileContext fileContext = suokifParser.file();
-        visitFile(fileContext);
     }
 
     /** ***************************************************************
      * Parse a single formula and use this SuokifVisitor to process
      * as the cached information for the formula.
-     * @return a Map that should have a single formula
+     * @return an instance for accessing a Map that should have a single formula
      */
     public static SuokifVisitor parseString(String input) {
 
         if (debug) System.out.println(input);
         CharStream inputStream = CharStreams.fromString(input);
-        SuokifLexer suokifLexer = new SuokifLexer(inputStream);
-        CommonTokenStream commonTokenStream = new CommonTokenStream(suokifLexer);
-        SuokifParser suokifParser = new SuokifParser(commonTokenStream);
-        SuokifParser.FileContext fileContext = suokifParser.file();
         SuokifVisitor visitor = new SuokifVisitor();
-        visitor.visitFile(fileContext);
-        Map<Integer,FormulaAST> hm = SuokifVisitor.result;
-        result = hm;
-        if (hm == null || hm.values().isEmpty())
-            System.err.println("Error in SuokifVisitor.parseString(): no results for input: "  + input);
+        if (visitor.parse_common(inputStream)) {
+            Map<Integer,FormulaAST> hm = SuokifVisitor.result;
+            result = hm;
+            if (hm == null || hm.values().isEmpty()) {
+                String errStr = "Error in SuokifVisitor.parseString(): no results for input: "  + input;
+                System.err.println(errStr);
+                visitor.errors.add(errStr);
+            }
+        }
         return visitor;
     }
 
@@ -76,30 +79,45 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
      * Parse a single formula and use this SuokifVisitor to process
      * as the cached information for the formula. Copy the formula
      * meta-data to the new formulas.
-     * @return a Map that should have a single formula
+     * @return an instance for accessing a Map that should have a single formula
      */
     public static SuokifVisitor parseFormula(FormulaAST input) {
 
         if (debug) System.out.println(input);
-        CodePointCharStream inputStream = CharStreams.fromString(input.getFormula());
-        SuokifLexer suokifLexer = new SuokifLexer(inputStream);
-        CommonTokenStream commonTokenStream = new CommonTokenStream(suokifLexer);
-        SuokifParser suokifParser = new SuokifParser(commonTokenStream);
-        SuokifParser.FileContext fileContext = suokifParser.file();
-        SuokifVisitor visitor = new SuokifVisitor();
-        visitor.visitFile(fileContext);
-        Map<Integer,FormulaAST> hm = SuokifVisitor.result;
-        result = hm;
-        if (hm == null || hm.values().isEmpty())
-            System.err.println("Error in SuokifVisitor.parseString(): no results for input: "  + input);
-        else {
-            for (FormulaAST f : hm.values()) {
-                f.startLine = input.startLine;
-                f.endLine = input.endLine;
-                f.sourceFile = input.sourceFile;
+        SuokifVisitor visitor = SuokifVisitor.parseString(input.getFormula());
+        if (visitor.errors.isEmpty()) {
+            Map<Integer,FormulaAST> hm = SuokifVisitor.result;
+            if (hm != null && !hm.values().isEmpty()) {
+                for (FormulaAST f : hm.values()) {
+                    f.startLine = input.startLine;
+                    f.endLine = input.endLine;
+                    f.sourceFile = input.sourceFile;
+                }
+            } else {
+                String errStr = "Error in SuokifVisitor.parseString(): no results for input: "  + input;
+                System.err.println(errStr);
+                visitor.errors.add(errStr);
             }
         }
         return visitor;
+    }
+
+    private boolean parse_common(CharStream inputStream) {
+
+        SuokifLexer suokifLexer = new SuokifLexer(inputStream);
+        CommonTokenStream commonTokenStream = new CommonTokenStream(suokifLexer);
+        SuokifParser suokifParser = new SuokifParser(commonTokenStream);
+        suokifParser.removeErrorListeners();
+        suokifParser.addErrorListener(new SuokifParserErrorListener());
+        SuokifParser.FileContext fileContext = null;
+        try {
+            fileContext = suokifParser.file();
+            visitFile(fileContext);
+        } catch (IllegalArgumentException ex) {
+            System.err.println(ex.getMessage());
+            errors.add(ex.getMessage());
+        }
+        return errors.isEmpty();
     }
 
     /** ***************************************************************
@@ -970,13 +988,12 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         else {
             if (args != null && args.length > 1 && args[0].equals("-f")) {
                 SuokifVisitor sv = new SuokifVisitor();
-                sv.parseFile(args[1]);
+                sv.parseFile(Paths.get(args[1]).toFile());
                 Map<Integer,FormulaAST> hm = SuokifVisitor.result;
-                Set<Integer> keyz = new TreeSet<>();
-                for (Integer i : hm.keySet())
-                    keyz.add(i);
-                for (Integer i : keyz)
-                    System.out.println(hm.get(i));
+                StringBuilder sb = new StringBuilder();
+                for (FormulaAST f : hm.values())
+                    sb.append(f.getFormula()).append("\n");
+                System.out.println("result: " + sb);
             }
             else
                 showHelp();
