@@ -64,32 +64,37 @@ public class VarTypes {
             else if (kb.kbCache.isInstanceOf(ident,sigType))
                 type = kb.immediateParents(ident).iterator().next();
             else
-                System.out.println("error in findTypeOfTerm(): signature " + sigType + " doesn't allow " + ident);
+                System.err.println("Error in findTypeOfTerm(): signature " + sigType + " doesn't allow " + ident);
         }
         for (ParseTree c : ((SuokifParser.TermContext) input).children) {
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$FuntermContext"))
-                type = findTypeOfFunterm((SuokifParser.FuntermContext) c);
-            else if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$VariableContext"))
-                MapUtils.addToMap(varTypeMap, c.getText(),sigType);
-            else if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$StringContext")) {
-                if (!sigType.equals("SymbolicString"))
-                    System.out.println("error in findTypeOfTerm(): signature doesn't allow string " + c.getText());
-                else
-                    type = "SymbolicString";
-            }
-            else if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$NumberContext")) {
-                if (!kb.kbCache.subclassOf(sigType,"Quantity") && !sigType.equals("Quantity"))
-                    System.out.println("error in findTypeOfTerm(): signature doesn't allow number " + c.getText());
-                else {
-                    if (c.getText().contains("."))
-                        type = "RealNumber";
+            switch (c.getClass().getName()) {
+                case "com.articulate.sigma.parsing.SuokifParser$FuntermContext":
+                    type = findTypeOfFunterm((SuokifParser.FuntermContext) c);
+                    break;
+                case "com.articulate.sigma.parsing.SuokifParser$VariableContext":
+                    MapUtils.addToMap(varTypeMap, c.getText(),sigType);
+                    break;
+                case "com.articulate.sigma.parsing.SuokifParser$StringContext":
+                    if (!sigType.equals("SymbolicString"))
+                        System.err.println("Error in findTypeOfTerm(): signature doesn't allow string " + c.getText());
                     else
-                        type = "Integer";
-                    if (c.getText().startsWith("-"))
-                        type = "Negative" + type;
-                    else
-                        type = "Positive" + type;
-                }
+                        type = "SymbolicString";
+                    break;
+                case "com.articulate.sigma.parsing.SuokifParser$NumberContext":
+                    if (!kb.kbCache.subclassOf(sigType,"Quantity") && !sigType.equals("Quantity"))
+                        System.err.println("Error in findTypeOfTerm(): signature doesn't allow number " + c.getText());
+                    else {
+                        if (c.getText().contains("."))
+                            type = "RealNumber";
+                        else
+                            type = "Integer";
+                        if (c.getText().startsWith("-"))
+                            type = "Negative" + type;
+                        else
+                            type = "Positive" + type;
+                    }   break;
+                default:
+                    break;
             }
         }
         return type;
@@ -106,17 +111,20 @@ public class VarTypes {
     public void findEquationType(FormulaAST f) {
 
         if (debug) System.out.println("VarTypes.findEquationType(): input: " + f);
+        String var = null, type = null, funterm;
+        SuokifParser.TermContext arg1;
+        SuokifParser.TermContext arg2;
+        ParseTree child1;
+        ParseTree child2;
         for (List<SuokifParser.TermContext> pair : f.eqList) {
-            String var = null;
-            String type = null;
-            SuokifParser.TermContext arg1 = pair.get(0);
-            SuokifParser.TermContext arg2 = pair.get(1);
-            ParseTree child1 = arg1.children.iterator().next();
-            ParseTree child2 = arg2.children.iterator().next();
+            arg1 = pair.get(0);
+            arg2 = pair.get(1);
+            child1 = arg1.children.iterator().next();
+            child2 = arg2.children.iterator().next();
             if (arg1.IDENTIFIER() != null)
                 type = findTypeOfTerm(arg1,"Entity");
             else if (child1.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$FuntermContext")) {
-                String funterm = ((SuokifParser.FuntermContext) child1).FUNWORD().toString();
+                funterm = ((SuokifParser.FuntermContext) child1).FUNWORD().toString();
                 type = kb.kbCache.getRange(funterm);
             }
             else if (child1.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$VariableContext")) {
@@ -130,7 +138,7 @@ public class VarTypes {
             if (arg2.IDENTIFIER() != null)
                 type = findTypeOfTerm(arg2,"Entity");
             else if (child2.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$FuntermContext")) {
-                String funterm = ((SuokifParser.FuntermContext) child2).FUNWORD().toString();
+                funterm = ((SuokifParser.FuntermContext) child2).FUNWORD().toString();
                 type = kb.kbCache.getRange(funterm);
             }
             else if (child2.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$VariableContext")) {
@@ -159,9 +167,9 @@ public class VarTypes {
         if (sig == null || argsForIndex == null || argsForIndex.keySet().size() != sig.size()-1) { // signatures have a 0 element for function return type
             StringBuilder sb = new StringBuilder();
             for (Integer i : argsForIndex.keySet()) {
-                sb.append(i + " : ");
+                sb.append(i).append(" : ");
                 for (SuokifParser.ArgumentContext arg : argsForIndex.get(i))
-                    sb.append(arg.getText() + ", ");
+                    sb.append(arg.getText()).append(", ");
             }
             if (debug) System.out.println("VarTypes.constrainVars(): " + sb.toString());
             if (sb.toString().contains("@")) {
@@ -175,9 +183,9 @@ public class VarTypes {
                 System.out.print("argsForIndex: ");
                 if (argsForIndex != null) {
                     for (Integer i : argsForIndex.keySet()) {
-                        sb.append(i + " : ");
+                        sb.append(i).append(" : ");
                         for (SuokifParser.ArgumentContext arg : argsForIndex.get(i))
-                            sb.append(arg.getText() + ", ");
+                            sb.append(arg.getText()).append(", ");
                     }
                     System.out.println("VarTypes.constrainVars(): " + sb.toString());
                 }
@@ -186,9 +194,11 @@ public class VarTypes {
             }
         }
         else {
+            String sigTypeAtIndex, t;
+            Set<SuokifParser.ArgumentContext> args;
             for (Integer i : argsForIndex.keySet()) {
-                String sigTypeAtIndex = sig.get(i);
-                Set<SuokifParser.ArgumentContext> args = argsForIndex.get(i);
+                sigTypeAtIndex = sig.get(i);
+                args = argsForIndex.get(i);
                 for (SuokifParser.ArgumentContext ac : args) {
                     for (ParseTree c : ac.children) {
                         if (debug) System.out.println("child: " + c.getClass().getName());
@@ -205,7 +215,7 @@ public class VarTypes {
                             }
                         }
                         if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$TermContext")) {
-                            String t = findTypeOfTerm((SuokifParser.TermContext) c, sigTypeAtIndex);
+                            t = findTypeOfTerm((SuokifParser.TermContext) c, sigTypeAtIndex);
                             if (!sigTypeAtIndex.equals(t) && !kb.isSubclass(t,sigTypeAtIndex))
                                 System.err.println("Error in VarTypes.constrainVars(): arg " + c.getText() +
                                         " not allowed as argument " + i + " to relation " + rel + " in formula " + f);
@@ -235,6 +245,8 @@ public class VarTypes {
             SuokifParser.TermContext tc = (SuokifParser.TermContext) c;
             SuokifParser.ArgumentContext ac;
             SuokifParser.TermContext othertc;
+            int argnum;
+            String type = null;
             for (ParseTree firsttc : tc.children) {
                 if (debug) System.out.println("VarTypes.functionSpecializationAllowed(): firsttc expression type: " + firsttc.getClass().getName());
                 if (!firsttc.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$FuntermContext"))
@@ -246,8 +258,7 @@ public class VarTypes {
                         if (debug)
                             System.out.println("VarTypes.functionSpecializationAllowed(): funword: " + funword);
                         if (funword.equals("MeasureFn")) {
-                            int argnum = 1;
-                            String type = null;
+                            argnum = 1;
                             for (ParseTree ptc : fc.children) {
                                 if (debug) System.out.println("VarTypes.functionSpecializationAllowed(): argnum: " + argnum);
                                 if (debug) System.out.println("VarTypes.functionSpecializationAllowed(): ptc expression type: " + ptc.getClass().getName());
@@ -447,9 +458,10 @@ public class VarTypes {
     public void printContexts(Map<Integer, Set<SuokifParser.ArgumentContext>> args) {
 
         System.out.println("VarTypes.printContexts(): args: ");
+        Set<SuokifParser.ArgumentContext> argTypes;
         for (Integer i : args.keySet()) {
             System.out.print(i + ": {");
-            Set<SuokifParser.ArgumentContext> argTypes = args.get(i);
+            argTypes = args.get(i);
             for (SuokifParser.ArgumentContext ac : argTypes) {
                 System.out.print(ac.getText() + ", ");
             }
