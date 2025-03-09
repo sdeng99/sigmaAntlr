@@ -2,12 +2,9 @@ package com.articulate.sigma.parsing;
 
 import com.articulate.sigma.IntegrationTestBase;
 
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CodePointCharStream;
-import org.antlr.v4.runtime.CommonTokenStream;
-
 import java.util.Map;
 import java.util.Set;
+import org.junit.After;
 
 import org.junit.Test;
 
@@ -16,18 +13,19 @@ import static org.junit.Assert.assertTrue;
 
 public class PredVarInstTest extends IntegrationTestBase {
 
+    static PredVarInst pvi;
+
+    @After
+    public void afterClass() {
+        pvi = null;
+    }
+
     /***************************************************************
      * */
     public static int process(String input) {
 
         System.out.println("PredVarInstTest Input: " + input);
-        CodePointCharStream inputStream = CharStreams.fromString(input);
-        SuokifLexer suokifLexer = new SuokifLexer(inputStream);
-        CommonTokenStream commonTokenStream = new CommonTokenStream(suokifLexer);
-        SuokifParser suokifParser = new SuokifParser(commonTokenStream);
-        SuokifParser.FileContext fileContext = suokifParser.file();
-        SuokifVisitor visitor = new SuokifVisitor();
-        visitor.visitFile(fileContext);
+        SuokifVisitor.parseString(input);
         Map<Integer,FormulaAST> hm = SuokifVisitor.result;
         VarTypes vt = new VarTypes(hm.values(),kb);
         vt.findTypes();
@@ -39,7 +37,7 @@ public class PredVarInstTest extends IntegrationTestBase {
         System.out.println("PredVarInstTest.process(): varTypes after winnow: " + f.varTypes);
         String form = s.addSortals(f);
         f.setFormula(form);
-        PredVarInst pvi = new PredVarInst(kb);
+        pvi = new PredVarInst(kb);
         Set<FormulaAST> result = pvi.processOne(f);
 
         //Formula resultf = new Formula(result);

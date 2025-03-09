@@ -2,9 +2,6 @@ package com.articulate.sigma.parsing;
 
 import com.articulate.sigma.Formula;
 import com.articulate.sigma.UnitTestBase;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CodePointCharStream;
-import org.antlr.v4.runtime.CommonTokenStream;
 import org.junit.Test;
 
 import java.util.Map;
@@ -16,13 +13,7 @@ public class SUOKIFCacheTest extends UnitTestBase {
     public static Map<Integer, FormulaAST> process(String input) {
 
         System.out.println(input);
-        CodePointCharStream inputStream = CharStreams.fromString(input);
-        SuokifLexer suokifLexer = new SuokifLexer(inputStream);
-        CommonTokenStream commonTokenStream = new CommonTokenStream(suokifLexer);
-        SuokifParser suokifParser = new SuokifParser(commonTokenStream);
-        SuokifParser.FileContext fileContext = suokifParser.file();
-        SuokifVisitor visitor = new SuokifVisitor();
-        visitor.visitFile(fileContext);
+        SuokifVisitor.parseString(input);
         Map<Integer,FormulaAST> hm = SuokifVisitor.result;
         return hm;
     }

@@ -2,13 +2,26 @@ package com.articulate.sigma.parsing;
 
 import com.articulate.sigma.IntegrationTestBase;
 import com.articulate.sigma.KBmanager;
-import org.junit.Test;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Set;
 
+import org.junit.After;
+import org.junit.Test;
+
 public class PreprocessorTest extends IntegrationTestBase {
+
+    SuokifVisitor sv;
+    Preprocessor pre;
+
+    @After
+    public void afterClass() {
+        sv = null;
+        pre = null;
+    }
 
     /** ***************************************************************
      */
@@ -17,9 +30,10 @@ public class PreprocessorTest extends IntegrationTestBase {
 
         System.out.println("===================== PreprocessorTest.test1() =====================");
         long start = System.currentTimeMillis();
-        SuokifVisitor sv = new SuokifVisitor();
-        sv.parseFile(System.getenv("SIGMA_HOME") + File.separator + "KBs" + File.separator + "Merge.kif");
-        Preprocessor pre = new Preprocessor(KBmanager.getMgr().getKB(KBmanager.getMgr().getPref("sumokbname")));
+        sv = new SuokifVisitor();
+        Path path = Paths.get(System.getenv("SIGMA_HOME") + File.separator + "KBs" + File.separator + "Merge.kif");
+        sv.parseFile(path.toFile());
+        pre = new Preprocessor(KBmanager.getMgr().getKB(KBmanager.getMgr().getPref("sumokbname")));
 
         sv.hasPredVar.removeAll(sv.multiplePredVar); // remove explosive rules with multiple predicate variables
         sv.rules.removeAll(sv.multiplePredVar);
@@ -49,9 +63,9 @@ public class PreprocessorTest extends IntegrationTestBase {
                 "      (ListOrderFn\n" +
                 "        (ListFn @ARGS) ?ARG)))\n" +
                 "  (greaterThan ?N ?VAL))";
-        SuokifVisitor sv = SuokifVisitor.parseString(input);
+        sv = SuokifVisitor.parseString(input);
         System.out.println("PreprocessorTest.test2(): # rules: " + sv.rules.size());
-        Preprocessor pre = new Preprocessor(KBmanager.getMgr().getKB(KBmanager.getMgr().getPref("sumokbname")));
+        pre = new Preprocessor(KBmanager.getMgr().getKB(KBmanager.getMgr().getPref("sumokbname")));
         System.out.println("PreprocessorTest.test2(): # before preprocess: " + sv.rules.size());
         Collection<FormulaAST> rules = pre.preprocess(sv.hasPredVar,sv.hasRowVar,sv.rules);
         System.out.println("PreprocessorTest.test2(): # after preprocess: " + rules.size());

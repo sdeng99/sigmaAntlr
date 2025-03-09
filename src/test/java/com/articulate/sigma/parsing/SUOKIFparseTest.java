@@ -2,7 +2,6 @@ package com.articulate.sigma.parsing;
 
 import com.articulate.sigma.Formula;
 import com.articulate.sigma.UnitTestBase;
-import org.antlr.v4.runtime.*;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -14,18 +13,7 @@ public class SUOKIFparseTest extends UnitTestBase {
     public static Map<Integer,FormulaAST> process(String input) {
 
         System.out.println("process(): input: " + input);
-        CodePointCharStream inputStream = CharStreams.fromString(input);
-        //System.out.println("process(): inputStream: " + inputStream);
-        SuokifLexer suokifLexer = new SuokifLexer(inputStream);
-        //System.out.println("process(): lexer: " + suokifLexer);
-        CommonTokenStream commonTokenStream = new CommonTokenStream(suokifLexer);
-        //System.out.println("process(): commonTokenStream: " + commonTokenStream);
-        SuokifParser suokifParser = new SuokifParser(commonTokenStream);
-        //System.out.println("process(): suokifParser: " + suokifParser);
-        SuokifParser.FileContext fileContext = suokifParser.file();
-        //System.out.println("process(): fileContext: " + fileContext);
-        SuokifVisitor visitor = new SuokifVisitor();
-        visitor.visitFile(fileContext);
+        SuokifVisitor.parseString(input);
         //System.out.println("process(): visitor: " + visitor);
         //System.out.println("process(): visitor.result (before processing): " + visitor.result);
         Map<Integer,FormulaAST> hm = SuokifVisitor.result;
@@ -48,10 +36,10 @@ public class SUOKIFparseTest extends UnitTestBase {
             sb.append(f.getFormula()).append("\n");
         }
         System.out.println("result: " + sb);
-        if (input.equals(sb.toString().trim()))
+        if (input.trim().equals(sb.toString().trim()))
             System.out.println("test1(): success!");
         else
-            System.out.println("test1(): fail!");
+            System.err.println("test1(): fail!");
         assertEquals(input,sb.toString());
         System.out.println();
     }
@@ -73,7 +61,7 @@ public class SUOKIFparseTest extends UnitTestBase {
         if (input.equals(sb.toString().trim()))
             System.out.println("test2(): success!");
         else
-            System.out.println("test2(): fail!");
+            System.err.println("test2(): fail!");
         assertEquals(input,sb.toString().trim());
         System.out.println();
     }
@@ -95,7 +83,7 @@ public class SUOKIFparseTest extends UnitTestBase {
         if (input.equals(sb.toString().trim()))
             System.out.println("test3(): success!");
         else
-            System.out.println("test3(): fail!");
+            System.err.println("test3(): fail!");
         assertEquals(input,sb.toString().trim());
         System.out.println();
     }
@@ -114,13 +102,13 @@ public class SUOKIFparseTest extends UnitTestBase {
         if (f.predVarCache.isEmpty())
             System.out.println("predRowUnder(): success!");
         else
-            System.out.println("predRowUnder(): fail!");
+            System.err.println("predRowUnder(): fail!");
         assertEquals(0,f.predVarCache.size());
 
         if (f.rowVarCache.isEmpty())
             System.out.println("predRowUnder(): success!");
         else
-            System.out.println("predRowUnder(): fail!");
+            System.err.println("predRowUnder(): fail!");
         assertEquals(0,f.rowVarCache.size());
         System.out.println();
     }
@@ -140,12 +128,12 @@ public class SUOKIFparseTest extends UnitTestBase {
         if (f.predVarCache.isEmpty())
             System.out.println("predRow(): success!");
         else
-            System.out.println("predRow(): fail!");
+            System.err.println("predRow(): fail!");
         assertEquals(0,f.predVarCache.size());
         if (1 == f.rowVarCache.size())
             System.out.println("predRow(): success!");
         else
-            System.out.println("predRow(): fail!");
+            System.err.println("predRow(): fail!");
         assertEquals(1,f.rowVarCache.size());
         System.out.println();
     }
@@ -165,7 +153,7 @@ public class SUOKIFparseTest extends UnitTestBase {
         if (f.predVarCache.isEmpty())
             System.out.println("withSortals(): success!");
         else
-            System.out.println("withSortals(): fail!");
+            System.err.println("withSortals(): fail!");
         assertEquals(0,f.predVarCache.size());
         if (1 == f.rowVarCache.size())
             System.out.println("withSortals(): success!");

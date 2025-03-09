@@ -1,40 +1,45 @@
 package com.articulate.sigma.parsing;
 
 import com.articulate.sigma.IntegrationTestBase;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CodePointCharStream;
-import org.antlr.v4.runtime.CommonTokenStream;
 import org.junit.Test;
 
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import org.junit.After;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class RowVarTest extends IntegrationTestBase {
 
+    static SuokifVisitor visitor;
+    static Sortals sortals;
+    static VarTypes vt;
+    static RowVar rv;
+
+    @After
+    public void afterClass() {
+        visitor = null;
+        sortals = null;
+        vt = null;
+        rv = null;
+    }
+
     /***************************************************************
      * */
     public static Set<FormulaAST> process(String input) {
 
         System.out.println("RowVarTest.process(): " + input);
-        CodePointCharStream inputStream = CharStreams.fromString(input);
-        SuokifLexer suokifLexer = new SuokifLexer(inputStream);
-        CommonTokenStream commonTokenStream = new CommonTokenStream(suokifLexer);
-        SuokifParser suokifParser = new SuokifParser(commonTokenStream);
-        SuokifParser.FileContext fileContext = suokifParser.file();
-        SuokifVisitor visitor = new SuokifVisitor();
-        visitor.visitFile(fileContext);
+        visitor = SuokifVisitor.parseString(input);
         Map<Integer,FormulaAST> hm = SuokifVisitor.result;
         if (!visitor.hasPredVar.isEmpty()) {
             System.out.println("Error - can't have tests with pred vars in this routine.");
             return null;
         }
 //        PredVarInst pvi = new PredVarInst(kb);
-        Sortals sortals = new Sortals(kb);
-        VarTypes vt = new VarTypes(hm.values(),kb);
+        sortals = new Sortals(kb);
+        vt = new VarTypes(hm.values(),kb);
         vt.findTypes();
         for (FormulaAST f : visitor.rules) {
             //System.out.println("RowVarTest.process(): before winnow");
@@ -44,7 +49,7 @@ public class RowVarTest extends IntegrationTestBase {
             //f.printCaches();
         }
         PredVarInst.predVarInstDone = true; // because the test formulas already did it
-        RowVar rv = new RowVar(kb);
+        rv = new RowVar(kb);
         Set<FormulaAST> rvs = rv.expandRowVar(visitor.hasRowVar);
         //System.out.println("RowVarTest.process(): rvs" + rvs);
         return rvs;

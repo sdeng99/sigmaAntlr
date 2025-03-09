@@ -2,37 +2,36 @@ package com.articulate.sigma.parsing;
 
 import com.articulate.sigma.Formula;
 import com.articulate.sigma.IntegrationTestBase;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CodePointCharStream;
-import org.antlr.v4.runtime.CommonTokenStream;
 import org.junit.Test;
 
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import org.junit.After;
 
 import static org.junit.Assert.assertEquals;
 
 public class SortalTest extends IntegrationTestBase {
+
+    static Sortals s;
+
+    @After
+    public void afterClass() {
+        s = null;
+    }
 
     /***************************************************************
      * */
     public static String process(String input, String expected) {
 
         System.out.println("Input: " + input);
-        CodePointCharStream inputStream = CharStreams.fromString(input);
-        SuokifLexer suokifLexer = new SuokifLexer(inputStream);
-        CommonTokenStream commonTokenStream = new CommonTokenStream(suokifLexer);
-        SuokifParser suokifParser = new SuokifParser(commonTokenStream);
-        SuokifParser.FileContext fileContext = suokifParser.file();
-        SuokifVisitor visitor = new SuokifVisitor();
-        visitor.visitFile(fileContext);
+        SuokifVisitor.parseString(input);
         Map<Integer,FormulaAST> hm = SuokifVisitor.result;
         VarTypes vt = new VarTypes(hm.values(),kb);
         vt.findTypes();
         FormulaAST f = hm.values().iterator().next();
         f.printCaches();
-        Sortals s = new Sortals(kb);
+        s = new Sortals(kb);
         s.winnowAllTypes(f);
         String result = s.addSortals(f);
         Formula resultf = new Formula(result);
@@ -161,19 +160,13 @@ public class SortalTest extends IntegrationTestBase {
                 "                    (?REL @ROW ?ITEM))))))";
 
         System.out.println("Input: " + input);
-        CodePointCharStream inputStream = CharStreams.fromString(input);
-        SuokifLexer suokifLexer = new SuokifLexer(inputStream);
-        CommonTokenStream commonTokenStream = new CommonTokenStream(suokifLexer);
-        SuokifParser suokifParser = new SuokifParser(commonTokenStream);
-        SuokifParser.FileContext fileContext = suokifParser.file();
-        SuokifVisitor visitor = new SuokifVisitor();
-        visitor.visitFile(fileContext);
+        SuokifVisitor.parseString(input);
         Map<Integer,FormulaAST> hm = SuokifVisitor.result;
         VarTypes vt = new VarTypes(hm.values(),kb);
         vt.findTypes();
         FormulaAST f = hm.values().iterator().next();
         f.printCaches();
-        Sortals s = new Sortals(kb);
+        s = new Sortals(kb);
         s.elimSubsumedTypes(f);
         Set<String> expected = new HashSet<>();
         expected.add("TotalValuedRelation");

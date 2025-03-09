@@ -1,29 +1,25 @@
 package com.articulate.sigma.parsing;
 
 import com.articulate.sigma.IntegrationTestBase;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CodePointCharStream;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.junit.Test;
 
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import org.junit.After;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 
+import org.junit.After;
+import org.junit.Test;
+
 public class TypeTest extends IntegrationTestBase {
 
     static FormulaAST f;
-    static Set<String> errors = new TreeSet<>();
+    static SuokifVisitor visitor;
 
     @After
     public void afterTest() {
         f = null;
-        errors.clear();
+        visitor = null;
     }
 
     /***************************************************************
@@ -32,34 +28,21 @@ public class TypeTest extends IntegrationTestBase {
 
         String result = null;
         System.out.println("Input: " + input);
-        CodePointCharStream inputStream = CharStreams.fromString(input);
-        SuokifLexer suokifLexer = new SuokifLexer(inputStream);
-        CommonTokenStream commonTokenStream = new CommonTokenStream(suokifLexer);
-        SuokifParser suokifParser = new SuokifParser(commonTokenStream);
-        suokifParser.removeErrorListeners(); // remove the default ANTLR error listener
-        suokifParser.addErrorListener(new SuokifParserErrorListener());
-        SuokifParser.FileContext fileContext;
-        try {
-            fileContext = suokifParser.file();
-        } catch (IllegalArgumentException ex) {
-            System.err.println(ex.getMessage());
-            errors.add(ex.getMessage());
-            return result;
+        visitor = SuokifVisitor.parseString(input);
+        if (visitor.errors.isEmpty()) {
+            Map<Integer,FormulaAST> hm = SuokifVisitor.result;
+            VarTypes vt = new VarTypes(hm.values(),kb);
+            vt.findTypes();
+            f = hm.values().iterator().next();
+            f.printCaches();
+            result = f.varTypes.toString().trim();
+            System.out.println("Result: " + result);
+            System.out.println("expected: " + expected);
+            if (result.equals(expected))
+                System.out.println("Success");
+            else
+                System.err.println("FAIL");
         }
-        SuokifVisitor visitor = new SuokifVisitor();
-        visitor.visitFile(fileContext);
-        Map<Integer,FormulaAST> hm = SuokifVisitor.result;
-        VarTypes vt = new VarTypes(hm.values(),kb);
-        vt.findTypes();
-        f = hm.values().iterator().next();
-        f.printCaches();
-        result = f.varTypes.toString().trim();
-        System.out.println("Result: " + result);
-        System.out.println("expected: " + expected);
-        if (result.equals(expected))
-            System.out.println("Success");
-        else
-            System.err.println("FAIL");
         return result;
     }
 
@@ -129,7 +112,7 @@ public class TypeTest extends IntegrationTestBase {
         String expected = "{?REL=[Predicate], ?ARG=[Integer, PositiveInteger], ?N=[RealNumber, Quantity], ?VAL=[RealNumber, Entity]}";
         String result = process(input,expected);
         assertNull(result);
-        assertFalse(errors.isEmpty());
+        assertFalse(visitor.errors.isEmpty());
     }
 
     /** ***************************************************************
@@ -153,6 +136,6 @@ public class TypeTest extends IntegrationTestBase {
         String expected = "{?FW=[Following], ?STH2=[Physical], ?STH1=[Physical, Entity]}";
         String result = process(input,expected);
         assertNull(result);
-        assertFalse(errors.isEmpty());
+        assertFalse(visitor.errors.isEmpty());
     }
 }

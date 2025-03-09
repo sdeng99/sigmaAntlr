@@ -6,9 +6,21 @@ import com.articulate.sigma.utils.FileUtil;
 import org.junit.Test;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
+import org.junit.After;
 
 public class TPTPWriterTest  extends IntegrationTestBase {
+
+    SuokifVisitor sv;
+    Preprocessor pre;
+
+    @After
+    public void afterClass() {
+        sv = null;
+        pre = null;
+    }
 
     /** ***************************************************************
      */
@@ -17,9 +29,10 @@ public class TPTPWriterTest  extends IntegrationTestBase {
 
         System.out.println("===================== TPTPWriterTest.test1() =====================");
         long start = System.currentTimeMillis();
-        SuokifVisitor sv = new SuokifVisitor();
-        sv.parseFile(System.getenv("SIGMA_HOME") + File.separator + "KBs" + File.separator + "Merge.kif");
-        Preprocessor pre = new Preprocessor(KBmanager.getMgr().getKB(KBmanager.getMgr().getPref("sumokbname")));
+        sv = new SuokifVisitor();
+        Path path = Paths.get(System.getenv("SIGMA_HOME") + File.separator + "KBs" + File.separator + "Merge.kif");
+        sv.parseFile(path.toFile());
+        pre = new Preprocessor(KBmanager.getMgr().getKB(KBmanager.getMgr().getPref("sumokbname")));
 
         Preprocessor.removeMultiplePredVar(sv); // remove explosive rules with multiple predicate variables
 
@@ -60,8 +73,8 @@ public class TPTPWriterTest  extends IntegrationTestBase {
                 "        (and\n" +
                 "            (equal ?NUMBER ?NUMBER1)\n" +
                 "            (equal ?NUMBER ?NUMBER2))))";
-        SuokifVisitor sv = SuokifVisitor.parseString(s);
-        Preprocessor pre = new Preprocessor(KBmanager.getMgr().getKB(KBmanager.getMgr().getPref("sumokbname")));
+        sv = SuokifVisitor.parseString(s);
+        pre = new Preprocessor(KBmanager.getMgr().getKB(KBmanager.getMgr().getPref("sumokbname")));
         sv.hasPredVar.removeAll(sv.multiplePredVar); // remove explosive rules with multiple predicate variables
         sv.rules.removeAll(sv.multiplePredVar);
         sv.hasRowVar.removeAll(sv.multiplePredVar);
