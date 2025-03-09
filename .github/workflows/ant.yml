@@ -20,7 +20,7 @@ permissions:
   checks: write
 
 jobs:
-  build:
+  build-test:
 
     runs-on: ubuntu-latest
 
@@ -60,7 +60,7 @@ jobs:
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
         uses: mxschmitt/action-tmate@v3
 
-      - name: Setup SigmaAntlr
+      - name: Setup SIGMA_HOME
         env:
           ONTOLOGYPORTAL_GIT: ${{ github.workspace }}
           SIGMA_HOME: ${{ github.workspace }}/sigmakee-runtime
@@ -88,8 +88,8 @@ jobs:
           ONTOLOGYPORTAL_GIT: ${{ github.workspace }}
           SIGMA_HOME: ${{ github.workspace }}/sigmakee-runtime
           SIGMA_SRC: ${{ github.workspace }}/sigmakee
-        run: ant
         working-directory: ./sigmaAntlr
+        run: ant
 
       - name: Prepare test env
         env:
@@ -109,8 +109,7 @@ jobs:
           SIGMA_HOME: ${{ github.workspace }}/sigmakee-runtime
           SIGMA_SRC: ${{ github.workspace }}/sigmakee
         working-directory: ./sigmaAntlr
-        run: |
-          ant test.unit
+        run: ant test.unit
 
       - name: Setup SIGMA_HOME for integration tests
         env:
@@ -148,5 +147,4 @@ jobs:
           SIGMA_HOME: ${{ github.workspace }}/sigmakee-runtime
           SIGMA_SRC: ${{ github.workspace }}/sigmakee
         working-directory: ./sigmaAntlr
-        run: |
-          ant test.integration
+        run: ant test.integration
