@@ -9,6 +9,7 @@ import org.antlr.v4.runtime.tree.*;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.text.Format;
 import java.util.*;
 
 public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
@@ -69,7 +70,7 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         visitor.parse_common(inputStream);
         Map<Integer,FormulaAST> hm = SuokifVisitor.result;
         if (hm == null || hm.values().isEmpty()) {
-            String errStr = "Error in SuokifVisitor.parseString(): no results for input: "  + input;
+            String errStr = "Error in SuokifVisitor.parseString(): no results for input: "  + Formula.textFormat(input);
             System.err.println(errStr);
         }
         return visitor;
