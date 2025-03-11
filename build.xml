@@ -69,7 +69,8 @@
     <property environment="env"/>
     <property name="tomcat.home" value="${env.CATALINA_HOME}"/>
     <property name="sigmakee.home" value="${env.SIGMA_SRC}" />
-    <property name="dist.home" value="${tomcat.home}/webapps"/>
+    <property name="git.home" value="${env.ONTOLOGYPPORTAL_GIT}"/>
+    <property name="kbs.home" value="${git.home}/sumo"/>
     <property name="javadoc.home" value="doc/api"/>
     <property name="build.javadoc" value="${build.home}/${javadoc.home}"/>
     <property name="reports.dir" value="${build.home}/test/results"/>
