@@ -70,10 +70,6 @@
     <property name="tomcat.home" value="${env.CATALINA_HOME}"/>
     <property name="sigmakee.home" value="${env.SIGMA_SRC}" />
     <property name="dist.home" value="${tomcat.home}/webapps"/>
-    <property name="deploy.home" value="${tomcat.home}/webapps/${app.name}"/>
-    <property name="deploy.classes" value="${deploy.home}/WEB-INF/classes"/>
-    <property name="deploy.lib" value="${deploy.home}/WEB-INF/lib"/>
-    <property name="dist.war" value="sigmaAntlr.war"/>
     <property name="javadoc.home" value="doc/api"/>
     <property name="build.javadoc" value="${build.home}/${javadoc.home}"/>
     <property name="reports.dir" value="${build.home}/test/results"/>
@@ -177,19 +173,15 @@
         <echo>the system date/time is ${TODAY_US}</echo>
     </target>
 
-    <!-- Works only from the CLI -->
     <target name="clean" description="Delete old build, lib, dist and deployed web aritifacts">
         <delete includeemptydirs="true" failonerror="false">
             <fileset dir="${build.home}"/> <!-- avoid problems with package name changes by deleting everything -->
-            <!-- Delete the old web code -->
-            <fileset dir="${deploy.home}"/>
-            <fileset dir="${tomcat.home}/work/Catalina/localhost/${app.name}"/>
             <!-- Prune out of date dependencies -->
             <fileset dir="${basedir}/lib">  <!-- keep ./lib -->
                 <include name="*.jar"/>
             </fileset>
         </delete>
-        <delete file="${dist.war}"/>
+        <delete file="${basedir}/${app.name}.jar"/>
     </target>
 
     <!--
