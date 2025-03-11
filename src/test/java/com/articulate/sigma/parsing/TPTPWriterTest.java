@@ -29,9 +29,8 @@ public class TPTPWriterTest  extends IntegrationTestBase {
 
         System.out.println("===================== TPTPWriterTest.test1() =====================");
         long start = System.currentTimeMillis();
-        sv = new SuokifVisitor();
         Path path = Paths.get(System.getenv("SIGMA_HOME") + File.separator + "KBs" + File.separator + "Merge.kif");
-        sv.parseFile(path.toFile());
+        sv = SuokifVisitor.parseFile(path.toFile());
         pre = new Preprocessor(KBmanager.getMgr().getKB(KBmanager.getMgr().getPref("sumokbname")));
 
         Preprocessor.removeMultiplePredVar(sv); // remove explosive rules with multiple predicate variables
