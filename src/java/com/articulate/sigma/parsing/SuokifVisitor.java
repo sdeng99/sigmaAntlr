@@ -30,27 +30,30 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
     /** ***************************************************************
      */
     public SuokifVisitor() {
+
         result = new HashMap<>();
         keys = new HashMap<>();
-
         errors = new TreeSet<>();
     }
 
     /** ***************************************************************
      * Parse SUO-KIF from a file
      * @param fname the path to a file contianing SUO-KIF
+     * @return an instance for accessing a Map that should have a single formula
      */
-    public void parseFile(File fname) {
+    public static SuokifVisitor parseFile(File fname) {
 
         CharStream inputStream;
+        SuokifVisitor visitor = new SuokifVisitor();
         try {
             inputStream = CharStreams.fromFileName(fname.getAbsolutePath());
-            parse_common(inputStream);
+            visitor.parse_common(inputStream);
         }
         catch (IOException ex) {
             System.err.println(ex.getMessage());
-            errors.add(ex.getMessage());
+            visitor.errors.add(ex.getMessage());
         }
+        return visitor;
     }
 
     /** ***************************************************************
