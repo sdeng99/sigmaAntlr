@@ -158,7 +158,7 @@
     =====
     -->
 
-    <target name="dist" depends="compile" description="Create the *.jar file">
+    <target name="dist" depends="compile.test" description="Create the *.jar file">
         <jar destfile="${basedir}/${app.name}.jar">
             <metainf file="LICENSE.txt"/>
             <fileset dir="${build.classes}"/>
@@ -166,7 +166,7 @@
     </target>
 
     <!-- target name="all" depends="dist, api_doc" -->
-    <target name="all" depends="compile.test">
+    <target name="all" depends="clean,dist">
         <tstamp>
             <format property="TODAY_US" pattern="yyyy-MM-dd HH:mm:ss:sss zzz" locale="en,US"/>
         </tstamp>
