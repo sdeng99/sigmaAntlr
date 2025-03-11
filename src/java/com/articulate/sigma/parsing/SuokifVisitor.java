@@ -38,7 +38,7 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
 
     /** ***************************************************************
      * Parse SUO-KIF from a file
-     * @param fname the path to a file contianing SUO-KIF
+     * @param fname the path to a file containing SUO-KIF
      * @return an instance for accessing a Map that should have a single formula
      */
     public static SuokifVisitor parseFile(File fname) {
@@ -51,7 +51,6 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         }
         catch (IOException ex) {
             System.err.println(ex.getMessage());
-            visitor.errors.add(ex.getMessage());
         }
         return visitor;
     }
@@ -69,11 +68,9 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         SuokifVisitor visitor = new SuokifVisitor();
         visitor.parse_common(inputStream);
         Map<Integer,FormulaAST> hm = SuokifVisitor.result;
-        result = hm;
         if (hm == null || hm.values().isEmpty()) {
             String errStr = "Error in SuokifVisitor.parseString(): no results for input: "  + input;
             System.err.println(errStr);
-            visitor.errors.add(errStr);
         }
         return visitor;
     }
@@ -90,17 +87,12 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         if (debug) System.out.println(input);
         SuokifVisitor visitor = SuokifVisitor.parseString(input.getFormula());
         Map<Integer,FormulaAST> hm = SuokifVisitor.result;
-        if (hm != null && !hm.values().isEmpty()) {
+        if (hm != null && !hm.values().isEmpty())
             for (FormulaAST f : hm.values()) {
                 f.startLine = input.startLine;
                 f.endLine = input.endLine;
                 f.sourceFile = input.sourceFile;
             }
-        } else {
-            String errStr = "Error in SuokifVisitor.parseString(): no results for input: "  + input;
-            System.err.println(errStr);
-            visitor.errors.add(errStr);
-        }
         return visitor;
     }
 
