@@ -523,9 +523,8 @@ public class TPTPWriter {
     public static void translate(String[] args) {
 
         long start = System.currentTimeMillis();
-        SuokifVisitor sv = new SuokifVisitor();
         Path path = Paths.get(System.getenv("SIGMA_HOME") + File.separator + "KBs" + File.separator + "Merge.kif");
-        sv.parseFile(path.toFile());  // 1. Parsing
+        SuokifVisitor sv = SuokifVisitor.parseFile(path.toFile());  // 1. Parsing
         long end = (System.currentTimeMillis()-start)/1000;
         System.out.println("# TPTPWriter.translate(): # time to parse: " + end);
         start = System.currentTimeMillis();

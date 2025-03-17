@@ -9,6 +9,7 @@ import org.antlr.v4.runtime.tree.*;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.text.Format;
 import java.util.*;
 
 public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
@@ -30,32 +31,35 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
     /** ***************************************************************
      */
     public SuokifVisitor() {
+
         result = new HashMap<>();
         keys = new HashMap<>();
-
         errors = new TreeSet<>();
     }
 
     /** ***************************************************************
      * Parse SUO-KIF from a file
-     * @param fname the path to a file contianing SUO-KIF
+     * @param fname the path to a file containing SUO-KIF
+     * @return an instance for accessing a Map that should have a single formula
      */
-    public void parseFile(File fname) {
+    public static SuokifVisitor parseFile(File fname) {
 
         CharStream inputStream;
+        SuokifVisitor visitor = new SuokifVisitor();
         try {
             inputStream = CharStreams.fromFileName(fname.getAbsolutePath());
-            parse_common(inputStream);
+            visitor.parse_common(inputStream);
         }
         catch (IOException ex) {
             System.err.println(ex.getMessage());
-            errors.add(ex.getMessage());
         }
+        return visitor;
     }
 
     /** ***************************************************************
      * Parse a single formula and use this SuokifVisitor to process
      * as the cached information for the formula.
+     * @param input the String containing SUO-KIF to process
      * @return an instance for accessing a Map that should have a single formula
      */
     public static SuokifVisitor parseString(String input) {
@@ -63,14 +67,11 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         if (debug) System.out.println(input);
         CharStream inputStream = CharStreams.fromString(input);
         SuokifVisitor visitor = new SuokifVisitor();
-        if (visitor.parse_common(inputStream)) {
-            Map<Integer,FormulaAST> hm = SuokifVisitor.result;
-            result = hm;
-            if (hm == null || hm.values().isEmpty()) {
-                String errStr = "Error in SuokifVisitor.parseString(): no results for input: "  + input;
-                System.err.println(errStr);
-                visitor.errors.add(errStr);
-            }
+        visitor.parse_common(inputStream);
+        Map<Integer,FormulaAST> hm = SuokifVisitor.result;
+        if (hm == null || hm.values().isEmpty()) {
+            String errStr = "Error in SuokifVisitor.parseString(): no results for input: "  + Formula.textFormat(input);
+            System.err.println(errStr);
         }
         return visitor;
     }
@@ -79,37 +80,35 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
      * Parse a single formula and use this SuokifVisitor to process
      * as the cached information for the formula. Copy the formula
      * meta-data to the new formulas.
+     * @param input the Formula containing SUO-KIF to process
      * @return an instance for accessing a Map that should have a single formula
      */
-    public static SuokifVisitor parseFormula(FormulaAST input) {
+    public static SuokifVisitor parseFormula(Formula input) {
 
         if (debug) System.out.println(input);
         SuokifVisitor visitor = SuokifVisitor.parseString(input.getFormula());
-        if (visitor.errors.isEmpty()) {
-            Map<Integer,FormulaAST> hm = SuokifVisitor.result;
-            if (hm != null && !hm.values().isEmpty()) {
-                for (FormulaAST f : hm.values()) {
-                    f.startLine = input.startLine;
-                    f.endLine = input.endLine;
-                    f.sourceFile = input.sourceFile;
-                }
-            } else {
-                String errStr = "Error in SuokifVisitor.parseString(): no results for input: "  + input;
-                System.err.println(errStr);
-                visitor.errors.add(errStr);
+        Map<Integer,FormulaAST> hm = SuokifVisitor.result;
+        if (hm != null && !hm.values().isEmpty())
+            for (FormulaAST f : hm.values()) {
+                f.startLine = input.startLine;
+                f.endLine = input.endLine;
+                f.sourceFile = input.sourceFile;
             }
-        }
         return visitor;
     }
 
-    private boolean parse_common(CharStream inputStream) {
+    /** Setup the main syntax processing of SUO-KIF
+     *
+     * @param inputStream the CharStream containing SUO-KIF
+     */
+    private void parse_common(CharStream inputStream) {
 
         SuokifLexer suokifLexer = new SuokifLexer(inputStream);
         CommonTokenStream commonTokenStream = new CommonTokenStream(suokifLexer);
         SuokifParser suokifParser = new SuokifParser(commonTokenStream);
         suokifParser.removeErrorListeners();
         suokifParser.addErrorListener(new SuokifParserErrorListener());
-        SuokifParser.FileContext fileContext = null;
+        SuokifParser.FileContext fileContext;
         try {
             fileContext = suokifParser.file();
             visitFile(fileContext);
@@ -117,7 +116,6 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
             System.err.println(ex.getMessage());
             errors.add(ex.getMessage());
         }
-        return errors.isEmpty();
     }
 
     /** ***************************************************************
@@ -987,8 +985,7 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
             showHelp();
         else {
             if (args != null && args.length > 1 && args[0].equals("-f")) {
-                SuokifVisitor sv = new SuokifVisitor();
-                sv.parseFile(Paths.get(args[1]).toFile());
+                SuokifVisitor sv = SuokifVisitor.parseFile(Paths.get(args[1]).toFile());
                 Map<Integer,FormulaAST> hm = SuokifVisitor.result;
                 StringBuilder sb = new StringBuilder();
                 for (FormulaAST f : hm.values())

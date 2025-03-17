@@ -1,5 +1,7 @@
 package com.articulate.sigma.parsing;
 
+import com.articulate.sigma.Formula;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -9,16 +11,31 @@ import java.util.Map;
 /** Example App showing 3 various ways to parse SUO-KIF and show the results */
 public class SuokifApp {
 
-    public static void process(String input) {
-        SuokifVisitor.parseString(input);
+    /**
+     * Process the given SUO-KIF
+     * @param input the SUO-KIF to process
+     * @return and instance of the SuokifVisitor
+     */
+    public static SuokifVisitor process(String input) {
+        return SuokifVisitor.parseString(input);
     }
 
-    public static void process(FormulaAST fast) {
-        SuokifVisitor.parseFormula(fast);
+    /**
+     * Process the given SUO-KIF
+     * @param fast the SUO-KIF formula to process
+     * @return and instance of the SuokifVisitor
+     */
+    public static SuokifVisitor process(Formula fast) {
+        return SuokifVisitor.parseFormula(fast);
     }
 
-    public static void process(File file) {
-        new SuokifVisitor().parseFile(file);
+    /**
+     * Process the given SUO-KIF
+     * @param file the SUO-KIF file to process
+     * @return and instance of the SuokifVisitor
+     */
+    public static SuokifVisitor process(File file) {
+        return SuokifVisitor.parseFile(file);
     }
 
     private static void showResults() {
@@ -30,6 +47,11 @@ public class SuokifApp {
         System.out.println("result: " + sb);
     }
 
+    /** Command line entry point for the APP
+     *
+     * @param args comman line arguments if any
+     * @throws IOException if SUO-KIF file reading goes south
+     */
     public static void main(String[] args) throws IOException {
 
         System.out.println();

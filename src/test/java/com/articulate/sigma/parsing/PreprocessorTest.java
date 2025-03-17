@@ -30,9 +30,8 @@ public class PreprocessorTest extends IntegrationTestBase {
 
         System.out.println("===================== PreprocessorTest.test1() =====================");
         long start = System.currentTimeMillis();
-        sv = new SuokifVisitor();
         Path path = Paths.get(System.getenv("SIGMA_HOME") + File.separator + "KBs" + File.separator + "Merge.kif");
-        sv.parseFile(path.toFile());
+        sv = SuokifVisitor.parseFile(path.toFile());
         pre = new Preprocessor(KBmanager.getMgr().getKB(KBmanager.getMgr().getPref("sumokbname")));
 
         sv.hasPredVar.removeAll(sv.multiplePredVar); // remove explosive rules with multiple predicate variables
