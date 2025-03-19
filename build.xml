@@ -185,7 +185,7 @@
         <delete file="${basedir}/${app.name}.jar"/>
     </target>
 
-    <target name="update.sigmakantlr">
+    <target name="update.sigmaantlr">
         <git command="pull" dir="${user.dir}">
             <args>
                 <arg value="--progress"/>
