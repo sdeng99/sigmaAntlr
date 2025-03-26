@@ -84,7 +84,7 @@ public class SuokifApp {
                 FormulaAST fast = new FormulaAST();
                 fast.setFormula(input);
                 process(fast);
-                System.out.println("Formula, or FormulaAST input\n: " + fast);
+                System.out.println("Formula, or FormulaAST input:\n " + fast);
                 showResults();
                 System.out.println();
 
