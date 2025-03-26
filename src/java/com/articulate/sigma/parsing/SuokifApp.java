@@ -63,7 +63,7 @@ public class SuokifApp {
     /** Command line entry point for the APP
      *
      * @param args common line arguments if any
-     * @throws IOException if SUO-KIF file reading goes south
+     * @throws IOException if SUO-KIF reading goes south
      */
     public static void main(String[] args) throws IOException {
 
