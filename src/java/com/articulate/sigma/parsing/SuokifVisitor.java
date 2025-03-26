@@ -9,7 +9,6 @@ import org.antlr.v4.runtime.tree.*;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.text.Format;
 import java.util.*;
 
 public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
