@@ -71,31 +71,29 @@ public class SuokifApp {
 
         if (args != null && args.length > 0 && args[0].equals("-h"))
             showHelp();
-        else {
-            if (args != null && args.length == 1 && args[0].equals("-d")) {
-                System.out.println();
-                String input = "(likes John Mary)\n; and here's a comment\n";
-                process(input);
-                System.out.println("String input: " + input);
-                showResults();
-                System.out.println();
+        else if (args != null && args.length == 1 && args[0].equals("-d")) {
+            System.out.println();
+            String input = "(likes John Mary)\n; and here's a comment\n";
+            process(input);
+            System.out.println("String input: " + input);
+            showResults();
+            System.out.println();
 
-                input = "(=> (and (minValue ?R ?ARG ?N) (?R @ARGS) (equal ?VAL (ListOrderFn (ListFn @ARGS) ?ARG))) (greaterThan ?VAL ?N))";
-                FormulaAST fast = new FormulaAST();
-                fast.setFormula(input);
-                process(fast);
-                System.out.println("Formula, or FormulaAST input:\n " + fast);
-                showResults();
-                System.out.println();
+            input = "(=> (and (minValue ?R ?ARG ?N) (?R @ARGS) (equal ?VAL (ListOrderFn (ListFn @ARGS) ?ARG))) (greaterThan ?VAL ?N))";
+            FormulaAST fast = new FormulaAST();
+            fast.setFormula(input);
+            process(fast);
+            System.out.println("Formula, or FormulaAST input:\n " + fast);
+            showResults();
+            System.out.println();
 
-                File file = new File("testFormula.txt");
-                Path path = Paths.get(file.toURI());
-                process(path.toFile());
-                System.out.println("File input: " + path);
-                showResults();
-            }
-            else
-                showHelp();
+            File file = new File("testFormula.txt");
+            Path path = Paths.get(file.toURI());
+            process(path.toFile());
+            System.out.println("File input: " + path);
+            showResults();
         }
+        else
+            showHelp();
     }
 }
