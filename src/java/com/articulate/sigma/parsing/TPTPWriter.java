@@ -515,7 +515,7 @@ public class TPTPWriter {
         System.out.println("  h - show this help screen");
         System.out.println("  t - translate configured KB");
         System.out.println("  r - remove explosive multiple pred vars (can be combined with t)");
-        System.out.println("  f - <file> path to file to process");
+        System.out.println("    - <file> path of file to process");
     }
 
     /** ***************************************************************
