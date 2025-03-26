@@ -984,7 +984,7 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
             showHelp();
         else {
             if (args != null && args.length > 1 && args[0].equals("-f")) {
-                SuokifVisitor sv = SuokifVisitor.parseFile(Paths.get(args[1]).toFile());
+                SuokifVisitor.parseFile(Paths.get(args[1]).toFile());
                 Map<Integer,FormulaAST> hm = SuokifVisitor.result;
                 StringBuilder sb = new StringBuilder();
                 for (FormulaAST f : hm.values())
