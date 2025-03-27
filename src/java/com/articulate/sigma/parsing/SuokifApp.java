@@ -75,7 +75,7 @@ public class SuokifApp {
             System.out.println();
             String input = "(likes John Mary)\n; and here's a comment\n";
             process(input);
-            System.out.println("String input: " + input);
+            System.out.println("String input:\n" + input);
             showResults();
             System.out.println();
 
