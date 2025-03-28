@@ -69,7 +69,7 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         visitor.parse_common(inputStream);
         Map<Integer,FormulaAST> hm = SuokifVisitor.result;
         if (hm == null || hm.values().isEmpty()) {
-            String errStr = "Error in SuokifVisitor.parseString(): no results for input: "  + Formula.textFormat(input);
+            String errStr = "Error in SuokifVisitor.parseString(): no results for input:\n"  + Formula.textFormat(input);
             System.err.println(errStr);
         }
         return visitor;
