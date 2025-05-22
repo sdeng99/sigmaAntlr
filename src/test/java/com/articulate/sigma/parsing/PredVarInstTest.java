@@ -64,7 +64,7 @@ public class PredVarInstTest extends IntegrationTestBase {
         System.out.println("===================== PredVarInstTest.test1() =====================");
         String input = "(=> (and (minValue ?R ?ARG ?N) (?R @ARGS) (equal ?VAL (ListOrderFn (ListFn @ARGS) ?ARG))) (greaterThan ?VAL ?N))";
         int result = process(input);
-        assertEquals(547,result);
+        assertEquals(550,result);
     }
 
     /** ***************************************************************
@@ -129,7 +129,7 @@ public class PredVarInstTest extends IntegrationTestBase {
                 "        (ListFn @ARGS) ?ARG)))\n" +
                 "  (greaterThan ?N ?VAL))";
         int result = process(input);
-        assertEquals(547,result);
+        assertEquals(550,result);
     }
 
 
