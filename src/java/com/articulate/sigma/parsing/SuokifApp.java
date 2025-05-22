@@ -53,11 +53,17 @@ public class SuokifApp {
 
         System.out.println("SuokifApp class");
         System.out.println("  options:");
-        System.out.println("  -h - show this help screen");
         System.out.println("  -d - demo 3 various inputs to the parser");
-        System.out.println("       process(input)   - parse a string input");
-        System.out.println("       process(formula) - parse a formula");
         System.out.println("       process(fname)   - parse a file");
+        System.out.println("       process(formula) - parse a Formula/FormulaAST");
+        System.out.println("       process(input)   - parse a string input");
+        System.out.println("  -f - process(fname)   - parse a file");
+        System.out.println("       fname, path to SUOKIF file");
+        System.out.println("  -h - show this help screen");
+        System.out.println("  -i - process(input)   - parse a string input");
+        System.out.println("       input, a SUOKIF string input");
+        System.out.println("  -o - process(formula) - parse a Formula/FormulaAST");
+        System.out.println("       formula, a Formula/FormulaAST");
     }
 
     /** Command line entry point for the APP
@@ -69,9 +75,12 @@ public class SuokifApp {
 
         System.out.println("INFO in SuokifApp.main()");
 
-        if (args != null && args.length > 0 && args[0].equals("-h"))
+        if (args == null || args.length == 0)
             showHelp();
-        else if (args != null && args.length == 1 && args[0].equals("-d")) {
+
+        else if (args[0].equals("-h"))
+            showHelp();
+        else if (args.length == 1 && args[0].equals("-d")) {
             System.out.println();
             String input = "(likes John Mary)\n; and here's a comment\n";
             process(input);
@@ -80,10 +89,10 @@ public class SuokifApp {
             System.out.println();
 
             input = "(=> (and (minValue ?R ?ARG ?N) (?R @ARGS) (equal ?VAL (ListOrderFn (ListFn @ARGS) ?ARG))) (greaterThan ?VAL ?N))";
-            FormulaAST fast = new FormulaAST();
+            Formula fast = new FormulaAST();
             fast.setFormula(input);
             process(fast);
-            System.out.println("Formula, or FormulaAST input:\n " + fast);
+            System.out.println("Formula:\n " + fast);
             showResults();
             System.out.println();
 
@@ -91,6 +100,26 @@ public class SuokifApp {
             Path path = Paths.get(file.toURI());
             process(path.toFile());
             System.out.println("File input: " + path);
+            showResults();
+        }
+        else if (args.length == 2 && args[0].equals("-f")) {
+            File file = new File(args[1]);
+            Path path = Paths.get(file.toURI());
+            process(path.toFile());
+            System.out.println("File input: " + path);
+            showResults();
+        }
+        else if (args.length == 2 && args[0].equals("-i")) {
+            process(args[1]);
+            System.out.println("String input:\n" + args[1]);
+            showResults();
+            System.out.println();
+        }
+        else if (args.length == 2 && args[0].equals("-f")) {
+            Formula fast = new FormulaAST();
+            fast.setFormula(args[1]);
+            process(fast);
+            System.out.println("Formula:\n " + fast);
             showResults();
         }
         else
