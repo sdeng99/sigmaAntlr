@@ -111,6 +111,7 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         try {
             fileContext = suokifParser.file();
             visitFile(fileContext);
+            System.out.println("Successful parse, no errors");
         } catch (IllegalArgumentException ex) {
             System.err.println(ex.getMessage());
             errors.add(ex.getMessage());
