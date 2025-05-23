@@ -99,15 +99,16 @@ public class SuokifApp {
             File file = new File("testFormula.txt");
             Path path = Paths.get(file.toURI());
             process(path.toFile());
-            System.out.println("File input: " + path);
+            System.out.printf("File input: %s%n", path);
             showResults();
         }
         else if (args.length == 2 && args[0].equals("-f")) {
             File file = new File(args[1]);
             Path path = Paths.get(file.toURI());
+            System.out.printf("File input: %s%n  and size: %d%n", path, file.length());
             process(path.toFile());
-            System.out.println("File input: " + path);
-            showResults();
+            if (file.length() < 500000L) // no need to show monster files
+                showResults();
         }
         else if (args.length == 2 && args[0].equals("-i")) {
             process(args[1]);
