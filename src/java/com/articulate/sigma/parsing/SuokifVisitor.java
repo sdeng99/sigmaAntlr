@@ -115,6 +115,8 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         CommonTokenStream commonTokenStream = new CommonTokenStream(suokifLexer);
         SuokifParser suokifParser = new SuokifParser(commonTokenStream);
         suokifParser.removeErrorListeners();
+
+        // Custom listener that stops parsing on first syntax error
         suokifParser.addErrorListener(new SuokifParserErrorListener());
         SuokifParser.FileContext fileContext;
         try {
