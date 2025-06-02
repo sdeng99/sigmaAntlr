@@ -2,14 +2,14 @@ package com.articulate.sigma.parsing;
 
 import com.articulate.sigma.*;
 import com.articulate.sigma.utils.MapUtils;
+
 import java.io.File;
-
-import org.antlr.v4.runtime.*;
-import org.antlr.v4.runtime.tree.*;
-
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.*;
+
+import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.tree.*;
 
 public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
 
@@ -17,22 +17,31 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
     public static Map<Integer,FormulaAST> result = new HashMap<>();
     public static Map<String,Set<FormulaAST>> keys = new HashMap<>();
 
-    public Set<FormulaAST> hasRowVar = new HashSet<>();
-    public Set<FormulaAST> hasPredVar = new HashSet<>();
-    public Set<FormulaAST> hasNumber = new HashSet<>();
-    public Set<FormulaAST> multipleRowVar = new HashSet<>();
-    public Set<FormulaAST> multiplePredVar = new HashSet<>();
-    public Set<FormulaAST> rules = new HashSet<>();
-    public Set<FormulaAST> nonRulePredRow = new HashSet<>(); // the formulas that are not rules
-    public Set<FormulaAST> ground = new HashSet<>(); // formulas with no variables
+    public Set<FormulaAST> hasRowVar;
+    public Set<FormulaAST> hasPredVar;
+    public Set<FormulaAST> hasNumber;
+    public Set<FormulaAST> multipleRowVar;
+    public Set<FormulaAST> multiplePredVar;
+    public Set<FormulaAST> rules;
+    public Set<FormulaAST> nonRulePredRow; // the formulas that are not rules
+    public Set<FormulaAST> ground; // formulas with no variables
     public Set<String> errors;
 
     /** ***************************************************************
      */
     public SuokifVisitor() {
 
-        result = new HashMap<>();
-        keys = new HashMap<>();
+        result.clear();
+        keys.clear();
+
+        hasRowVar = new HashSet<>();
+        hasPredVar = new HashSet<>();
+        hasNumber = new HashSet<>();
+        multipleRowVar = new HashSet<>();
+        multiplePredVar = new HashSet<>();
+        rules = new HashSet<>();
+        nonRulePredRow = new HashSet<>(); // the formulas that are not rules
+        ground = new HashSet<>(); // formulas with no variables
         errors = new TreeSet<>();
     }
 
@@ -175,7 +184,7 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         FormulaAST f;
         for (ParseTree c : context.children) {
             if (debug) System.out.println("visitFile() child: " + c.getClass().getName());
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$SentenceContext")) {
+            if (c instanceof SuokifParser.SentenceContext) {
                 f = visitSentence((SuokifParser.SentenceContext) c);
                 f.parsedFormula = (SuokifParser.SentenceContext) c;
                 f.startLine = ((SuokifParser.SentenceContext) c).start.getLine();
@@ -205,7 +214,7 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
                 if (f.isGround())
                     ground.add(f);
             }
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$CommentContext")) {
+            if (c instanceof SuokifParser.CommentContext) {
                 f = visitComment((SuokifParser.CommentContext) c);
                 result.put(counter++,f);
             }
@@ -237,13 +246,13 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         for (ParseTree c : context.children) {
             f = null;
             if (debug)  System.out.println("child of sentence: " + c.getClass().getName());
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$RelsentContext"))
+            if (c instanceof SuokifParser.RelsentContext)
                 f = visitRelsent((SuokifParser.RelsentContext) c);
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$LogsentContext"))
+            if (c instanceof SuokifParser.LogsentContext)
                 f = visitLogsent((SuokifParser.LogsentContext) c);
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$QuantsentContext"))
+            if (c instanceof SuokifParser.QuantsentContext)
                 f = visitQuantsent((SuokifParser.QuantsentContext) c);
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$VariableContext"))
+            if (c instanceof SuokifParser.VariableContext)
                 f = visitVariable((SuokifParser.VariableContext) c);
             if (f != null) {
                 f.startLine = ((ParserRuleContext) c).getStart().getLine();
@@ -287,11 +296,11 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         for (ParseTree pt2 : c.children) {
             if (debug) System.out.println("isRowVarArgument(): Visiting argument: " + pt2.getText());
             if (debug) System.out.println("isRowVarArgument(): Visiting argument type: " + pt2.getClass().getName());
-            if (pt2.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$SentenceContext")) { // note the grammar has an ambiguous path where this should be term
+            if (pt2 instanceof SuokifParser.SentenceContext) { // note the grammar has an ambiguous path where this should be term
                 sc = (SuokifParser.SentenceContext) pt2;
                 if (debug) System.out.println("isRowVarArgument(): Visiting term: " + sc.getText());
                 ptv = sc.children.iterator().next();
-                if (ptv.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$TermContext")) {
+                if (ptv instanceof SuokifParser.TermContext) {
                     tc = (SuokifParser.TermContext) ptv;
                     if (tc.IDENTIFIER() != null)
                         return true;
@@ -317,11 +326,11 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         for (ParseTree pt2 : c.children) {
             if (debug) System.out.println("isRowVarArgument(): Visiting argument: " + pt2.getText());
             if (debug) System.out.println("isRowVarArgument(): Visiting argument type: " + pt2.getClass().getName());
-            if (pt2.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$SentenceContext")) { // note the grammar has an ambiguous path where this should be term
+            if (pt2 instanceof SuokifParser.SentenceContext) { // note the grammar has an ambiguous path where this should be term
                 sc = (SuokifParser.SentenceContext) pt2;
                 if (debug) System.out.println("isRowVarArgument(): Visiting sentence: " + sc.getText());
                 ptv = sc.children.iterator().next();
-                if (ptv.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$VariableContext")) {
+                if (ptv instanceof SuokifParser.VariableContext) {
                     vc = (SuokifParser.VariableContext) ptv;
                     if (debug) System.out.println("isRowVarArgument(): Visiting variable: " + vc.getText());
                     if (vc.ROWVAR() != null)
@@ -344,7 +353,7 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         for (ParseTree pt2 : c.children) {
             if (debug) System.out.println("nonTermArg(): Visiting argument: " + pt2.getText());
             if (debug) System.out.println("nonTermArg(): Visiting argument type: " + pt2.getClass().getName());
-            if (!pt2.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$VariableContext"))
+            if (!(pt2 instanceof SuokifParser.VariableContext))
                 return true;
         }
         return false;
@@ -388,7 +397,7 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         Set<SuokifParser.ArgumentContext> argAt;
         for (ParseTree c : context.children) {
             if (debug) System.out.println("child of relsent: " + c.getClass().getName());
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$VariableContext")) {
+            if (c instanceof SuokifParser.VariableContext) {
                 f = visitVariable((SuokifParser.VariableContext) c);
                 formast.mergeFormulaAST(f);
                 pred = f.getFormula();
@@ -397,7 +406,7 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
                 formast.allVarsCache.add(f.getFormula());
                 sb.append(f.getFormula()).append(" ");
             }
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$ArgumentContext")) {
+            if (c instanceof SuokifParser.ArgumentContext) {
                 ac = (SuokifParser.ArgumentContext) c;
                 f = visitArgument(ac);
                 if (debug) System.out.println("ac: " + ac.getText());
@@ -480,12 +489,12 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         FormulaAST f = null;
         for (ParseTree c : context.children) {
             if (debug) System.out.println("child of argument: " + c.getClass().getName());
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$SentenceContext")) {
+            if (c instanceof SuokifParser.SentenceContext) {
                 f = visitSentence((SuokifParser.SentenceContext) c);
                 if (nonTermArg((SuokifParser.SentenceContext) c))
                     f.higherOrder = true;
             }
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$TermContext"))
+            if (c instanceof SuokifParser.TermContext)
                 f = visitTerm((SuokifParser.TermContext) c);
         }
         if (debug) System.out.println("Visiting argument: returning with containsNumber: " + f.containsNumber);
@@ -506,17 +515,17 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         FormulaAST f = null;
          for (ParseTree c : context.children) {
              if (debug) System.out.println("visitLogsent() child: " + c.getClass().getName());
-             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$NotsentContext"))
+             if (c instanceof SuokifParser.NotsentContext)
                  f = visitNotsent((SuokifParser.NotsentContext) c);
-             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$AndsentContext"))
+             if (c instanceof SuokifParser.AndsentContext)
                  f = visitAndsent((SuokifParser.AndsentContext) c);
-             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$OrsentContext"))
+             if (c instanceof SuokifParser.OrsentContext)
                  f = visitOrsent((SuokifParser.OrsentContext) c);
-             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$ImpliesContext"))
+             if (c instanceof SuokifParser.ImpliesContext)
                  f = visitImplies((SuokifParser.ImpliesContext) c);
-             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$IffContext"))
+             if (c instanceof SuokifParser.IffContext)
                  f = visitIff((SuokifParser.IffContext) c);
-             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$EqsentContext"))
+             if (c instanceof SuokifParser.EqsentContext)
                  f = visitEqsent((SuokifParser.EqsentContext) c);
          }
          return f;
@@ -533,8 +542,8 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         if (debug) System.out.println("text: " + context.getText());
         for (ParseTree c : context.children) {
             if (debug) System.out.println("visitNotsent() child: " + c.getClass().getName());
-             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$SentenceContext"))
-                 f = visitSentence((SuokifParser.SentenceContext) c);
+            if (c instanceof SuokifParser.SentenceContext)
+                f = visitSentence((SuokifParser.SentenceContext) c);
         }
         f.setFormula("(not " + f.getFormula() + ")");
         return f;
@@ -554,7 +563,7 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         sb.append("(and ");
         for (ParseTree c : context.children) {
             if (debug) System.out.println("child of andsent: " + c.getClass().getName());
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$SentenceContext")) {
+            if (c instanceof SuokifParser.SentenceContext) {
                 f = visitSentence((SuokifParser.SentenceContext) c);
                 if (debug) System.out.println("inside visitAndsent(): rowvarstruct: " + f.rowVarStructs);
                 ar.add(f);
@@ -584,7 +593,7 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         sb.append("(or ");
         for (ParseTree c : context.children) {
             if (debug) System.out.println("visitOrsent() child: " + c.getClass().getName());
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$SentenceContext")) {
+            if (c instanceof SuokifParser.SentenceContext) {
                 f = visitSentence((SuokifParser.SentenceContext) c);
                 ar.add(f);
                 sb.append(f.getFormula()).append(" ");
@@ -610,16 +619,16 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         FormulaAST f2 = null;
         for (ParseTree c : context.children) {
             if (debug) System.out.println("visitImplies() child: " + c.getClass().getName());
-             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$SentenceContext")) {
-                 if (f1 == null) {
-                     f1 = visitSentence((SuokifParser.SentenceContext) c);
-                     f1.antecedentTerms.addAll(f1.constants.keySet());
-                 }
-                 else {
-                     f2 = visitSentence((SuokifParser.SentenceContext) c);
-                     f2.consequentTerms.addAll(f2.constants.keySet());
-                 }
-             }
+            if (c instanceof SuokifParser.SentenceContext) {
+               if (f1 == null) {
+                    f1 = visitSentence((SuokifParser.SentenceContext) c);
+                    f1.antecedentTerms.addAll(f1.constants.keySet());
+                }
+                else {
+                    f2 = visitSentence((SuokifParser.SentenceContext) c);
+                    f2.consequentTerms.addAll(f2.constants.keySet());
+                }
+            }
         }
         f1.setFormula("(=> " + f1.getFormula() + " " + f2.getFormula() + ")");
         f1.mergeFormulaAST(f2);
@@ -640,15 +649,15 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         FormulaAST f2 = null;
         for (ParseTree c : context.children) {
             if (debug) System.out.println("visitIff() child: " + c.getClass().getName());
-             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$SentenceContext")) {
-                 if (f1 == null) {  // this is a bit questionable since it makes the lexically first element the antecedent
-                     f1 = visitSentence((SuokifParser.SentenceContext) c);
-                     f1.antecedentTerms.addAll(f1.constants.keySet());
-                 }
-                 else {
-                     f2 = visitSentence((SuokifParser.SentenceContext) c);
-                     f2.consequentTerms.addAll(f2.constants.keySet());
-                 }
+             if (c instanceof SuokifParser.SentenceContext) {
+                if (f1 == null) {  // this is a bit questionable since it makes the lexically first element the antecedent
+                    f1 = visitSentence((SuokifParser.SentenceContext) c);
+                    f1.antecedentTerms.addAll(f1.constants.keySet());
+                }
+                else {
+                    f2 = visitSentence((SuokifParser.SentenceContext) c);
+                    f2.consequentTerms.addAll(f2.constants.keySet());
+                }
              }
         }
         f1.setFormula("(<=> " + f1.getFormula() + " " + f2.getFormula() + ")");
@@ -673,16 +682,16 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         SuokifParser.TermContext c2 = null;
         for (ParseTree c : context.children) {
             if (debug) System.out.println("visitEqsent() child: " + c.getClass().getName());
-             if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$TermContext")) {
-                 if (f1 == null) {
-                     f1 = visitTerm((SuokifParser.TermContext) c);
-                     c1 = (SuokifParser.TermContext) c;
-                 }
-                 else {
-                     f2 = visitTerm((SuokifParser.TermContext) c);
-                     c2 = (SuokifParser.TermContext) c;
-                 }
-             }
+            if (c instanceof SuokifParser.TermContext) {
+               if (f1 == null) {
+                    f1 = visitTerm((SuokifParser.TermContext) c);
+                    c1 = (SuokifParser.TermContext) c;
+                }
+                else {
+                    f2 = visitTerm((SuokifParser.TermContext) c);
+                    c2 = (SuokifParser.TermContext) c;
+                }
+            }
         }
         List<SuokifParser.TermContext> oneEq = new ArrayList<>();
         oneEq.add(c1);
@@ -704,10 +713,10 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         FormulaAST f = null;
         for (ParseTree c : context.children) {
             if (debug) System.out.println("visitQuantsent() child: " + c.getClass().getName());
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$ForallContext"))
+            if (c instanceof SuokifParser.ForallContext)
                f = visitForall((SuokifParser.ForallContext) c);
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$ExistsContext"))
-                f = visitExists((SuokifParser.ExistsContext) c);
+            if (c instanceof SuokifParser.ExistsContext)
+               f = visitExists((SuokifParser.ExistsContext) c);
         }
         return f;
     }
@@ -728,12 +737,12 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         if (debug) System.out.println("text: " + context.getText());
         for (ParseTree c : context.children) {
             if (debug) System.out.println("visitForall() child: " + c.getClass().getName());
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$VariableContext")) {
+            if (c instanceof SuokifParser.VariableContext) {
                 farg = visitVariable((SuokifParser.VariableContext) c);
                 quant.add(farg.getFormula());
                 varlist.append(farg.getFormula()).append(" ");
             }
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$SentenceContext")) {
+            if (c instanceof SuokifParser.SentenceContext) {
                 varlist.deleteCharAt(varlist.length()-1); // remove trailing space
                 f = visitSentence((SuokifParser.SentenceContext) c);
                 body = f.getFormula();
@@ -778,12 +787,12 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         if (debug) System.out.println("text: " + context.getText());
         for (ParseTree c : context.children) {
             if (debug) System.out.println("visitExists() child: " + c.getClass().getName());
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$VariableContext")) {
+            if (c instanceof SuokifParser.VariableContext) {
                 farg = visitVariable((SuokifParser.VariableContext) c);
                 quant.add(farg.getFormula());
                 varlist.append(farg.getFormula()).append(" ");
             }
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$SentenceContext")) {
+            if (c instanceof SuokifParser.SentenceContext) {
                 f = visitSentence((SuokifParser.SentenceContext) c);
                 body = f.getFormula();
                 if (farg != null && farg.getFormula().contains("@")) {
@@ -856,15 +865,15 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         }
         for (ParseTree c : context.children) { // there should be only one child
             if (debug) System.out.println("visitTerm() child: " + c.getClass().getName());
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$FuntermContext"))
+            if (c instanceof SuokifParser.FuntermContext)
                 f = visitFunterm((SuokifParser.FuntermContext) c);
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$VariableContext")) {
+            if (c instanceof SuokifParser.VariableContext) {
                 f = visitVariable((SuokifParser.VariableContext) c);
                 f.allVarsCache.add(f.getFormula());
             }
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$StringContext"))
+            if (c instanceof SuokifParser.StringContext)
                 f = visitString((SuokifParser.StringContext) c);
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$NumberContext")) {
+            if (c instanceof SuokifParser.NumberContext) {
                 f = visitNumber((SuokifParser.NumberContext) c);
                 f.containsNumber = true;
                 if (debug) System.out.println("visitTerm() found a number: " + c.getText());
@@ -901,7 +910,7 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         Set<SuokifParser.ArgumentContext> argAt;
         for (ParseTree c : context.children) {
             if (debug) System.out.println("visitFunterm() child: " + c.getClass().getName());
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$ArgumentContext")) {
+            if (c instanceof SuokifParser.ArgumentContext) {
                 ac = (SuokifParser.ArgumentContext) c;
                 farg = visitArgument(ac);
                 if (isRowVarArgument(ac)) {
@@ -997,4 +1006,3 @@ public class SuokifVisitor extends AbstractParseTreeVisitor<String> {
         }
     }
 }
-
