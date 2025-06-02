@@ -7,6 +7,7 @@ import org.junit.Test;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class SUOKIFCacheTest extends UnitTestBase {
 
@@ -87,13 +88,28 @@ public class SUOKIFCacheTest extends UnitTestBase {
                 "                (not\n" +
                 "                    (equal ?SYLLABLE2 ?SYLLABLE))))))";
         Map<Integer,FormulaAST> hm = process(input);
-        Formula f = hm.values().iterator().next();
+        FormulaAST f = hm.values().iterator().next();
         f.printCaches();
         String expected = "[?SYLLABLE2]";
         assertEquals(expected,f.existVarsCache.toString());
         assertEquals(expected,f.quantVarsCache.toString());
         expected = "[?WORD, ?SYLLABLE]";
         assertEquals(expected,f.unquantVarsCache.toString());
+        System.out.println();
+    }
+
+    /** ***************************************************************
+     */
+    @Test
+    public void test4() {
+
+        System.out.println("===================== SUOKIFCacheTest.test4() =====================");
+        String input = ";; I am a SUO-KIF comment";
+        Map<Integer,FormulaAST> hm = process(input);
+        FormulaAST f = hm.values().iterator().next();
+        f.printCaches();
+
+        assertTrue("Is not a comment",f.comment);
         System.out.println();
     }
 }
