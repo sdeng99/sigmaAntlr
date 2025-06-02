@@ -3,6 +3,7 @@ package com.articulate.sigma.parsing;
 import com.articulate.sigma.Formula;
 import com.articulate.sigma.KB;
 import com.articulate.sigma.utils.MapUtils;
+
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.util.*;
@@ -64,7 +65,7 @@ public class VarTypes {
             else if (kb.kbCache.isInstanceOf(ident,sigType))
                 type = kb.immediateParents(ident).iterator().next();
             else
-                System.err.println("Error in findTypeOfTerm(): signature " + sigType + " doesn't allow " + ident);
+                System.err.println("Error in Vartypes.findTypeOfTerm(): signature " + sigType + " doesn't allow " + ident);
         }
         for (ParseTree c : ((SuokifParser.TermContext) input).children) {
             switch (c.getClass().getName()) {
@@ -76,13 +77,13 @@ public class VarTypes {
                     break;
                 case "com.articulate.sigma.parsing.SuokifParser$StringContext":
                     if (!sigType.equals("SymbolicString"))
-                        System.err.println("Error in findTypeOfTerm(): signature doesn't allow string " + c.getText());
+                        System.err.println("Error in Vartypes.findTypeOfTerm(): signature doesn't allow string " + c.getText());
                     else
                         type = "SymbolicString";
                     break;
                 case "com.articulate.sigma.parsing.SuokifParser$NumberContext":
                     if (!kb.kbCache.subclassOf(sigType,"Quantity") && !sigType.equals("Quantity"))
-                        System.err.println("Error in findTypeOfTerm(): signature doesn't allow number " + c.getText());
+                        System.err.println("Error in Vartypes.findTypeOfTerm()(): signature doesn't allow number " + c.getText());
                     else {
                         if (c.getText().contains("."))
                             type = "RealNumber";
@@ -123,30 +124,30 @@ public class VarTypes {
             child2 = arg2.children.iterator().next();
             if (arg1.IDENTIFIER() != null)
                 type = findTypeOfTerm(arg1,"Entity");
-            else if (child1.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$FuntermContext")) {
+            else if (child1 instanceof SuokifParser.FuntermContext) {
                 funterm = ((SuokifParser.FuntermContext) child1).FUNWORD().toString();
                 type = kb.kbCache.getRange(funterm);
             }
-            else if (child1.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$VariableContext")) {
+            else if (child1 instanceof SuokifParser.VariableContext) {
                 var = child1.getText();
             }
-            else if (child1.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$StringContext"))
+            else if (child1 instanceof SuokifParser.StringContext)
                 type = "SymbolicString";
-            else if (child1.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$NumberContext"))
+            else if (child1 instanceof SuokifParser.NumberContext)
                 type = "Number";
 
             if (arg2.IDENTIFIER() != null)
                 type = findTypeOfTerm(arg2,"Entity");
-            else if (child2.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$FuntermContext")) {
+            else if (child2 instanceof SuokifParser.FuntermContext) {
                 funterm = ((SuokifParser.FuntermContext) child2).FUNWORD().toString();
                 type = kb.kbCache.getRange(funterm);
             }
-            else if (child2.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$VariableContext")) {
+            else if (child2 instanceof SuokifParser.VariableContext) {
                 var = child2.getText();
             }
-            else if (child2.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$StringContext"))
+            else if (child2 instanceof SuokifParser.StringContext)
                 type = "SymbolicString";
-            else if (child2.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$NumberContext"))
+            else if (child2  instanceof SuokifParser.NumberContext)
                 type = "Number";
 
             if (debug) System.out.println("findEquationType(): var&type: " + var + " : " + type);
@@ -202,19 +203,19 @@ public class VarTypes {
                 for (SuokifParser.ArgumentContext ac : args) {
                     for (ParseTree c : ac.children) {
                         if (debug) System.out.println("child: " + c.getClass().getName());
-                        if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$SentenceContext")) {
+                        if (c instanceof SuokifParser.SentenceContext) {
                             for (ParseTree c2 : ((SuokifParser.SentenceContext) c).children) {
-                                if (c2.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$RelsentContext") ||
-                                        c2.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$LogsentContext") ||
-                                        c2.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$QuantsentContext"))
+                                if (c2 instanceof SuokifParser.RelsentContext ||
+                                        c2 instanceof SuokifParser.LogsentContext ||
+                                        c2 instanceof SuokifParser.QuantsentContext)
                                     f.higherOrder = true;
-                                if (c2.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$VariableContext") &&
+                                if (c2 instanceof SuokifParser.VariableContext &&
                                         ((SuokifParser.VariableContext) c2).REGVAR() != null) {
                                     MapUtils.addToMap(f.varTypes,c2.getText(), sigTypeAtIndex);
                                 }
                             }
                         }
-                        if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$TermContext")) {
+                        if (c instanceof SuokifParser.TermContext) {
                             t = findTypeOfTerm((SuokifParser.TermContext) c, sigTypeAtIndex);
                             if (!sigTypeAtIndex.equals(t) && !kb.isSubclass(t,sigTypeAtIndex))
                                 System.err.println("Error in VarTypes.constrainVars(): arg " + c.getText() +
@@ -238,7 +239,7 @@ public class VarTypes {
         if (debug) System.out.println("VarTypes.functionSpecializationAllowed(): Checking " +
                 c.getText() + " for fit with sig " + sigTypeNoSuffix);
         if (debug) System.out.println("VarTypes.functionSpecializationAllowed(): expression type: " + c.getClass().getName());
-        if (!c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$TermContext")) {
+        if (!(c instanceof SuokifParser.TermContext)) {
             return false;
         }
         else {
@@ -249,7 +250,7 @@ public class VarTypes {
             String type = null;
             for (ParseTree firsttc : tc.children) {
                 if (debug) System.out.println("VarTypes.functionSpecializationAllowed(): firsttc expression type: " + firsttc.getClass().getName());
-                if (!firsttc.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$FuntermContext"))
+                if (!(firsttc instanceof SuokifParser.FuntermContext))
                     return false;
                 else {
                     SuokifParser.FuntermContext fc = (SuokifParser.FuntermContext) firsttc;
@@ -263,12 +264,12 @@ public class VarTypes {
                                 if (debug) System.out.println("VarTypes.functionSpecializationAllowed(): argnum: " + argnum);
                                 if (debug) System.out.println("VarTypes.functionSpecializationAllowed(): ptc expression type: " + ptc.getClass().getName());
                                 if (debug) System.out.println("VarTypes.functionSpecializationAllowed(): ptc: " + ptc.getText());
-                                if (ptc.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$ArgumentContext")) {
+                                if (ptc instanceof SuokifParser.ArgumentContext) {
                                     ac = (SuokifParser.ArgumentContext) ptc;
                                     for (ParseTree ptc2 : ac.children) {
                                         if (debug) System.out.println("VarTypes.functionSpecializationAllowed(): ptc2 expression type: " + ptc2.getClass().getName());
                                         if (debug) System.out.println("VarTypes.functionSpecializationAllowed(): ptc2: " + ptc2.getText());
-                                        if (argnum == 4 && ptc2.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$TermContext")) {
+                                        if (argnum == 4 && ptc2 instanceof SuokifParser.TermContext) {
                                             othertc = (SuokifParser.TermContext) ptc2;
                                             if (othertc.IDENTIFIER() != null) {
                                                 type = othertc.IDENTIFIER().getText();
@@ -323,7 +324,7 @@ public class VarTypes {
             as = f.constants.get(c);
             if (kb.kbCache.relations.contains(c)) {
                 newc = c + "__m";
-                as.literal.replace(" " +  c," " + newc);
+                as.literal = as.literal.replace(" " +  c, " " + newc);
             }
         }
     }
@@ -392,10 +393,10 @@ public class VarTypes {
                 }
                 else {
                     System.err.println("Error in VarTypes.findType(): mismatched argument type lists:");
-                    System.out.println("VarTypes.findType():relation: " + pred);
-                    System.out.println("VarTypes.findType(): argsForIndex: " + sb.toString());
-                    System.out.println("VarTypes.findType(): sig: " + sig);
-                    System.out.println("VarTypes.findType():line and file: " + f.sourceFile + " " + f.startLine);
+                    System.err.println("VarTypes.findType(): relation: " + pred);
+                    System.err.println("VarTypes.findType(): argsForIndex: " + sb.toString());
+                    System.err.println("VarTypes.findType(): sig: " + sig);
+                    System.err.println("VarTypes.findType(): line and file: " + f.sourceFile + " " + f.startLine);
                 }
             }
             else {
@@ -412,19 +413,19 @@ public class VarTypes {
                     for (SuokifParser.ArgumentContext ac : args) {
                         for (ParseTree c : ac.children) {
                             if (debug) System.out.println("child: " + c.getClass().getName());
-                            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$SentenceContext")) {
+                            if (c instanceof SuokifParser.SentenceContext) {
                                 for (ParseTree c2 : ((SuokifParser.SentenceContext) c).children) {
-                                    if (c2.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$RelsentContext") ||
-                                            c2.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$LogsentContext") ||
-                                            c2.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$QuantsentContext"))
+                                    if (c2 instanceof SuokifParser.RelsentContext ||
+                                            c2 instanceof SuokifParser.LogsentContext ||
+                                            c2 instanceof SuokifParser.QuantsentContext)
                                         f.higherOrder = true;
-                                    if (c2.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$VariableContext") &&
+                                    if (c2 instanceof SuokifParser.VariableContext &&
                                             ((SuokifParser.VariableContext) c2).REGVAR() != null) {
                                         MapUtils.addToMap(f.varTypes,c2.getText(), sigTypeAtIndex);
                                     }
                                 }
                             }
-                            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$TermContext")) {
+                            if (c instanceof SuokifParser.TermContext) {
                                 t = findTypeOfTerm((SuokifParser.TermContext) c, sigTypeAtIndex); // the type of the argument
                                 if (kb.isInstance(c.getText())) {
                                     if (!kb.kbCache.isInstanceOf(c.getText(),sigTypeAtIndex))
@@ -441,7 +442,7 @@ public class VarTypes {
                                         tNoSuffix = t.substring(0,t.length()-1); // remove the trailing '+'
                                     if (!sigTypeNoSuffix.equals(c.getText()) && !kb.isSubclass(tNoSuffix, sigTypeNoSuffix) && !sigTypeNoSuffix.equals("SetOrClass") )
                                         if (!functionSpecializationAllowed(c,sigTypeNoSuffix))
-                                            System.out.println("warning in VarTypes.findType(): arg " + c.getText() + " of type " + tNoSuffix +
+                                            System.out.println("Warning in VarTypes.findType(): arg " + c.getText() + " of type " + tNoSuffix +
                                                 " may not be allowed as argument " + i + " to relation " + pred + " in formula " + f +
                                                 " that requires " + sigTypeNoSuffix);
                                 }

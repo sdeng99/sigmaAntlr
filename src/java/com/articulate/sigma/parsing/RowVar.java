@@ -72,7 +72,6 @@ public class RowVar {
                     fnSuffix = "Fn";
                     if (!pred.endsWith("Fn"))
                         fnSuffix = "";
-                    predArity = i-1;
                     if (debug) System.out.println("expandVariableArityRowVar(): literal arity: " + rs.arity);
                     if (debug) System.out.println("expandVariableArityRowVar(): i: " + i);
                     if (rs.arity > 1)

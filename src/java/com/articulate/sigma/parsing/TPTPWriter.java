@@ -32,10 +32,10 @@ public class TPTPWriter {
 //        FormulaAST f = null;
         for (ParseTree c : context.children) {
             if (debug) System.out.println("visitFile() child: " + c.getClass().getName());
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$SentenceContext")) {
+            if (c instanceof SuokifParser.SentenceContext) {
                 sb.append(visitSentence((SuokifParser.SentenceContext) c));
             }
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$CommentContext")) {
+            if (c instanceof SuokifParser.CommentContext) {
                 sb.append("# ").append(visitComment((SuokifParser.CommentContext) c));
             }
         }
@@ -109,10 +109,10 @@ public class TPTPWriter {
         SuokifParser.ArgumentContext ac;
         for (ParseTree c : context.children) {
             if (debug) System.out.println("child of relsent: " + c.getClass().getName());
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$VariableContext")) {
+            if (c instanceof SuokifParser.VariableContext) {
                 sb.append(visitVariable((SuokifParser.VariableContext) c)).append(",");
             }
-            else if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$ArgumentContext")) {
+            else if (c instanceof SuokifParser.ArgumentContext) {
                 ac = (SuokifParser.ArgumentContext) c;
                 if (Preprocessor.kb.kbCache.relations.contains(ac.getText()))
                     sb.append(visitArgument(ac)).append("__m,");
@@ -134,14 +134,14 @@ public class TPTPWriter {
         if (debug) System.out.println("Visiting argument: " + context.getText());
         if (debug) System.out.println("# children: " + context.children.size());
         if (context.children.size() != 1)
-            System.err.println("Error in visitArgument() wrong # children: " + context.children.size());
+            System.err.println("Error in TPTPWriter.visitArgument() wrong # children: " + context.children.size());
         if (debug) System.out.println("text: " + context.getText());
         for (ParseTree c : context.children) {
             if (debug) System.out.println("child of argument: " + c.getClass().getName());
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$SentenceContext")) {
+            if (c instanceof SuokifParser.SentenceContext) {
                 return visitSentence((SuokifParser.SentenceContext) c);
             }
-            else if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$TermContext"))
+            else if (c instanceof SuokifParser.TermContext)
                 return visitTerm((SuokifParser.TermContext) c);
         }
         return null;
@@ -155,7 +155,7 @@ public class TPTPWriter {
         if (debug) System.out.println("Visiting logsent: " + context.getText());
         if (debug) System.out.println("# children: " + context.children.size());
         if (context.children.size() != 1)
-            System.err.println("Error in visitLogsent() wrong # children: " + context.children.size());
+            System.err.println("Error in TPTPWriter.visitLogsent() wrong # children: " + context.children.size());
         if (debug) System.out.println("text: " + context.getText());
         for (ParseTree c : context.children) {
             if (debug) System.out.println("visitLogsent() child: " + c.getClass().getName());
@@ -190,7 +190,7 @@ public class TPTPWriter {
         if (debug) System.out.println("text: " + context.getText());
         for (ParseTree c : context.children) {
             if (debug) System.out.println("visitNotsent() child: " + c.getClass().getName());
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$SentenceContext"))
+            if (c instanceof SuokifParser.SentenceContext)
                 f = visitSentence((SuokifParser.SentenceContext) c);
         }
         return "~(" + f + ")";
@@ -209,7 +209,7 @@ public class TPTPWriter {
         sb.append("( ");
         for (ParseTree c : context.children) {
             if (debug) System.out.println("child of andsent: " + c.getClass().getName());
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$SentenceContext")) {
+            if (c instanceof SuokifParser.SentenceContext) {
                 sb.append(visitSentence((SuokifParser.SentenceContext) c)).append(" & ");
             }
         }
@@ -230,7 +230,7 @@ public class TPTPWriter {
         sb.append("(");
         for (ParseTree c : context.children) {
             if (debug) System.out.println("visitOrsent() child: " + c.getClass().getName());
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$SentenceContext")) {
+            if (c instanceof SuokifParser.SentenceContext) {
                 sb.append(visitSentence((SuokifParser.SentenceContext) c)).append(" | ");
             }
         }
@@ -252,7 +252,7 @@ public class TPTPWriter {
         String f2 = null;
         for (ParseTree c : context.children) {
             if (debug) System.out.println("visitImplies() child: " + c.getClass().getName());
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$SentenceContext")) {
+            if (c instanceof SuokifParser.SentenceContext) {
                 if (f1 == null) {
                     f1 = visitSentence((SuokifParser.SentenceContext) c);
                 }
@@ -276,7 +276,7 @@ public class TPTPWriter {
         String f2 = null;
         for (ParseTree c : context.children) {
             if (debug) System.out.println("visitIff() child: " + c.getClass().getName());
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$SentenceContext")) {
+            if (c instanceof SuokifParser.SentenceContext) {
                 if (f1 == null) {  // this is a bit questionable since it makes the lexically first element the antecedent
                     f1 = visitSentence((SuokifParser.SentenceContext) c);
                 }
@@ -302,7 +302,7 @@ public class TPTPWriter {
         String f2 = null;
         for (ParseTree c : context.children) {
             if (debug) System.out.println("visitEqsent() child: " + c.getClass().getName());
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$TermContext")) {
+            if (c instanceof SuokifParser.TermContext) {
                 if (f1 == null) {
                     f1 = visitTerm((SuokifParser.TermContext) c);
                 }
@@ -325,9 +325,9 @@ public class TPTPWriter {
 //        FormulaAST f = null;
         for (ParseTree c : context.children) {
             if (debug) System.out.println("visitQuantsent() child: " + c.getClass().getName());
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$ForallContext"))
+            if (c instanceof SuokifParser.ForallContext)
                 return visitForall((SuokifParser.ForallContext) c);
-            else if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$ExistsContext"))
+            else if (c instanceof SuokifParser.ExistsContext)
                 return visitExists((SuokifParser.ExistsContext) c);
         }
         return null;
@@ -346,11 +346,11 @@ public class TPTPWriter {
         if (debug) System.out.println("text: " + context.getText());
         for (ParseTree c : context.children) {
             if (debug) System.out.println("visitForall() child: " + c.getClass().getName());
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$VariableContext")) {
+            if (c instanceof SuokifParser.VariableContext) {
                 farg = visitVariable((SuokifParser.VariableContext) c);
                 varlist.append(farg).append(", ");
             }
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$SentenceContext")) {
+            if (c instanceof SuokifParser.SentenceContext) {
                 body = visitSentence((SuokifParser.SentenceContext) c);
             }
         }
@@ -372,11 +372,11 @@ public class TPTPWriter {
         if (debug) System.out.println("text: " + context.getText());
         for (ParseTree c : context.children) {
             if (debug) System.out.println("visitExists() child: " + c.getClass().getName());
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$VariableContext")) {
+            if (c instanceof SuokifParser.VariableContext) {
                 farg = visitVariable((SuokifParser.VariableContext) c);
                 varlist.append(farg).append(", ");
             }
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$SentenceContext")) {
+            if (c instanceof SuokifParser.SentenceContext) {
                 body = visitSentence((SuokifParser.SentenceContext) c);
             }
         }
@@ -411,7 +411,7 @@ public class TPTPWriter {
         if (debug) System.out.println("visitTerm() Visiting Term: " + context.getText());
         if (debug) System.out.println("visitTerm() # children: " + context.children.size());
         if (context.children.size() != 1)
-            System.err.println("Error in visitTerm() wrong # children: " + context.children.size());
+            System.err.println("Error in TPTPWriter.visitTerm() wrong # children: " + context.children.size());
         if (debug) System.out.println("visitTerm() text: " + context.getText());
         if (context.IDENTIFIER() != null) {
             String ident = context.IDENTIFIER().toString();
@@ -465,7 +465,7 @@ public class TPTPWriter {
         SuokifParser.ArgumentContext ac;
         for (ParseTree c : context.children) {
             if (debug) System.out.println("visitFunterm() child: " + c.getClass().getName());
-            if (c.getClass().getName().equals("com.articulate.sigma.parsing.SuokifParser$ArgumentContext")) {
+            if (c instanceof SuokifParser.ArgumentContext) {
                 ac = (SuokifParser.ArgumentContext) c;
                 if (Preprocessor.kb.kbCache.relations.contains(ac.getText()))
                     sb.append(visitArgument(ac)).append("__m,");

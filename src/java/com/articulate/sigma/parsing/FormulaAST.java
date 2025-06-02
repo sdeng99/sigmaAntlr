@@ -295,10 +295,15 @@ public class FormulaAST extends Formula {
         public String literal = "";
         public String constant = "";
         public int argPos = -1;
+        private StringBuilder sb;
+
+        public ArgStruct() {
+            sb = new StringBuilder();
+        }
 
         @Override
         public String toString() {
-            StringBuilder sb = new StringBuilder();
+            sb.setLength(0);
             sb.append(pred).append(":").append(constant).append("::").append(argPos).append(":").append(literal);
             return sb.toString();
         }
@@ -309,21 +314,26 @@ public class FormulaAST extends Formula {
      * in which they appear
      */
     public class RowStruct {
-        public RowStruct() {}
+        public String rowvar = "";
+        public String pred = "";
+        public String literal = "";
+        public int arity = 0; // number of actual arguments in the literal
+        private StringBuilder sb;
+
+        public RowStruct() {
+            sb = new StringBuilder();
+        }
         public RowStruct(RowStruct rs) {
+            this();
             this.rowvar = rs.rowvar;
             this.pred = rs.pred;
             this.literal = rs.literal;
             this.arity = rs.arity;
         }
-        public String rowvar = "";
-        public String pred = "";
-        public String literal = "";
-        public int arity = 0; // number of actual arguments in the literal
 
         @Override
         public String toString() {
-            StringBuilder sb = new StringBuilder();
+            sb.setLength(0);
             sb.append(pred).append(":").append(rowvar).append(":").append(literal);
             return sb.toString();
         }
