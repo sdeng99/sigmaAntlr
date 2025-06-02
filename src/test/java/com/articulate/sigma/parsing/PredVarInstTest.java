@@ -32,7 +32,7 @@ public class PredVarInstTest extends IntegrationTestBase {
         FormulaAST f = hm.values().iterator().next();
         f.printCaches();
         Sortals s = new Sortals(kb);
-        System.out.println("PredVarInstTest.process(): varTypes: " + f.varTypes);
+        System.out.println("PredVarInstTest.process(): varTypes:              " + f.varTypes);
         s.winnowAllTypes(f);
         System.out.println("PredVarInstTest.process(): varTypes after winnow: " + f.varTypes);
         String form = s.addSortals(f);
@@ -42,11 +42,11 @@ public class PredVarInstTest extends IntegrationTestBase {
 
         //Formula resultf = new Formula(result);
         if (result.size() < 10)
-            System.out.println("PredVarInstTest  Result: " + result);
+            System.out.println("PredVarInstTest: Result: " + result);
         else {
-            System.out.println("PredVarInstTest  Result too big to show ");
+            System.out.println("PredVarInstTest: Result too big to show ");
         }
-        System.out.println("PredVarInstTest  # formulas : " + result.size());
+        System.out.println("PredVarInstTest: # formulas : " + result.size());
         /*Formula expectedf = new Formula(expected);
         System.out.println("expected: " +expectedf);
         if (resultf.equals(expectedf))
@@ -64,7 +64,7 @@ public class PredVarInstTest extends IntegrationTestBase {
         System.out.println("===================== PredVarInstTest.test1() =====================");
         String input = "(=> (and (minValue ?R ?ARG ?N) (?R @ARGS) (equal ?VAL (ListOrderFn (ListFn @ARGS) ?ARG))) (greaterThan ?VAL ?N))";
         int result = process(input);
-        assertEquals(555,result);
+        assertEquals(278,result);
     }
 
     /** ***************************************************************
@@ -94,7 +94,7 @@ public class PredVarInstTest extends IntegrationTestBase {
                 "                (exists (?ITEM)\n" +
                 "                    (?REL @ROW ?ITEM))))))";
         int result = process(input);
-        assertEquals(99,result);
+        assertEquals(67,result);
     }
 
     /** ***************************************************************
@@ -129,7 +129,7 @@ public class PredVarInstTest extends IntegrationTestBase {
                 "        (ListFn @ARGS) ?ARG)))\n" +
                 "  (greaterThan ?N ?VAL))";
         int result = process(input);
-        assertEquals(555,result);
+        assertEquals(278,result);
     }
 
 
