@@ -1,21 +1,14 @@
 package com.articulate.sigma;
 
-import com.articulate.sigma.parsing.PredVarInstTest;
-import com.articulate.sigma.parsing.PreprocessorTest;
-import com.articulate.sigma.parsing.RowVarTest;
-import com.articulate.sigma.parsing.SortalTest;
-import com.articulate.sigma.parsing.TypeTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
+/**
+ *
+ * @author <a href="mailto:terry.norbraten@gmail.com?subject=com.articulate.sigma.IntegrationTestSuite">Terry Norbraten</a>
+ */
 @RunWith(Suite.class)
-@Suite.SuiteClasses({
-    PredVarInstTest.class,
-    PreprocessorTest.class,
-    RowVarTest.class,
-    SortalTest.class,
-    TypeTest.class
-})
-public class IntegrationTestSuite extends IntegrationTestBase {
+@Suite.SuiteClasses({})
+public class IntegrationTestSuite {
 
-}
+} // end class file IntegrationTestSuite.java

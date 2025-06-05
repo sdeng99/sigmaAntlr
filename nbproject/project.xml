@@ -16,10 +16,11 @@ auxiliary.show.customizer.message=<message>
             <properties>
                 <property-file>nbproject/private/private.properties</property-file>
                 <property-file>nbproject/project.properties</property-file>
+                <property name="ant.script">${buildfile}</property>
             </properties>
             <folders>
                 <source-folder>
-                    <label>SigmaAntlr</label>
+                    <label>${app.name}</label>
                     <location>.</location>
                     <encoding>UTF-8</encoding>
                 </source-folder>
