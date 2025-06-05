@@ -39,11 +39,6 @@
         <echo message="Java Version via Ant:     ${ant.java.version}"/>
         <echo message="Java Version System Prop: ${java.version}"/>
 
-        <ant antfile="../sigmakee/nbproject/ide-targets.xml" inheritAll="false" target="all" />
-        <copy todir="${basedir}/lib" file="${sigma_src}/build/sigmakee.jar" />
-        <copy todir="${basedir}/lib" file="${sigma_src}/lib/sigmaUtils.jar" />
-        <copy todir="${basedir}/lib" file="${sigma_src}/lib/tptp.jar" />
-
         <tstamp>
             <format property="TODAY_US" pattern="EEE, d MMM yyyy HHmm Z" locale="en,US"/>
         </tstamp>

@@ -83,7 +83,6 @@
     <property name="run.jvmargs" value="-Xmx10g -Xss1m"/>
 
     <path id="sourcepath">
-        <pathelement path="src/java"/>
         <pathelement path="src/java/com/articulate/sigma"/>
     </path>
 
@@ -91,6 +90,7 @@
         <pathelement path="${test.unit.dir}/com/articulate/sigma"/>
     </path>
 
+    <available file="${java.home}/bin/javac" property="javac.present"/>
     <target name="init" depends="init-ivy">
         <condition property="jdk21+">
             <javaversion atleast="21"/>
@@ -98,11 +98,8 @@
         <fail message="Unsupported JDK version: ${ant.java.version}. Please use a Java Development Kit (JDK) version 21 or greater."
               unless="jdk21+">
         </fail>
-        <condition property="nojdk">
-            <contains string="${java.home}" substring="jdk"/>
-        </condition>
         <fail message="Please install a Java Development Kit (JDK) version 21 or greater."
-              unless="nojdk">
+              unless="javac.present">
         </fail>
 
         <echo message="CATALINA_HOME is set to = ${env.CATALINA_HOME}"/>
@@ -113,11 +110,6 @@
         <echo>Java Version System Prop: ${java.version}</echo>
         <pathconvert property="classpathInName" refid="compile.classpath" />
         <echo>Classpath is ${classpathInName}</echo>
-
-        <ant antfile="../sigmakee/build.xml" inheritAll="false" target="all" />
-        <copy todir="${basedir}/lib" file="${sigmakee.home}/build/sigmakee.jar" />
-        <copy todir="${basedir}/lib" file="${sigmakee.home}/lib/sigmaUtils.jar" />
-        <copy todir="${basedir}/lib" file="${sigmakee.home}/lib/tptp.jar" />
     </target>
 
     <!--
@@ -150,6 +142,7 @@
                release="${javac.release}">
             <src refid="test.sourcepath"/>
         </javac>
+        <copy todir="${build.test.classes}" file="src/test/resources/testFormula.txt"/>
         <mkdir dir="${reports.dir}"/>
     </target>
 
@@ -230,9 +223,6 @@
         </junit>
         <antcall target="junit.report"/>
     </target>
-    <!-- Make sure the ~/.sigmakee/KBs/config.xml only has top and mid loaded
-         before running integration tests.
-    -->
     <target name="test.integration" depends="compile.test" description="Runs the IntegrationTestSuite">
         <junit printsummary="yes"
                showoutput="yes"
