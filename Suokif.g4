@@ -22,7 +22,7 @@ FUNWORD : LETTER WORDCHAR* 'Fn';
 relsent : ('(' IDENTIFIER argument+ ')') | ('(' variable argument+ ')')  ;
 
 argument : (sentence | term) ;
-term : (funterm | variable | string | number | FUNWORD | IDENTIFIER ) ;
+term : (funterm | variable | string | number | FUNWORD | IDENTIFIER) ;
 IDENTIFIER : LETTER WORDCHAR* ;
 
 NUMBER : '-'? DIGIT+ ([.,] DIGIT+)? EXPONENT? ;
@@ -31,16 +31,19 @@ number : NUMBER ;
 WORDCHAR : (LETTER | DIGIT | '-' | '_') ;
 
 STRING : '"' ~('"')+ '"' ;
-string: STRING ;
+string : STRING ;
 
-COMMENT : ';' ~( '\r' | '\n' )* ;
+//COMMENT : ';' ~('\r' | '\n')* ;
+COMMENT : ';' ~('\r' | '\n')* -> skip ;
 comment : COMMENT ;
 
-REGVAR : '?' [a-zA-Z0-9]+ ;
-ROWVAR : '@' [a-zA-Z0-9]+ ;
+//REGVAR : '?' [a-zA-Z0-9]+ ;
+REGVAR : '?' WORDCHAR+ ;
+//ROWVAR : '@' [a-zA-Z0-9]+ ;
+ROWVAR : '@' WORDCHAR+ ;
 variable : (REGVAR | ROWVAR) ;
 
 EXPONENT : 'e' '-'? DIGIT+ ;
-LETTER  : [A-Za-z] ;
+LETTER : [A-Za-z] ;
 DIGIT : [0-9] ;
 WHITESPACE : [ \n\t\r]+ -> skip ;
