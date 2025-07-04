@@ -305,7 +305,12 @@
     =========
     -->
 
-    <target name="gen.suokif.grammar" description="Generates the Suokif grammar based on the ${grammar.file}">
+    <target name="regen.suokif.parser" description="Regenerates the Suokif parser based on the current ${grammar.file}">
+        <delete>
+            <fileset dir="${src.dir}/com/articulate/sigma/parsing">
+                <exclude name="SuokifParserErrorListener.java"/>
+            </fileset>
+        </delete>
         <java classname="org.antlr.v4.Tool"
               fork="true">
             <classpath>
@@ -322,6 +327,7 @@
                 <include name="*.tokens"/>
             </fileset>
         </delete>
+        <antcall target="dist"/>
     </target>
 
 </project>
