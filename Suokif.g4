@@ -8,11 +8,12 @@ quantsent : (forall | exists) ;
 exists : '(' 'exists' '(' variable+ ')' sentence ')' ;
 forall : '(' 'forall' '(' variable+ ')' sentence ')' ;
 
-logsent :  (notsent | andsent | orsent | implies | iff | eqsent) ;
+logsent :  (notsent | andsent | orsent | xorsent | implies | iff | eqsent) ;
 iff : '(' '<=>' sentence sentence ')' ;
 implies :  '(' '=>' sentence sentence ')' ;
 andsent : '(' 'and' sentence sentence+ ')' ;
 orsent : '(' 'or' sentence sentence+ ')' ;
+xorsent : '(' 'xor' sentence sentence+ ')' ;
 notsent : '(' 'not' sentence ')' ;
 eqsent : '(' 'equal' term term ')' ;
 

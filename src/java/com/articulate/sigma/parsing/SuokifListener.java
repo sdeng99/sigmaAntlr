@@ -108,6 +108,16 @@ public interface SuokifListener extends ParseTreeListener {
 	 */
 	void exitOrsent(SuokifParser.OrsentContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link SuokifParser#xorsent}.
+	 * @param ctx the parse tree
+	 */
+	void enterXorsent(SuokifParser.XorsentContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SuokifParser#xorsent}.
+	 * @param ctx the parse tree
+	 */
+	void exitXorsent(SuokifParser.XorsentContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link SuokifParser#notsent}.
 	 * @param ctx the parse tree
 	 */
