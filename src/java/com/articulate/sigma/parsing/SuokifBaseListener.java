@@ -136,6 +136,18 @@ public class SuokifBaseListener implements SuokifListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterXorsent(SuokifParser.XorsentContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitXorsent(SuokifParser.XorsentContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterNotsent(SuokifParser.NotsentContext ctx) { }
 	/**
 	 * {@inheritDoc}
