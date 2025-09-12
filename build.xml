@@ -69,7 +69,7 @@
     <property environment="env"/>
     <property name="tomcat.home" value="${env.CATALINA_HOME}"/>
     <property name="sigmakee.home" value="${env.SIGMA_SRC}" />
-    <property name="git.home" value="${env.ONTOLOGYPPORTAL_GIT}"/>
+    <property name="git.home" value="${env.ONTOLOGYPORTAL_GIT}"/>
     <property name="kbs.home" value="${git.home}/sumo"/>
     <property name="javadoc.home" value="doc/api"/>
     <property name="build.javadoc" value="${build.home}/${javadoc.home}"/>
@@ -103,9 +103,9 @@
         </fail>
 
         <echo message="CATALINA_HOME is set to = ${env.CATALINA_HOME}"/>
-        <echo message="SIGMA_HOME is set to = ${env.SIGMA_HOME}"/>
-        <echo message="SIGMA_SRC is set to = ${env.SIGMA_SRC}"/>
-        <echo message="KBs_HOME is set to = ${kbs.home}" />
+        <echo message="SIGMA_HOME    is set to = ${env.SIGMA_HOME}"/>
+        <echo message="SIGMA_SRC     is set to = ${env.SIGMA_SRC}"/>
+        <echo message="KBs_HOME      is set to = ${kbs.home}" />
         <echo>Java Version via Ant: ${ant.java.version}</echo>
         <echo>Java Version System Prop: ${java.version}</echo>
         <pathconvert property="classpathInName" refid="compile.classpath" />
